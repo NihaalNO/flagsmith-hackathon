@@ -19,7 +19,7 @@ truth for actual flag configuration.**
 ```bash
 cd apps/api
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-engine.txt   # or requirements.txt to run without the lifecycle engine
 cp .env.example .env          # then fill in DATABASE_URL (ask the backend owner)
 alembic upgrade head          # apply migrations
 uvicorn app.main:app --reload # http://localhost:8000/docs
@@ -99,6 +99,9 @@ Interactive docs: `/docs` (Swagger) and `/redoc`. Machine-readable schema: `/ope
 | GET | `/api/integrations/{id}/flagsmith/projects/{pid}/environments` | Environments (`id`, `name`, `api_key`) |
 | POST | `/api/integrations/{id}/sync` | Import/update flags from `config.project_id` → `{created, linked, updated, unchanged, conflicts, missing_in_flagsmith}` |
 | GET | `/api/audit-logs?resource_type=&resource_id=&limit=` | Audit trail, newest first |
+| POST | `/api/flags/{id}/analysis` | Run the lifecycle engine on the flag's repos → 201 with stored result (see below); 400 no connected repo, 502 GitHub, 503 engine not installed |
+| GET | `/api/flags/{id}/analysis` | Latest stored analysis → 404 if never analyzed |
+| GET | `/api/flags/{id}/analyses` | Analysis history (summaries, newest first) |
 
 ### Flag lifecycle
 
@@ -141,6 +144,34 @@ API tokens are encrypted with `ENCRYPTION_KEY` (Fernet) and never returned by th
 - Every table has Row Level Security enabled with no policies, so Supabase's public REST API
   (anon key) cannot read it. **New tables must enable RLS in their migration too.**
 - Schema changes: edit models → `alembic revision --autogenerate -m "..."` → review → `alembic upgrade head`.
+
+## Lifecycle engine analysis
+
+`POST /api/flags/{id}/analysis` (body optional: `{"use_llm": false}`) downloads the default branch of
+the repositories linked to the flag's Flagsmith project (all GitHub-connected repos if the flag has no
+project), runs the lifecycle engine in `services/lifecycle-engine`, and stores the result in
+`flag_analyses`. The response has summary fields (`stale_status`, `stale_confidence`,
+`cleanup_direction`, `suggested_state`, `recommended_action`, reference counts, `llm_status`) and
+`result` with the full engine output: `analysis` (SDK-aware references, branches, related code and
+tests), `stale_finding` (evidence for/against, missing evidence, blockers), `lifecycle_evaluation`
+(suggested state and what each next transition still needs), `cleanup_plan`, and `patch` (only when
+the flag is ready for cleanup). Field guide: `services/lifecycle-engine/docs/api-contract.md`.
+
+Everything returned is a recommendation. Running an analysis never changes the flag, its lifecycle
+status, Flagsmith or any repository.
+
+- **Install:** `pip install -r requirements-engine.txt`. The engine is imported lazily, so without it
+  the API runs normally and only these endpoints answer 503. Vercel installs `requirements.txt`, so
+  **the deployed API has no engine yet**; shipping it there needs a decision (a git dependency on
+  `services/lifecycle-engine`, or including it in the build).
+- **Evidence the backend can supply today is thin:** one synced environment's on/off state (counted
+  as production only if its name is in `PRODUCTION_ENVIRONMENT_NAMES`), the flag row's creation date
+  instead of Flagsmith's, no change history, analytics, tags or owner confirmations. Expect
+  `insufficient_evidence` / `not_stale` with a list of missing evidence rather than cleanup
+  recommendations until sync collects more.
+- **LLM narrative:** set `FLAGPILOT_LLM_PROVIDER` (`anthropic`, `claude-code` for local use, or `mock`).
+  Unset means a deterministic narrative.
+- Runs synchronously in the request, like repository scans; very large repos may hit Vercel's time limit.
 
 ## Not built yet
 

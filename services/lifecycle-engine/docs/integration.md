@@ -56,9 +56,15 @@ Dynamic references have no `flag_name` and need a nullable `flag_id` or a separa
 
 ## Needs agreement with Member 1 (backend)
 
-1. **Mounting** — proposed: `app.include_router(create_router(EngineService(settings, llm)), prefix="/api/v1/engine")`.
-   Alternatively call `EngineService` methods directly from Member 1's own routes; either way,
-   avoid two sets of routes for the same operation.
+1. **Mounting** — done as backend endpoints rather than mounting the engine's own router:
+   `POST/GET /api/flags/{id}/analysis` and `GET /api/flags/{id}/analyses` in
+   `apps/api/app/api/routes/analysis.py`, behind the backend's auth and workspace isolation, with
+   results stored in `flag_analyses` (migration `5c2e8d4a1f07`). `apps/api/app/services/engine.py`
+   is the only backend module that imports the engine, lazily. Patch generation is reachable
+   through the plan (only when a flag is ready for cleanup); verification is **not** exposed by the
+   backend, because it runs repository test scripts on the host and needs a sandbox first.
+   Still open: packaging the engine for the Vercel deploy (it installs `requirements.txt`, which does
+   not include the engine; `requirements-engine.txt` does).
 2. **Repository checkouts** — the engine takes `RepositoryTarget{repository, root_path}`. The
    GitHub App integration downloads tarballs; `tarball_checkout` turns one into a temporary
    target (safe extraction: regular files only, no links or `..` paths, size limits). When the
@@ -84,8 +90,10 @@ Dynamic references have no `flag_name` and need a nullable `flag_id` or a separa
 7. **Verification commands** — configure `EngineSettings.server_commands` per repository
    (e.g. `npm ci && npm test`, `npx tsc --noEmit`). Request-supplied commands stay disabled.
    Run verification in a worker (it can take minutes).
-8. **LLM provider** — pass `AnthropicProvider()` (or another `LLMProvider`) to `EngineService`;
-   `None` keeps planning deterministic. Credentials are read by the SDK from the environment.
+8. **LLM provider** — pass `AnthropicProvider()`, `ClaudeCodeProvider()` or another `LLMProvider`
+   to `EngineService`; `None` keeps planning deterministic. The Claude Code provider needs the
+   `claude` CLI installed and signed in on the machine that runs planning (fine for local/dev; a
+   serverless deploy such as Vercel should use the SDK provider instead).
 9. **Shared contracts** — if `packages/contracts` becomes the source of truth, export
    `docs/openapi.json` (regenerate from the router) rather than duplicating models by hand.
 

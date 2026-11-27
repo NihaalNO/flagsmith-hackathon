@@ -7,7 +7,7 @@ from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.deps import get_workspace
-from app.api.routes import audit_logs, flags, github, integrations, repositories, workspaces
+from app.api.routes import analysis, audit_logs, flags, github, integrations, repositories, workspaces
 from app.core.auth import CurrentUser, get_current_user
 from app.core.config import settings
 from sqlalchemy.orm import Session
@@ -32,7 +32,7 @@ app.add_middleware(
 # Every /api route except /api/health requires a valid Supabase Auth token, and all
 # data routes run inside one workspace (isolation enforced in core/tenancy.py).
 app.include_router(workspaces.router, prefix="/api", dependencies=[Depends(get_current_user)])
-for module in (flags, repositories, integrations, github, audit_logs):
+for module in (flags, analysis, repositories, integrations, github, audit_logs):
     app.include_router(module.router, prefix="/api",
                        dependencies=[Depends(get_current_user), Depends(get_workspace)])
 

@@ -17,6 +17,17 @@ class Settings(BaseSettings):
     github_app_slug: str | None = None
     github_app_private_key: str | None = None
     cors_origins: str = "http://localhost:3000,http://localhost:5173"
+    # Lifecycle engine (services/lifecycle-engine): Flagsmith environment names that count as
+    # production when judging rollout state. Matching is case-insensitive.
+    production_environment_names: str = "production,prod,live"
+    # Optional LLM narrative for cleanup plans: "anthropic", "claude-code" (local only: needs a
+    # signed-in Claude Code CLI) or "mock". Empty = deterministic narrative.
+    flagpilot_llm_provider: str = ""
+    flagpilot_llm_model: str = ""
+
+    @property
+    def production_environment_list(self) -> set[str]:
+        return {n.strip().lower() for n in self.production_environment_names.split(",") if n.strip()}
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
