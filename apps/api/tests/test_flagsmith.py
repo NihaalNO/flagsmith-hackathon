@@ -136,8 +136,11 @@ def test_sync_imports_links_updates(client, fake):
     integ = make_integration(client)
     r = client.post(f"/api/integrations/{integ['id']}/sync")
     assert r.status_code == 200, r.text
-    assert r.json() == {"projects": ["web-app"], "created": 1, "linked": 1, "updated": 1,
-                        "unchanged": 0, "conflicts": [], "missing_in_flagsmith": []}
+    result = r.json()
+    # This fake serves neither tags nor per-environment state (see test_flagsmith_environments.py).
+    assert result.pop("environment_states") == 0 and len(result.pop("warnings")) == 2
+    assert result == {"projects": ["web-app"], "created": 1, "linked": 1, "updated": 1,
+                      "unchanged": 0, "conflicts": [], "missing_in_flagsmith": []}
 
     flags = {f["name"]: f for f in client.get("/api/flags").json()}
     assert flags["new_checkout"]["flagsmith_id"] == "11"

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -29,6 +29,13 @@ class Flag(TenantScoped, Base):
 
     owner: Mapped[str | None] = mapped_column(String(255))
     enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    # Feature metadata from Flagsmith (filled by sync; None when unknown).
+    flagsmith_created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    flagsmith_tags: Mapped[list | None] = mapped_column(JSON)            # tag labels
+    flagsmith_owner_ids: Mapped[list | None] = mapped_column(JSON)       # Flagsmith user ids
+    flagsmith_type: Mapped[str | None] = mapped_column(String(20))       # STANDARD | MULTIVARIATE
+    is_archived_in_flagsmith: Mapped[bool] = mapped_column(Boolean, default=False)
 
     lifecycle_status: Mapped[str] = mapped_column(
         String(50), default=LifecycleStatus.CREATED.value, index=True

@@ -92,8 +92,19 @@ class FlagsmithClient:
     def list_environments(self, project_id: int) -> list[dict]:
         return list(self._paginate("environments/", {"project": project_id}))
 
-    def list_features(self, project_id: int) -> list[dict]:
-        return list(self._paginate(f"projects/{project_id}/features/", {"page_size": 100}))
+    def list_features(self, project_id: int, environment_id: int | None = None) -> list[dict]:
+        """Features of a project. With `environment_id` (numeric id), each feature also carries its
+        live state there: `environment_feature_state`, `num_segment_overrides`,
+        `num_identity_overrides` (null on Edge projects), `last_modified_in_current_environment`."""
+        params: dict = {"page_size": 100}
+        if environment_id is not None:
+            params["environment"] = environment_id
+        return list(self._paginate(f"projects/{project_id}/features/", params))
+
+    def list_tags(self, project_id: int) -> dict[int, str]:
+        """Tag id -> label for a project."""
+        return {int(t["id"]): t.get("label") or str(t["id"])
+                for t in self._paginate(f"projects/{project_id}/tags/") if t.get("id") is not None}
 
     def create_feature(
         self, project_id: int, name: str, description: str | None = None, default_enabled: bool = False

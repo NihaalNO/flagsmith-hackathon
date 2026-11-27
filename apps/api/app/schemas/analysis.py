@@ -36,3 +36,18 @@ class FlagAnalysisResponse(FlagAnalysisSummary):
 
 class AnalyzeRequest(BaseModel):
     use_llm: bool = Field(default=True, description="Use the configured LLM provider for the plan narrative, if any.")
+
+
+class FlagEnvironmentStateResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    flagsmith_environment_id: int
+    environment_name: str
+    is_production: bool = Field(default=False, description="Name matches PRODUCTION_ENVIRONMENT_NAMES")
+    enabled: bool
+    value: object | None = None
+    segment_overrides: int
+    identity_overrides: int | None = Field(description="None when Flagsmith doesn't report it (Edge projects)")
+    percentage_allocation: float | None = Field(description="Multivariate split; None = no split")
+    last_modified_at: datetime | None
+    synced_at: datetime

@@ -102,6 +102,7 @@ Interactive docs: `/docs` (Swagger) and `/redoc`. Machine-readable schema: `/ope
 | POST | `/api/flags/{id}/analysis` | Run the lifecycle engine on the flag's repos → 201 with stored result (see below); 400 no connected repo, 502 GitHub, 503 engine not installed |
 | GET | `/api/flags/{id}/analysis` | Latest stored analysis → 404 if never analyzed |
 | GET | `/api/flags/{id}/analyses` | Analysis history (summaries, newest first) |
+| GET | `/api/flags/{id}/environments` | The flag's state in every Flagsmith environment, as of the last sync |
 
 ### Flag lifecycle
 
@@ -135,6 +136,19 @@ Sync rules: Flagsmith owns name/description/enabled; FlagPilot owns lifecycle (s
 with the same name is linked, not duplicated. Features deleted in Flagsmith are reported in
 `missing_in_flagsmith`, never auto-deleted. Sync runs inline for now (background jobs later).
 
+Sync also records, for the lifecycle engine:
+- **Feature metadata** on each flag: Flagsmith creation date, tag labels, owner user ids, type
+  (STANDARD / MULTIVARIATE) and archived status.
+- **Every environment's state** (`GET /api/flags/{id}/environments`): enabled, value, segment-override
+  count, identity-override count (`null` on Flagsmith Edge projects, which don't report it), the
+  multivariate split, and when it last changed. Read from `GET projects/{id}/features/?environment=<id>`,
+  one request per environment. Environments removed in Flagsmith are dropped.
+- Which environments count as production comes from `PRODUCTION_ENVIRONMENT_NAMES` (Flagsmith has
+  no production flag).
+
+Missing permissions (e.g. tags, or one environment) don't fail the sync; they're listed in the
+result's `warnings`. `environment_states` counts the states recorded.
+
 API tokens are encrypted with `ENCRYPTION_KEY` (Fernet) and never returned by the API.
 **Back up `ENCRYPTION_KEY`**: if it's lost or changed, stored tokens can't be decrypted and must be re-entered.
 
@@ -164,11 +178,14 @@ status, Flagsmith or any repository.
   the API runs normally and only these endpoints answer 503. Vercel installs `requirements.txt`, so
   **the deployed API has no engine yet**; shipping it there needs a decision (a git dependency on
   `services/lifecycle-engine`, or including it in the build).
-- **Evidence the backend can supply today is thin:** one synced environment's on/off state (counted
-  as production only if its name is in `PRODUCTION_ENVIRONMENT_NAMES`), the flag row's creation date
-  instead of Flagsmith's, no change history, analytics, tags or owner confirmations. Expect
-  `insufficient_evidence` / `not_stale` with a list of missing evidence rather than cleanup
-  recommendations until sync collects more.
+- **Evidence used:** every synced environment's state (production = names in
+  `PRODUCTION_ENVIRONMENT_NAMES`; overrides and multivariate splits count as active targeting; last
+  change dates give configuration stability), Flagsmith's creation date, tags, owners and archived
+  status. Flags never synced fall back to the single mirrored environment. **Still missing:**
+  Flagsmith change history, evaluation analytics, and owner confirmation that a flag is no longer
+  needed, so a flag reaches at most `potentially_stale`, never `ready_for_cleanup`, until owner
+  confirmation is collected. `result.data_notes` lists what each analysis approximated (e.g. identity
+  overrides unknown on Edge projects, treated as none).
 - **LLM narrative:** set `FLAGPILOT_LLM_PROVIDER` in `.env`. Unset means a deterministic narrative.
   - `groq`: Groq's API. Set `GROQ_API_KEY`; `FLAGPILOT_LLM_MODEL` defaults to `openai/gpt-oss-120b`.
     With `FLAGPILOT_LLM_JSON_MODE=auto` (default), models Groq supports for structured outputs

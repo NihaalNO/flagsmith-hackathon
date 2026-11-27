@@ -14,8 +14,9 @@ from app.core.auth import current_actor
 from app.core.database import get_db
 from app.models.flag import Flag
 from app.models.flag_analysis import FlagAnalysis
+from app.models.flag_environment_state import FlagEnvironmentState
 from app.models.repository import Repository
-from app.schemas.analysis import AnalyzeRequest, FlagAnalysisResponse, FlagAnalysisSummary
+from app.schemas.analysis import AnalyzeRequest, FlagAnalysisResponse, FlagAnalysisSummary, FlagEnvironmentStateResponse
 from app.services import audit
 from app.services.engine import EngineUnavailable, RepoSnapshot, analyze_flag, engine_version
 from app.services.github import GitHubClientFactory, GitHubError, get_github_client_factory
@@ -41,6 +42,11 @@ def _repositories_for(db: Session, flag: Flag) -> list[Repository]:
         if linked:
             return list(linked)
     return list(db.scalars(stmt).all())
+
+
+def _states(db: Session, flag_id: str) -> list[FlagEnvironmentState]:
+    return list(db.scalars(select(FlagEnvironmentState).where(FlagEnvironmentState.flag_id == flag_id)
+                           .order_by(FlagEnvironmentState.environment_name)).all())
 
 
 def _response(row: FlagAnalysis) -> dict:
@@ -75,7 +81,7 @@ def run_analysis(flag_id: str, payload: AnalyzeRequest = Body(default_factory=An
         raise HTTPException(502, f"GitHub: {exc}")
 
     try:
-        result = analyze_flag(flag, snapshots, use_llm=payload.use_llm)
+        result = analyze_flag(flag, snapshots, states=_states(db, flag.id), use_llm=payload.use_llm)
     except EngineUnavailable as exc:
         raise HTTPException(503, str(exc))
 
@@ -121,3 +127,13 @@ def analysis_history(flag_id: str, db: Session = Depends(get_db)):
     _flag_or_404(db, flag_id)
     return db.scalars(select(FlagAnalysis).where(FlagAnalysis.flag_id == flag_id)
                       .order_by(FlagAnalysis.created_at.desc()).limit(50)).all()
+
+
+@router.get("/{flag_id}/environments", response_model=list[FlagEnvironmentStateResponse], tags=["Flags"],
+            summary="The flag's state in every Flagsmith environment (as of the last sync)")
+def flag_environments(flag_id: str, db: Session = Depends(get_db)):
+    _flag_or_404(db, flag_id)
+    from app.core.config import settings
+    prod = settings.production_environment_list
+    return [{**FlagEnvironmentStateResponse.model_validate(st).model_dump(exclude={"is_production"}),
+             "is_production": st.environment_name.lower() in prod} for st in _states(db, flag_id)]

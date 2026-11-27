@@ -5,20 +5,22 @@ The engine is imported lazily so the API still starts if the package is missing
 return 503. The engine is stateless: this module feeds it what the backend knows
 and returns plain JSON for storage.
 
-What the backend can supply today is limited (one synced environment's on/off
-state, no Flagsmith change history, analytics, tags or owner confirmations), so
-stale detection will usually report missing evidence rather than recommend
-cleanup. That is intended: the engine never treats missing evidence as safety.
+The Flagsmith sync supplies every environment's state (overrides, splits, last
+modified), creation date, tags, owners and archived status. Still missing: Flagsmith
+change history, evaluation analytics and owner confirmations, so stale detection
+reports those as missing evidence; it never treats missing evidence as safety.
 """
 
 from __future__ import annotations
 
+import json
 from contextlib import ExitStack
 from dataclasses import dataclass
 from typing import Any
 
 from app.core.config import settings
 from app.models.flag import Flag
+from app.models.flag_environment_state import FlagEnvironmentState
 
 
 class EngineUnavailable(RuntimeError):
@@ -100,37 +102,79 @@ class RepoSnapshot:
     tarball: bytes
 
 
-def flag_configuration(flag: Flag) -> Any:
-    """Map a backend Flag row to the engine's FlagConfiguration, using only data we have."""
+def _engine_value(value):
+    """Engine values are scalars; structured remote-config values are passed as JSON text."""
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    return json.dumps(value, sort_keys=True)
+
+
+def flag_configuration(flag: Flag, states: list[FlagEnvironmentState] | None = None) -> tuple[Any, list[str]]:
+    """Map a backend Flag (and its synced environment states) to the engine's FlagConfiguration.
+
+    Returns the configuration and notes on data that is approximated or missing, so the
+    analysis result says what the evidence is based on."""
     F = _engine()["F"]
-    env_name = flag.environment or "unknown"
+    notes: list[str] = []
+    prod_names = settings.production_environment_list
     environments = []
-    if flag.environment:
+    if states:
+        for st in sorted(states, key=lambda x: x.environment_name.lower()):
+            if st.identity_overrides is None:
+                notes.append(f"identity overrides in '{st.environment_name}' are not reported by Flagsmith "
+                             "(Edge project); treated as none")
+            environments.append(F.EnvironmentFlagState(
+                environment=st.environment_name,
+                is_production=st.environment_name.lower() in prod_names,
+                enabled=bool(st.enabled),
+                value=_engine_value(st.value),
+                segment_overrides=st.segment_overrides or 0,
+                identity_overrides=st.identity_overrides or 0,
+                percentage_allocation=st.percentage_allocation,
+                updated_at=st.last_modified_at,
+            ))
+        if not any(e.is_production for e in environments):
+            notes.append("no synced environment matches PRODUCTION_ENVIRONMENT_NAMES "
+                         f"({', '.join(sorted(prod_names))}); production state is unknown")
+    elif flag.environment:
+        notes.append("per-environment state not synced yet; using the single mirrored environment "
+                     "(run the Flagsmith sync)")
         environments.append(F.EnvironmentFlagState(
-            environment=env_name,
-            is_production=env_name.lower() in settings.production_environment_list,
+            environment=flag.environment,
+            is_production=flag.environment.lower() in prod_names,
             enabled=bool(flag.enabled),
             updated_at=flag.updated_at,
         ))
-    return F.FlagConfiguration(
+    else:
+        notes.append("no Flagsmith environment state available for this flag")
+    if flag.flagsmith_created_at is None:
+        notes.append("Flagsmith creation date unknown; using the FlagPilot record's creation date")
+    owners = ([flag.owner] if flag.owner else []) + [f"flagsmith-user:{i}" for i in (flag.flagsmith_owner_ids or [])]
+    feature_type = F.FeatureType.MULTIVARIATE if (flag.flagsmith_type or "").upper() == "MULTIVARIATE" else F.FeatureType.STANDARD
+    notes.append("Flagsmith change history and evaluation analytics are not synced yet")
+    config = F.FlagConfiguration(
         flag_name=flag.name,
         project=flag.project_name or (str(flag.flagsmith_project_id) if flag.flagsmith_project_id is not None else "default"),
         flagsmith_feature_id=int(flag.flagsmith_id) if flag.flagsmith_id and flag.flagsmith_id.isdigit() else None,
         description=flag.description,
-        # Backend row creation time: Flagsmith's own creation date is not synced yet.
-        created_at=flag.created_at,
-        owners=[flag.owner] if flag.owner else [],
+        created_at=flag.flagsmith_created_at or flag.created_at,
+        owners=owners,
+        tags=list(flag.flagsmith_tags or []),
+        is_archived=bool(flag.is_archived_in_flagsmith),
+        feature_type=feature_type,
         environments=environments,
-        data_source="flagpilot-backend",
-        fetched_at=flag.updated_at,
+        data_source="flagsmith-sync" if states else "flagpilot-backend",
+        fetched_at=max((st.synced_at for st in states), default=None) if states else flag.updated_at,
     )
+    return config, notes
 
 
-def analyze_flag(flag: Flag, repos: list[RepoSnapshot], *, use_llm: bool = True) -> dict:
+def analyze_flag(flag: Flag, repos: list[RepoSnapshot], *, states: list[FlagEnvironmentState] | None = None,
+                 use_llm: bool = True) -> dict:
     """Run discovery, code intelligence, stale detection, lifecycle evaluation and planning
     for one flag over the given repository snapshots. Returns JSON-ready data."""
     E = _engine()
-    config = flag_configuration(flag)
+    config, data_notes = flag_configuration(flag, states)
     lifecycle = E["FlagLifecycle"](
         flag_id=flag.id, flag_name=flag.name, state=E["LifecycleState"](flag.lifecycle_status),
         created_at=flag.created_at, updated_at=flag.lifecycle_changed_at)
@@ -163,4 +207,5 @@ def analyze_flag(flag: Flag, repos: list[RepoSnapshot], *, use_llm: bool = True)
         "cleanup_plan": plan.model_dump(mode="json"),
         "patch": patch.model_dump(mode="json") if patch is not None else None,
         "scan_errors": scan_errors,
+        "data_notes": data_notes,
     }

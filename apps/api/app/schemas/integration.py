@@ -72,3 +72,5 @@ class SyncResult(BaseModel):
     unchanged: int
     conflicts: list[str] = Field(description="Flagsmith features whose name is taken by a different linked flag")
     missing_in_flagsmith: list[str] = Field(description="Linked flags whose feature no longer exists in Flagsmith")
+    environment_states: int = Field(default=0, description="Per-environment flag states recorded (for the lifecycle engine)")
+    warnings: list[str] = Field(default=[], description="Parts of the sync that were skipped, e.g. missing permissions")

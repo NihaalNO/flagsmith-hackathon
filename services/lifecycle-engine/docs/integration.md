@@ -75,12 +75,14 @@ Dynamic references have no `flag_name` and need a nullable `flag_id` or a separa
 3. **Runtime** — the engine is tested on Python 3.11 and 3.14 (backend targets 3.12) and adds
    `tree-sitter`, `tree-sitter-typescript` and `tree-sitter-javascript` (binary wheels) to the
    backend's dependencies if it is imported there; check the Vercel bundle size.
-4. **Flagsmith data** — map Flagsmith API data to `FlagConfiguration` (`schemas/flags.py`):
-   features → `flag_name`, `flagsmith_feature_id`, `created_at`, `owners`, `tags`, `is_archived`,
-   `feature_type`; feature states per environment → `environments[]` (`enabled`, `value`,
-   segment/identity override counts, multivariate allocation, `updated_at`, `is_production`);
-   audit log → `recent_changes[]`; flag analytics → `activity`. Which environments count as
-   production must be configurable per project.
+4. **Flagsmith data** — mostly done: the backend sync stores feature metadata and every
+   environment's state (`flag_environment_states`), and `apps/api/app/services/engine.py` maps them
+   to `FlagConfiguration` (`created_at`, `owners` as `flagsmith-user:<id>`, `tags`, `is_archived`,
+   `feature_type`, `environments[]` with overrides, split and `updated_at`). Production is
+   `PRODUCTION_ENVIRONMENT_NAMES` (global, not yet per project). Identity overrides are unknown on
+   Edge projects and treated as none (noted in `data_notes`). Still open: audit log →
+   `recent_changes[]` and evaluation analytics → `activity`
+   (`projects/{pk}/features/{id}/evaluation-data/`, one request per feature and environment).
 5. **Persistence** — store `FlagLifecycle` (with `history`), `StaleFlagFinding`, `CleanupPlan`,
    `CleanupPatch`, `VerificationResult`, `DynamicReferenceReview` and owner confirmations as
    JSON or mapped tables. Ids are stable (`ref_`, `stale_`, `plan_`, `patch_`, `verify_`,
