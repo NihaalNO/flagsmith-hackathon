@@ -128,114 +128,165 @@ def _sync_environment_states(db: Session, client: FlagsmithClient, project_id: i
                                                       FlagEnvironmentState.flagsmith_environment_id.not_in(env_ids)))
 
 
-def _projects_to_sync(db: Session, integration: Integration) -> list[int]:
+MAX_FALLBACK_PROJECTS = 10
+
+
+def _projects_to_sync(db: Session, integration: Integration, visible: dict[int, str], stats: dict) -> list[int]:
+    """Which Flagsmith projects to sync with this connection's key.
+
+    1. `config.project_id`, if set (an error if the key can't see it: it was configured explicitly).
+    2. Every repository's linked project that this key can see, whichever connection linked it.
+       Repos whose connection was removed are re-attached to this one. Links to projects the key
+       can't see are skipped with a warning instead of failing the whole sync.
+    3. If nothing is linked yet, the projects the key can see (up to MAX_FALLBACK_PROJECTS, by
+       name), with a warning, so flags from Flagsmith appear instead of a dead end.
+    """
     config = integration.config or {}
     ids: list[int] = []
     if config.get("project_id") is not None:
-        ids.append(int(config["project_id"]))
-    for pid in db.scalars(select(Repository.flagsmith_project_id).where(
-            Repository.flagsmith_integration_id == integration.id,
-            Repository.flagsmith_project_id.is_not(None))):
+        pid = int(config["project_id"])
+        if pid not in visible:
+            raise FlagsmithError(f"Flagsmith project {pid} (config.project_id) not found or not accessible with this API key")
+        ids.append(pid)
+    repos = db.scalars(select(Repository).where(Repository.flagsmith_project_id.is_not(None))
+                       .order_by(Repository.full_name)).all()
+    live = set(db.scalars(select(Integration.id).where(Integration.provider == "flagsmith")))
+    for repo in repos:
+        pid = int(repo.flagsmith_project_id)
+        if repo.flagsmith_integration_id is not None and repo.flagsmith_integration_id not in live:
+            repo.flagsmith_integration_id = None  # its connection was deleted
+        other_connection = repo.flagsmith_integration_id not in (None, integration.id)
+        if pid not in visible:
+            if not other_connection:
+                stats["warnings"].append(
+                    f"{repo.full_name}: its Flagsmith project #{pid} isn't visible to this API key; "
+                    "choose its project again on the Repositories page")
+            continue
+        if repo.flagsmith_integration_id is None:
+            repo.flagsmith_integration_id = integration.id  # its old connection was removed
         if pid not in ids:
-            ids.append(int(pid))
-    return ids
+            ids.append(pid)
+    if ids:
+        return ids
+    if not visible:
+        raise FlagsmithError("This Flagsmith API key can't see any projects")
+    by_name = sorted(visible, key=lambda pid: (visible[pid] or "").lower())
+    chosen = by_name[:MAX_FALLBACK_PROJECTS]
+    more = f" (the first {len(chosen)} of {len(visible)} by name)" if len(visible) > len(chosen) else ""
+    stats["warnings"].append(
+        f"No repository is linked to a Flagsmith project yet, so every project this key can see was synced{more}. "
+        "Link each repository to its project on the Repositories page so scans and analyses match its flags.")
+    return chosen
+
+
+def _sync_project(db: Session, integration: Integration, client: FlagsmithClient, config: dict,
+                  project_id: int, project_name: str, stats: dict, seen_ids: set[str]) -> None:
+    """Import/update one project's features, metadata and environment states.
+
+    Every Flagsmith call that can fail for the whole project happens before anything is written."""
+    # Which environment's on/off state to mirror: explicit key for the main project,
+    # otherwise the environment named config.environment_name (default "Development").
+    envs = client.list_environments(project_id)
+    env = None
+    if project_id == config.get("project_id") and config.get("environment_key"):
+        env = next((e for e in envs if e.get("api_key") == config["environment_key"]), None)
+        if env is None:
+            raise FlagsmithError(f"Environment key not found in Flagsmith project {project_id}")
+    else:
+        wanted = config.get("environment_name", DEFAULT_ENVIRONMENT_NAME)
+        env = next((e for e in envs if e.get("name") == wanted), None)
+    states = client.list_environment_feature_states(env["api_key"]) if env else {}
+    try:
+        tags = client.list_tags(project_id)
+    except FlagsmithError as exc:
+        tags = {}
+        stats["warnings"].append(f"{project_name}: tags not read ({exc})")
+    flags_by_feature: dict[int, Flag] = {}
+
+    for feature in client.list_features(project_id):
+        fs_id = str(feature["id"])
+        seen_ids.add(fs_id)
+        values = {
+            "name": feature["name"],
+            "description": feature.get("description") or None,
+            "project_name": project_name,
+            "environment": env.get("name") if env else None,
+            "flagsmith_project_id": project_id,
+            **_feature_metadata(feature, tags),
+        }
+        if env:
+            values["enabled"] = states.get(feature["id"], bool(feature.get("default_enabled")))
+
+        flag = db.scalar(select(Flag).where(Flag.flagsmith_id == fs_id,
+                                            Flag.integration_id == integration.id))
+        if flag is None:
+            same_name = db.scalars(select(Flag).where(Flag.name == feature["name"])).all()
+            in_project = [f for f in same_name if f.flagsmith_project_id == project_id]
+            local_only = [f for f in same_name if f.flagsmith_id is None and f.flagsmith_project_id is None]
+            if in_project:
+                stats["conflicts"].append(f"{project_name}/{feature['name']}")
+                continue
+            if local_only:
+                # A FlagPilot-only flag with the same name: adopt it.
+                flag = local_only[0]
+                flag.flagsmith_id, flag.integration_id = fs_id, integration.id
+                stats["linked"] += 1
+                audit.record(db, "flag.linked_to_flagsmith", "flag", flag.id,
+                             {"flagsmith_id": fs_id, "integration_id": integration.id})
+            else:
+                # Environment state (in `values`) wins over the project-wide default.
+                flag = Flag(flagsmith_id=fs_id, integration_id=integration.id,
+                            **{"enabled": bool(feature.get("default_enabled")), **values})
+                db.add(flag)
+                db.flush()
+                flags_by_feature[feature["id"]] = flag
+                stats["created"] += 1
+                audit.record(db, "flag.imported", "flag", flag.id,
+                             {"flagsmith_id": fs_id, "project": project_name})
+                continue
+
+        flags_by_feature[feature["id"]] = flag
+        changes = {k: v for k, v in values.items() if not _same(getattr(flag, k), v)}
+        for k, v in changes.items():
+            setattr(flag, k, v)
+        if changes:
+            stats["updated"] += 1
+            audit.record(db, "flag.synced", "flag", flag.id, {"changes": _jsonable(changes)})
+        else:
+            stats["unchanged"] += 1
+
+    _sync_environment_states(db, client, project_id, envs, flags_by_feature, stats)
 
 
 def sync_flagsmith(db: Session, integration: Integration, client: FlagsmithClient) -> dict:
     config = integration.config or {}
-    project_ids = _projects_to_sync(db, integration)
-    if not project_ids:
-        raise FlagsmithError("Nothing to sync: set config.project_id or connect a repository (GitHub sync)")
-
-    projects = {p.get("id"): p.get("name") for p in client.list_projects()}
+    projects = {int(p["id"]): p.get("name") or str(p["id"]) for p in client.list_projects() if p.get("id") is not None}
     stats = {"projects": [], "created": 0, "linked": 0, "updated": 0, "unchanged": 0,
              "conflicts": [], "missing_in_flagsmith": [], "environment_states": 0, "warnings": []}
     seen_ids: set[str] = set()
+    project_ids = _projects_to_sync(db, integration, projects, stats)
 
+    skipped: dict[int, str] = {}
     for project_id in project_ids:
-        project_name = projects.get(project_id)
-        if project_name is None:
-            raise FlagsmithError(f"Flagsmith project {project_id} not found or not accessible")
-        stats["projects"].append(project_name)
-
-        # Which environment's on/off state to mirror: explicit key for the main project,
-        # otherwise the environment named config.environment_name (default "Development").
-        envs = client.list_environments(project_id)
-        env = None
-        if project_id == config.get("project_id") and config.get("environment_key"):
-            env = next((e for e in envs if e.get("api_key") == config["environment_key"]), None)
-            if env is None:
-                raise FlagsmithError(f"Environment key not found in Flagsmith project {project_id}")
-        else:
-            wanted = config.get("environment_name", DEFAULT_ENVIRONMENT_NAME)
-            env = next((e for e in envs if e.get("name") == wanted), None)
-        states = client.list_environment_feature_states(env["api_key"]) if env else {}
+        project_name = projects[project_id]
         try:
-            tags = client.list_tags(project_id)
+            _sync_project(db, integration, client, config, project_id, project_name, stats, seen_ids)
         except FlagsmithError as exc:
-            tags = {}
-            stats["warnings"].append(f"{project_name}: tags not read ({exc})")
-        flags_by_feature: dict[int, Flag] = {}
-
-        for feature in client.list_features(project_id):
-            fs_id = str(feature["id"])
-            seen_ids.add(fs_id)
-            values = {
-                "name": feature["name"],
-                "description": feature.get("description") or None,
-                "project_name": project_name,
-                "environment": env.get("name") if env else None,
-                "flagsmith_project_id": project_id,
-                **_feature_metadata(feature, tags),
-            }
-            if env:
-                values["enabled"] = states.get(feature["id"], bool(feature.get("default_enabled")))
-
-            flag = db.scalar(select(Flag).where(Flag.flagsmith_id == fs_id,
-                                                Flag.integration_id == integration.id))
-            if flag is None:
-                same_name = db.scalars(select(Flag).where(Flag.name == feature["name"])).all()
-                in_project = [f for f in same_name if f.flagsmith_project_id == project_id]
-                local_only = [f for f in same_name if f.flagsmith_id is None and f.flagsmith_project_id is None]
-                if in_project:
-                    stats["conflicts"].append(f"{project_name}/{feature['name']}")
-                    continue
-                if local_only:
-                    # A FlagPilot-only flag with the same name: adopt it.
-                    flag = local_only[0]
-                    flag.flagsmith_id, flag.integration_id = fs_id, integration.id
-                    stats["linked"] += 1
-                    audit.record(db, "flag.linked_to_flagsmith", "flag", flag.id,
-                                 {"flagsmith_id": fs_id, "integration_id": integration.id})
-                else:
-                    # Environment state (in `values`) wins over the project-wide default.
-                    flag = Flag(flagsmith_id=fs_id, integration_id=integration.id,
-                                **{"enabled": bool(feature.get("default_enabled")), **values})
-                    db.add(flag)
-                    db.flush()
-                    flags_by_feature[feature["id"]] = flag
-                    stats["created"] += 1
-                    audit.record(db, "flag.imported", "flag", flag.id,
-                                 {"flagsmith_id": fs_id, "project": project_name})
-                    continue
-
-            flags_by_feature[feature["id"]] = flag
-            changes = {k: v for k, v in values.items() if not _same(getattr(flag, k), v)}
-            for k, v in changes.items():
-                setattr(flag, k, v)
-            if changes:
-                stats["updated"] += 1
-                audit.record(db, "flag.synced", "flag", flag.id, {"changes": _jsonable(changes)})
-            else:
-                stats["unchanged"] += 1
-
-        _sync_environment_states(db, client, project_id, envs, flags_by_feature, stats)
+            skipped[project_id] = str(exc)
+            stats["warnings"].append(f"{project_name}: skipped ({exc})")
+            continue
+        stats["projects"].append(project_name)
+    if skipped and len(skipped) == len(project_ids):
+        raise FlagsmithError("No project could be synced: " + "; ".join(
+            f"{projects[pid]}: {err}" for pid, err in skipped.items()))
 
     # Flags linked to this integration whose feature was removed in Flagsmith.
     # Not deleted automatically: a human decides (often they're ready for cleanup).
     linked = db.scalars(select(Flag).where(Flag.integration_id == integration.id,
                                            Flag.flagsmith_id.is_not(None))).all()
-    stats["missing_in_flagsmith"] = [f.name for f in linked if f.flagsmith_id not in seen_ids]
+    # Flags of skipped projects weren't checked, so they can't be called missing.
+    stats["missing_in_flagsmith"] = [f.name for f in linked
+                                     if f.flagsmith_id not in seen_ids and f.flagsmith_project_id not in skipped]
 
     integration.status, integration.status_detail = "connected", None
     integration.last_synced_at = utc_now()

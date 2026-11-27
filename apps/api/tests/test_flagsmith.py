@@ -156,10 +156,14 @@ def test_sync_imports_links_updates(client, fake):
     assert client.post(f"/api/integrations/{integ['id']}/sync").json()["missing_in_flagsmith"] == ["dark_mode"]
 
 
-def test_sync_requires_project(client, fake):
+def test_sync_without_linked_projects_syncs_visible_ones(client, fake):
+    # Used to fail with "Nothing to sync"; now it imports from the projects the key can see.
     r = client.post("/api/integrations", json={"provider": "flagsmith", "name": "x", "api_token": GOOD_KEY})
     r = client.post(f"/api/integrations/{r.json()['id']}/sync")
-    assert r.status_code == 502 and "project_id" in r.json()["detail"]
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["projects"] == ["web-app"] and body["created"] == 2
+    assert any("No repository is linked" in w for w in body["warnings"])
 
 
 def test_create_flag_in_flagsmith(client, fake):

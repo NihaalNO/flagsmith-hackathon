@@ -41,6 +41,7 @@ function BoardView() {
       const parts = [r.created && `${r.created} new`, r.updated && `${r.updated} updated`].filter(Boolean);
       toast.success(`Synced ${r.projects.join(", ")}${parts.length ? `: ${parts.join(", ")}` : ": no changes"}`);
       if (r.missing_in_flagsmith.length) toast.warning(`Deleted in Flagsmith: ${r.missing_in_flagsmith.join(", ")}`);
+      (r.warnings ?? []).forEach((w) => toast.warning(w, { duration: 10000 }));
       flags.reload(); integrations.reload();
     } catch (e) {
       toast.error((e as Error).message);
