@@ -87,7 +87,7 @@ export function Landing({ onSignIn }: { onSignIn: () => void }) {
       </header>
 
       <main className="relative grid items-center gap-14 px-6 pt-10 pb-16 md:px-12 lg:min-h-[calc(100dvh-80px)]
-                       lg:grid-cols-[minmax(0,34rem)_1fr] lg:pt-0">
+                       lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:pt-0">
         <div>
           <h1 className="text-5xl leading-[1.02] font-semibold tracking-[-0.02em] text-balance sm:text-6xl lg:text-7xl">
             Know when a feature flag is done.
