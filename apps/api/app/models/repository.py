@@ -15,4 +15,8 @@ class Repository(Base):
     name: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str] = mapped_column(String(255), unique=True)  # e.g. "acme/web-app"
     default_branch: Mapped[str] = mapped_column(String(100), default="main")
+    # GitHub App installation that grants access to this repo (None = added manually).
+    installation_id: Mapped[str | None] = mapped_column(String(50), index=True)
+    last_scanned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_scan_sha: Mapped[str | None] = mapped_column(String(40))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)

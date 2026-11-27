@@ -6,7 +6,10 @@ from app.core.database import get_db
 from app.core.lifecycle import ALLOWED_TRANSITIONS, LifecycleStatus, can_transition
 from app.models.base import utc_now
 from app.models.flag import Flag
+from app.models.flag_reference import FlagReference
+from app.models.repository import Repository
 from app.models.integration import Integration
+from app.schemas.github import FlagReferenceResponse
 from app.schemas.flag import FlagCreate, FlagResponse, FlagUpdate, LifecycleTransition
 from app.services import audit
 from app.services.flagsmith import ClientFactory, FlagsmithError, get_flagsmith_client_factory
@@ -121,3 +124,23 @@ def delete_flag(flag_id: str, db: Session = Depends(get_db)):
     audit.record(db, "flag.deleted", "flag", flag.id, {"name": flag.name})
     db.delete(flag)
     db.commit()
+
+
+@router.get("/{flag_id}/references", response_model=list[FlagReferenceResponse])
+def flag_references(flag_id: str, db: Session = Depends(get_db)):
+    """Where this flag appears in code, from the latest scan of each repository."""
+    _get_or_404(db, flag_id)
+    rows = db.execute(
+        select(FlagReference, Repository.full_name)
+        .join(Repository, Repository.id == FlagReference.repository_id)
+        .where(FlagReference.flag_id == flag_id)
+        .order_by(Repository.full_name, FlagReference.path, FlagReference.line)
+    ).all()
+    return [
+        {**{c: getattr(ref, c) for c in ("id", "repository_id", "path", "line", "snippet",
+                                          "commit_sha", "created_at")},
+         "repository": full_name,
+         "url": f"https://github.com/{full_name}/blob/{ref.commit_sha}/{ref.path}#L{ref.line}"
+         if ref.commit_sha else None}
+        for ref, full_name in rows
+    ]

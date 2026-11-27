@@ -12,9 +12,17 @@ class Settings(BaseSettings):
     supabase_url: str
     # Public (publishable) key: safe in browsers; used by the /dev/login test page.
     supabase_publishable_key: str = ""
+    # GitHub App (code scanning + cleanup PRs). Private key may use literal "\n".
+    github_app_id: int | None = None
+    github_app_slug: str | None = None
+    github_app_private_key: str | None = None
     cors_origins: str = "http://localhost:3000,http://localhost:5173"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def github_private_key_pem(self) -> str | None:
+        return self.github_app_private_key.replace("\\n", "\n") if self.github_app_private_key else None
 
     @property
     def cors_origin_list(self) -> list[str]:

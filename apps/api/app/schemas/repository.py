@@ -16,6 +16,9 @@ class RepositoryResponse(BaseModel):
     name: str
     full_name: str
     default_branch: str
+    installation_id: str | None
+    last_scanned_at: datetime | None
+    last_scan_sha: str | None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import audit_logs, flags, integrations, repositories
+from app.api.routes import audit_logs, flags, github, integrations, repositories
 from app.core.auth import CurrentUser, get_current_user
 from app.core.config import settings
 from sqlalchemy.orm import Session
@@ -29,7 +29,7 @@ app.add_middleware(
 
 # Tables are managed by Alembic migrations (`alembic upgrade head`), not create_all().
 # Every /api route except /api/health requires a valid Supabase Auth token.
-for module in (flags, repositories, integrations, audit_logs):
+for module in (flags, repositories, integrations, github, audit_logs):
     app.include_router(module.router, prefix="/api", dependencies=[Depends(get_current_user)])
 
 
