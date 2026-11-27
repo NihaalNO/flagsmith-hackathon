@@ -9,9 +9,12 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import Any, Callable, Protocol, runtime_checkable
 
@@ -235,9 +238,129 @@ class ClaudeCodeProvider:
         return parsed
 
 
+HttpPost = Callable[[str, dict, dict, float], tuple[int, str]]
+JSON_MODES = ("json_schema", "json_object", "none")
+_FENCE_RE = re.compile(r"^\s*```(?:json)?\s*(.*?)\s*```\s*$", re.S)
+
+
+def _urllib_post(url: str, headers: dict, body: dict, timeout: float) -> tuple[int, str]:
+    req = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"), headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.status, resp.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as exc:
+        return exc.code, exc.read().decode("utf-8", "replace")
+
+
+class OpenAICompatibleProvider:
+    """Any server implementing OpenAI's Chat Completions API: OpenAI, OpenRouter, Azure
+    OpenAI-style gateways, Ollama, vLLM, LM Studio, LiteLLM...
+
+    POSTs to `{base_url}/chat/completions`. `json_mode` controls how JSON is requested:
+    'json_schema' (structured outputs; sent with strict=false because the plan schema has
+    optional fields), 'json_object' (JSON mode, schema given in the prompt), or 'none'
+    (schema in the prompt only, for servers that support neither). Uses only the standard
+    library; the API key is optional (local servers usually need none) and never appears in
+    error messages.
+    """
+
+    name = "openai-compatible"
+
+    def __init__(self, model: str, base_url: str, api_key: str | None = None, *, json_mode: str = "json_schema",
+                 timeout_s: float = 120, max_tokens: int | None = None, post: HttpPost | None = None):
+        if not model:
+            raise ValueError("OpenAI-compatible provider needs a model name (FLAGPILOT_LLM_MODEL)")
+        if not base_url or not base_url.startswith(("http://", "https://")):
+            raise ValueError("OpenAI-compatible provider needs an http(s) base URL (FLAGPILOT_LLM_BASE_URL)")
+        if json_mode not in JSON_MODES:
+            raise ValueError(f"FLAGPILOT_LLM_JSON_MODE must be one of {', '.join(JSON_MODES)}")
+        self.model = model
+        self.base_url = base_url.rstrip("/")
+        self.api_key = api_key or None
+        self.json_mode = json_mode
+        self.timeout_s = timeout_s
+        self.max_tokens = max_tokens
+        self.post = post or _urllib_post
+
+    @property
+    def endpoint(self) -> str:
+        return f"{self.base_url}/chat/completions"
+
+    def build_request(self, system: str, prompt: str, schema: dict) -> tuple[dict, dict]:
+        headers = {"Content-Type": "application/json", "Accept": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        user = prompt
+        if self.json_mode != "json_schema":
+            user = (f"{prompt}\n\nRespond with a single JSON object (no prose, no code fences) that matches "
+                    f"this JSON Schema:\n{json.dumps(schema)}")
+        body: dict[str, Any] = {"model": self.model,
+                                "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
+        if self.json_mode == "json_schema":
+            body["response_format"] = {"type": "json_schema",
+                                       "json_schema": {"name": "flagpilot_plan_narrative", "schema": schema, "strict": False}}
+        elif self.json_mode == "json_object":
+            body["response_format"] = {"type": "json_object"}
+        if self.max_tokens:
+            body["max_tokens"] = self.max_tokens
+        return headers, body
+
+    def complete_json(self, *, system: str, prompt: str, schema: dict, context: dict) -> dict:
+        headers, body = self.build_request(system, prompt, schema)
+        try:
+            status, text = self.post(self.endpoint, headers, body, self.timeout_s)
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            raise LLMUnavailableError(f"could not reach {self.endpoint}: {getattr(exc, 'reason', exc)}") from exc
+        if status >= 400:
+            raise LLMUnavailableError(f"{self.endpoint} returned HTTP {status}: {self._error_message(text)}")
+        try:
+            data = json.loads(text)
+            choice = data["choices"][0]
+            message = choice["message"]
+        except (json.JSONDecodeError, KeyError, IndexError, TypeError) as exc:
+            raise LLMUnavailableError("response is not an OpenAI-style chat completion") from exc
+        if message.get("refusal"):
+            raise LLMUnavailableError(f"model refused: {str(message['refusal'])[:200]}")
+        if choice.get("finish_reason") == "length":
+            raise LLMUnavailableError("response truncated (finish_reason=length); raise max_tokens")
+        content = message.get("content")
+        if isinstance(content, list):  # some servers return content parts
+            content = "".join(p.get("text", "") for p in content if isinstance(p, dict))
+        if not content:
+            raise LLMUnavailableError("response has no message content")
+        fenced = _FENCE_RE.match(content)
+        try:
+            parsed = json.loads(fenced.group(1) if fenced else content)
+        except json.JSONDecodeError as exc:
+            raise LLMUnavailableError("message content is not valid JSON") from exc
+        if not isinstance(parsed, dict):
+            raise LLMUnavailableError("message content is not a JSON object")
+        return parsed
+
+    @staticmethod
+    def _error_message(text: str) -> str:
+        try:
+            err = json.loads(text).get("error")
+            msg = err.get("message") if isinstance(err, dict) else err
+        except (json.JSONDecodeError, AttributeError):
+            msg = text
+        return str(msg)[:300]
+
+
 def provider_from_env() -> LLMProvider | None:
-    """`FLAGPILOT_LLM_PROVIDER` = 'claude-code' | 'anthropic' | 'mock' | unset (no LLM)."""
+    """`FLAGPILOT_LLM_PROVIDER` = 'openai-compatible' | 'claude-code' | 'anthropic' | 'mock' | unset (no LLM).
+
+    openai-compatible reads FLAGPILOT_LLM_MODEL, FLAGPILOT_LLM_BASE_URL, optional
+    FLAGPILOT_LLM_API_KEY and FLAGPILOT_LLM_JSON_MODE (json_schema | json_object | none).
+    """
     kind = os.environ.get("FLAGPILOT_LLM_PROVIDER", "").lower()
+    if kind == "openai-compatible":
+        return OpenAICompatibleProvider(
+            model=os.environ.get("FLAGPILOT_LLM_MODEL", ""),
+            base_url=os.environ.get("FLAGPILOT_LLM_BASE_URL", ""),
+            api_key=os.environ.get("FLAGPILOT_LLM_API_KEY") or None,
+            json_mode=os.environ.get("FLAGPILOT_LLM_JSON_MODE", "json_schema").lower(),
+        )
     if kind == "claude-code":
         return ClaudeCodeProvider(model=os.environ.get("FLAGPILOT_LLM_MODEL") or None,
                                   max_budget_usd=float(os.environ.get("FLAGPILOT_LLM_MAX_BUDGET_USD", "1.0")))

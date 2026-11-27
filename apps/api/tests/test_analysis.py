@@ -210,3 +210,66 @@ def test_llm_provider_comes_from_settings(setup, monkeypatch):
     assert body["llm_status"] == "used" and body["result"]["cleanup_plan"]["llm"]["provider"] == "mock"
     off = client.post(f"/api/flags/{flag['id']}/analysis", json={"use_llm": False}).json()
     assert off["llm_status"] == "not_configured"
+
+
+@needs_engine
+def test_openai_compatible_provider_from_settings(setup, monkeypatch):
+    """FLAGPILOT_LLM_BASE_URL / FLAGPILOT_LLM_MODEL / FLAGPILOT_LLM_API_KEY reach the planner over HTTP."""
+    import json
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    from app.core.config import settings
+
+    seen = []
+
+    class FakeOpenAI(BaseHTTPRequestHandler):
+        def do_POST(self):  # noqa: N802
+            body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+            seen.append({"path": self.path, "auth": self.headers.get("Authorization"), "model": body["model"]})
+            content = json.dumps({"reasoning_summary": "Narrative from an OpenAI-compatible server.", "statements": []})
+            out = json.dumps({"choices": [{"message": {"role": "assistant", "content": content}, "finish_reason": "stop"}]}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(out)))
+            self.end_headers()
+            self.wfile.write(out)
+
+        def log_message(self, *args):
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), FakeOpenAI)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        client, _, flag = setup
+        monkeypatch.setattr(settings, "flagpilot_llm_provider", "openai-compatible")
+        monkeypatch.setattr(settings, "flagpilot_llm_model", "gpt-test")
+        monkeypatch.setattr(settings, "flagpilot_llm_base_url", f"http://127.0.0.1:{server.server_address[1]}/v1")
+        monkeypatch.setattr(settings, "flagpilot_llm_api_key", "sk-test")
+        body = client.post(f"/api/flags/{flag['id']}/analysis", json={}).json()
+    finally:
+        server.shutdown()
+    assert body["llm_status"] == "used"
+    plan = body["result"]["cleanup_plan"]
+    assert plan["llm"]["provider"] == "openai-compatible" and plan["llm"]["model"] == "gpt-test"
+    assert plan["reasoning_summary"] == "Narrative from an OpenAI-compatible server."
+    assert seen == [{"path": "/v1/chat/completions", "auth": "Bearer sk-test", "model": "gpt-test"}]
+
+
+@needs_engine
+@pytest.mark.parametrize("overrides,needle", [
+    ({"flagpilot_llm_base_url": ""}, "base URL"),
+    ({"flagpilot_llm_model": ""}, "model name"),
+    ({"flagpilot_llm_provider": "gpt-5000"}, "unknown FLAGPILOT_LLM_PROVIDER"),
+])
+def test_misconfigured_llm_provider_is_a_clear_503(setup, monkeypatch, overrides, needle):
+    from app.core.config import settings
+    client, _, flag = setup
+    values = {"flagpilot_llm_provider": "openai-compatible", "flagpilot_llm_model": "m",
+              "flagpilot_llm_base_url": "http://localhost:11434/v1", **overrides}
+    for k, v in values.items():
+        monkeypatch.setattr(settings, k, v)
+    r = client.post(f"/api/flags/{flag['id']}/analysis", json={})
+    assert r.status_code == 503 and "LLM provider misconfigured" in r.json()["detail"] and needle in r.json()["detail"]
+    # deterministic analysis still works when the LLM is not requested
+    assert client.post(f"/api/flags/{flag['id']}/analysis", json={"use_llm": False}).status_code == 201

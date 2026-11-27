@@ -69,7 +69,18 @@ def llm_provider():
         return llm.ClaudeCodeProvider(model=model)
     if kind == "mock":
         return llm.MockLLMProvider()
-    raise ValueError(f"unknown FLAGPILOT_LLM_PROVIDER '{settings.flagpilot_llm_provider}'")
+    if kind == "openai-compatible":
+        try:
+            return llm.OpenAICompatibleProvider(
+                model=model or "",
+                base_url=settings.flagpilot_llm_base_url.strip(),
+                api_key=settings.flagpilot_llm_api_key.strip() or None,
+                json_mode=settings.flagpilot_llm_json_mode.strip().lower(),
+            )
+        except ValueError as exc:
+            raise EngineUnavailable(f"LLM provider misconfigured: {exc}") from exc
+    raise EngineUnavailable(f"LLM provider misconfigured: unknown FLAGPILOT_LLM_PROVIDER "
+                            f"'{settings.flagpilot_llm_provider}' (openai-compatible, anthropic, claude-code, mock)")
 
 
 @dataclass

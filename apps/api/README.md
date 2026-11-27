@@ -169,8 +169,17 @@ status, Flagsmith or any repository.
   instead of Flagsmith's, no change history, analytics, tags or owner confirmations. Expect
   `insufficient_evidence` / `not_stale` with a list of missing evidence rather than cleanup
   recommendations until sync collects more.
-- **LLM narrative:** set `FLAGPILOT_LLM_PROVIDER` (`anthropic`, `claude-code` for local use, or `mock`).
-  Unset means a deterministic narrative.
+- **LLM narrative:** set `FLAGPILOT_LLM_PROVIDER` in `.env`. Unset means a deterministic narrative.
+  - `openai-compatible`: any OpenAI Chat Completions server (OpenAI, OpenRouter, Ollama, vLLM,
+    LM Studio, LiteLLM). Needs `FLAGPILOT_LLM_MODEL` and `FLAGPILOT_LLM_BASE_URL` (with the version
+    path, e.g. `https://api.openai.com/v1`); `FLAGPILOT_LLM_API_KEY` is optional for local servers.
+    `FLAGPILOT_LLM_JSON_MODE=json_object` or `none` for servers without structured outputs.
+  - `anthropic`, `claude-code` (local only; needs a signed-in Claude Code CLI) or `mock`.
+  - A misconfigured provider makes `POST .../analysis` answer 503 with the reason; send
+    `{"use_llm": false}` to analyze without it. Whatever the model returns is validated against the
+    engine's evidence; invalid narratives are rejected and the deterministic one is used.
+- Blank values in `.env` count as unset (`env_ignore_empty`), so copying `.env.example` and leaving
+  optional entries empty is fine.
 - Runs synchronously in the request, like repository scans; very large repos may hit Vercel's time limit.
 
 ## Not built yet

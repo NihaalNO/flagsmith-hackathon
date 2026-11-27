@@ -20,16 +20,23 @@ class Settings(BaseSettings):
     # Lifecycle engine (services/lifecycle-engine): Flagsmith environment names that count as
     # production when judging rollout state. Matching is case-insensitive.
     production_environment_names: str = "production,prod,live"
-    # Optional LLM narrative for cleanup plans: "anthropic", "claude-code" (local only: needs a
-    # signed-in Claude Code CLI) or "mock". Empty = deterministic narrative.
+    # Optional LLM narrative for cleanup plans: "openai-compatible", "anthropic", "claude-code"
+    # (local only: needs a signed-in Claude Code CLI) or "mock". Empty = deterministic narrative.
     flagpilot_llm_provider: str = ""
     flagpilot_llm_model: str = ""
+    # openai-compatible only: server root including the API version path, e.g.
+    # https://api.openai.com/v1, https://openrouter.ai/api/v1, http://localhost:11434/v1 (Ollama).
+    flagpilot_llm_base_url: str = ""
+    flagpilot_llm_api_key: str = ""  # optional for local servers
+    flagpilot_llm_json_mode: str = "json_schema"  # json_schema | json_object | none
 
     @property
     def production_environment_list(self) -> set[str]:
         return {n.strip().lower() for n in self.production_environment_names.split(",") if n.strip()}
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # env_ignore_empty: blank entries copied from .env.example (e.g. `GITHUB_APP_ID=`) count as
+    # unset, so optional settings fall back to their defaults instead of failing to parse.
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", env_ignore_empty=True)
 
     @property
     def github_private_key_pem(self) -> str | None:
