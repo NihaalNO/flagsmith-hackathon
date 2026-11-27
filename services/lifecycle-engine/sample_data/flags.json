@@ -1,0 +1,122 @@
+{
+  "_comment": "Mock Flagsmith configuration for the sample repositories. Shape = lifecycle_engine.schemas.flags.FlagConfiguration. Reference evaluation date: 2026-11-27.",
+  "flags": [
+    {
+      "flag_name": "new_checkout",
+      "project": "acme-web",
+      "flagsmith_feature_id": 1001,
+      "description": "One-page checkout replacing the multi-step flow",
+      "created_at": "2026-03-01T09:00:00Z",
+      "owners": ["checkout-team@acme.example"],
+      "tags": ["release"],
+      "environments": [
+        {"environment": "development", "enabled": true, "updated_at": "2026-03-02T10:00:00Z"},
+        {"environment": "staging", "enabled": true, "updated_at": "2026-04-10T10:00:00Z"},
+        {"environment": "production", "is_production": true, "enabled": true, "updated_at": "2026-08-15T12:00:00Z"}
+      ],
+      "recent_changes": [
+        {"at": "2026-08-15T12:00:00Z", "environment": "production", "description": "Rollout raised from 50% to 100%; segment override removed"}
+      ],
+      "activity": {"source": "mock", "window_days": 30, "evaluation_count": 120344, "last_evaluated_at": "2026-11-26T23:59:00Z"},
+      "owner_confirmation": {
+        "confirmed_by": "checkout-team@acme.example",
+        "confirmed_at": "2026-11-20T15:00:00Z",
+        "purpose": "release",
+        "still_needed": false,
+        "notes": "Legacy checkout can be removed."
+      }
+    },
+    {
+      "flag_name": "dark_mode",
+      "project": "acme-web",
+      "created_at": "2026-06-01T09:00:00Z",
+      "owners": ["design-system@acme.example"],
+      "tags": ["release"],
+      "environments": [
+        {"environment": "staging", "enabled": true},
+        {"environment": "production", "is_production": true, "enabled": true, "segment_overrides": 2, "updated_at": "2026-10-01T08:00:00Z"}
+      ],
+      "activity": {"source": "mock", "window_days": 30, "evaluation_count": 98000, "last_evaluated_at": "2026-11-26T22:00:00Z"}
+    },
+    {
+      "flag_name": "banner_text",
+      "project": "acme-web",
+      "created_at": "2025-11-01T09:00:00Z",
+      "owners": ["marketing@acme.example"],
+      "tags": ["remote-config"],
+      "environments": [
+        {"environment": "production", "is_production": true, "enabled": true, "value": "Welcome back!", "updated_at": "2026-11-01T08:00:00Z"}
+      ]
+    },
+    {
+      "flag_name": "legacy_search",
+      "project": "acme-web",
+      "created_at": "2025-09-01T09:00:00Z",
+      "owners": ["search-team@acme.example"],
+      "tags": [],
+      "environments": [
+        {"environment": "staging", "enabled": false, "updated_at": "2026-01-10T09:00:00Z"},
+        {"environment": "production", "is_production": true, "enabled": false, "updated_at": "2026-01-10T09:00:00Z"}
+      ],
+      "activity": {"source": "mock", "window_days": 30, "evaluation_count": 40100, "last_evaluated_at": "2026-11-26T20:00:00Z"}
+    },
+    {
+      "flag_name": "free_shipping",
+      "project": "acme-pricing",
+      "created_at": "2026-05-01T09:00:00Z",
+      "owners": ["pricing@acme.example"],
+      "environments": [
+        {"environment": "production", "is_production": true, "enabled": true, "updated_at": "2026-11-20T09:00:00Z"}
+      ],
+      "recent_changes": [{"at": "2026-11-20T09:00:00Z", "environment": "production", "description": "Enabled for Black Friday"}]
+    },
+    {
+      "flag_name": "shipping_rate",
+      "project": "acme-pricing",
+      "created_at": "2026-02-01T09:00:00Z",
+      "owners": [],
+      "environments": [
+        {"environment": "production", "is_production": true, "enabled": true, "value": 4.99, "updated_at": "2026-04-01T09:00:00Z"}
+      ]
+    },
+    {
+      "flag_name": "recommendations_v2",
+      "project": "acme-web",
+      "created_at": "2026-09-01T09:00:00Z",
+      "owners": ["growth@acme.example"],
+      "feature_type": "multivariate",
+      "environments": [
+        {"environment": "production", "is_production": true, "enabled": true, "percentage_allocation": 30, "updated_at": "2026-11-01T09:00:00Z"}
+      ]
+    },
+    {
+      "flag_name": "analytics_v2",
+      "project": "acme-web",
+      "created_at": "2025-12-01T09:00:00Z",
+      "owners": ["data@acme.example"],
+      "environments": [
+        {"environment": "production", "is_production": true, "enabled": true, "updated_at": "2026-02-01T09:00:00Z"}
+      ]
+    },
+    {
+      "flag_name": "old_promo_banner",
+      "project": "acme-web",
+      "created_at": "2025-05-01T09:00:00Z",
+      "owners": ["marketing@acme.example"],
+      "environments": [
+        {"environment": "production", "is_production": true, "enabled": false, "updated_at": "2025-07-01T09:00:00Z"}
+      ],
+      "activity": {"source": "mock", "window_days": 30, "evaluation_count": 0}
+    },
+    {
+      "flag_name": "maintenance_mode",
+      "project": "acme-web",
+      "created_at": "2024-01-01T09:00:00Z",
+      "owners": ["sre@acme.example"],
+      "tags": ["kill-switch"],
+      "environments": [
+        {"environment": "production", "is_production": true, "enabled": false, "updated_at": "2024-06-01T09:00:00Z"}
+      ]
+    }
+  ]
+}

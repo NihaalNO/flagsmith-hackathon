@@ -1,0 +1,100 @@
+{
+  "id": "verify_56ea864cf8c1aeba",
+  "patch_id": "patch_08b2203e6e8d78d2",
+  "flag_name": "legacy_search",
+  "files_changed": [
+    "acme/checkout-web:src/search/search.ts"
+  ],
+  "patch_applied": true,
+  "apply_errors": [],
+  "remaining_references": [],
+  "unresolved_dynamic_references": [
+    {
+      "id": "ref_c54be1ce3cc82af2",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/lib/experiments.ts",
+        "line": 9,
+        "column": 10,
+        "end_line": 9,
+        "end_column": 31,
+        "start_byte": 338,
+        "end_byte": 359
+      },
+      "flag_name": null,
+      "trait_key": null,
+      "sdk": "flagsmith-js",
+      "api": "getValue",
+      "usage_type": "value_retrieval",
+      "classification": "dynamic",
+      "is_dynamic": true,
+      "name_resolution": "unresolved",
+      "argument_expression": "name",
+      "confidence": 0.9,
+      "evidence": [
+        "receiver: annotated with type IFlagsmith (`IFlagsmith` is a named import 'IFlagsmith' from 'flagsmith' (line 1))",
+        "flag name expression `name` is not statically resolvable"
+      ],
+      "context": {
+        "snippet": "return client.getValue(name);",
+        "enclosing_function": "readFlag",
+        "in_conditional": false,
+        "is_test_file": false
+      }
+    }
+  ],
+  "static_findings": [],
+  "test_results": [
+    {
+      "name": "npm test",
+      "kind": "tests",
+      "repository": "acme/checkout-web",
+      "argv": [
+        "npm",
+        "test",
+        "--silent"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_s": 1.3,
+      "output_tail": "✔ cartTotal keeps cent precision with the new checkout (1.2019ms)\n✔ search uses the modern engine (1.9644ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 217.5422",
+      "error": null
+    },
+    {
+      "name": "npm test",
+      "kind": "tests",
+      "repository": "acme/pricing-service",
+      "argv": [
+        "npm",
+        "test",
+        "--silent"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_s": 1.26,
+      "output_tail": "✔ free shipping above threshold (1.207ms)\n✔ falls back to default rate (0.2708ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 203.1726",
+      "error": null
+    }
+  ],
+  "static_results": [],
+  "status": "incomplete",
+  "ready_for_human_review": false,
+  "unresolved_risks": [
+    "1 dynamic reference(s) may still evaluate 'legacy_search'",
+    "follow-up: `flagsmith` (client) in acme/checkout-web:src/search/search.ts is no longer used; the code that creates or passes it may be removable (Flagsmith calls can have side effects such as network requests) - review",
+    "follow-up: `legacySearch` (function, acme/checkout-web:src/search/search.ts) is no longer used; consider removing it - review before deleting"
+  ],
+  "required_approvals": [
+    "code_reviewer",
+    "flag_owner"
+  ],
+  "actions_not_taken": [
+    "no changes were written to the source repositories",
+    "no branch was pushed and no pull request was opened or merged",
+    "the Flagsmith flag was not modified or archived"
+  ],
+  "workspace_path": null,
+  "started_at": "2026-11-27T13:54:06.016866Z",
+  "finished_at": "2026-11-27T13:54:08.727448Z"
+}

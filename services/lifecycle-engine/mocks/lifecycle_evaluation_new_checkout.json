@@ -1,0 +1,78 @@
+{
+  "flag_id": "acme-web:new_checkout",
+  "flag_name": "new_checkout",
+  "current_state": "rolling_out",
+  "suggested_state": "fully_released",
+  "suggestion_confidence": 0.65,
+  "is_recommendation": true,
+  "rationale": [
+    "uniform 100% production exposure with stable configuration"
+  ],
+  "available_evidence": [
+    {
+      "kind": "code_references_present",
+      "description": "4 confirmed code reference(s)",
+      "source": "code_scan",
+      "reference": "analysis_48866060f727574e",
+      "observed_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "kind": "enabled_in_non_production",
+      "description": "enabled in development, staging",
+      "source": "flagsmith",
+      "reference": null,
+      "observed_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "kind": "full_production_exposure",
+      "description": "uniformly enabled for all identities in every production environment",
+      "source": "flagsmith",
+      "reference": null,
+      "observed_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "kind": "rollout_stable",
+      "description": "production configuration unchanged since 2026-08-15",
+      "source": "flagsmith",
+      "reference": null,
+      "observed_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "kind": "owner_confirmed_not_needed",
+      "description": "checkout-team@acme.example confirmed the flag is no longer needed",
+      "source": "owner",
+      "reference": null,
+      "observed_at": "2026-11-20T15:00:00Z"
+    }
+  ],
+  "transitions": [
+    {
+      "to_state": "fully_released",
+      "allowed": false,
+      "is_rollback": false,
+      "description": "Uniform 100% production exposure, stable configuration, and the owner confirms the rollout is complete (100% exposure alone does not prove completion).",
+      "missing_evidence": [],
+      "missing_any_of": [],
+      "missing_approvals": [
+        "flag_owner"
+      ],
+      "problems": []
+    },
+    {
+      "to_state": "testing",
+      "allowed": false,
+      "is_rollback": true,
+      "description": "Production rollout rolled back.",
+      "missing_evidence": [
+        "rollback_reason"
+      ],
+      "missing_any_of": [],
+      "missing_approvals": [],
+      "problems": []
+    }
+  ],
+  "warnings": [
+    "100% exposure does not prove the rollout is complete; the flag owner must confirm"
+  ],
+  "evaluated_at": "2026-11-27T12:00:00Z"
+}
