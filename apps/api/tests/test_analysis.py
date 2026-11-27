@@ -257,6 +257,56 @@ def test_openai_compatible_provider_from_settings(setup, monkeypatch):
 
 
 @needs_engine
+def test_groq_provider_from_settings(setup, monkeypatch):
+    """FLAGPILOT_LLM_PROVIDER=groq with GROQ_API_KEY; base URL overridden to a local fake server."""
+    import json
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    from app.core.config import settings
+    from app.services.engine import llm_provider
+
+    seen = []
+
+    class FakeGroq(BaseHTTPRequestHandler):
+        def do_POST(self):  # noqa: N802
+            body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+            seen.append({"auth": self.headers.get("Authorization"), "model": body["model"],
+                         "format": body["response_format"]["type"]})
+            content = json.dumps({"reasoning_summary": "Narrative from Groq.", "statements": []})
+            out = json.dumps({"choices": [{"message": {"role": "assistant", "content": content}, "finish_reason": "stop"}]}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(out)))
+            self.end_headers()
+            self.wfile.write(out)
+
+        def log_message(self, *args):
+            pass
+
+    client, _, flag = setup
+    for k, v in {"flagpilot_llm_provider": "groq", "groq_api_key": "gsk_test", "flagpilot_llm_model": "",
+                 "flagpilot_llm_api_key": "", "flagpilot_llm_base_url": "", "flagpilot_llm_json_mode": "auto"}.items():
+        monkeypatch.setattr(settings, k, v)
+    p = llm_provider()
+    assert (p.name, p.model, p.endpoint) == ("groq", "openai/gpt-oss-120b", "https://api.groq.com/openai/v1/chat/completions")
+
+    server = HTTPServer(("127.0.0.1", 0), FakeGroq)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        monkeypatch.setattr(settings, "flagpilot_llm_base_url", f"http://127.0.0.1:{server.server_address[1]}/openai/v1")
+        body = client.post(f"/api/flags/{flag['id']}/analysis", json={}).json()
+    finally:
+        server.shutdown()
+    assert body["llm_status"] == "used" and body["result"]["cleanup_plan"]["llm"]["provider"] == "groq"
+    assert seen == [{"auth": "Bearer gsk_test", "model": "openai/gpt-oss-120b", "format": "json_schema"}]
+
+    monkeypatch.setattr(settings, "groq_api_key", "")
+    r = client.post(f"/api/flags/{flag['id']}/analysis", json={})
+    assert r.status_code == 503 and "GROQ_API_KEY" in r.json()["detail"]
+
+
+@needs_engine
 @pytest.mark.parametrize("overrides,needle", [
     ({"flagpilot_llm_base_url": ""}, "base URL"),
     ({"flagpilot_llm_model": ""}, "model name"),

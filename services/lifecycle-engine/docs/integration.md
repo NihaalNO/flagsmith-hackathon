@@ -90,9 +90,9 @@ Dynamic references have no `flag_name` and need a nullable `flag_id` or a separa
 7. **Verification commands** — configure `EngineSettings.server_commands` per repository
    (e.g. `npm ci && npm test`, `npx tsc --noEmit`). Request-supplied commands stay disabled.
    Run verification in a worker (it can take minutes).
-8. **LLM provider** — configured in the backend's `.env` (`FLAGPILOT_LLM_PROVIDER`, `FLAGPILOT_LLM_MODEL`,
+8. **LLM provider** — configured in the backend's `.env` (`FLAGPILOT_LLM_PROVIDER`, `GROQ_API_KEY`, `FLAGPILOT_LLM_MODEL`,
    `FLAGPILOT_LLM_BASE_URL`, `FLAGPILOT_LLM_API_KEY`, `FLAGPILOT_LLM_JSON_MODE`); or pass
-   `OpenAICompatibleProvider()`, `AnthropicProvider()`, `ClaudeCodeProvider()` or another `LLMProvider`
+   `GroqProvider()`, `OpenAICompatibleProvider()`, `AnthropicProvider()`, `ClaudeCodeProvider()` or another `LLMProvider`
    to `EngineService`; `None` keeps planning deterministic. The Claude Code provider needs the
    `claude` CLI installed and signed in on the machine that runs planning (fine for local/dev; a
    serverless deploy such as Vercel should use the SDK provider instead).

@@ -170,10 +170,16 @@ status, Flagsmith or any repository.
   `insufficient_evidence` / `not_stale` with a list of missing evidence rather than cleanup
   recommendations until sync collects more.
 - **LLM narrative:** set `FLAGPILOT_LLM_PROVIDER` in `.env`. Unset means a deterministic narrative.
+  - `groq`: Groq's API. Set `GROQ_API_KEY`; `FLAGPILOT_LLM_MODEL` defaults to `openai/gpt-oss-120b`.
+    With `FLAGPILOT_LLM_JSON_MODE=auto` (default), models Groq supports for structured outputs
+    (the `openai/gpt-oss-*` family and a few preview models) get `json_schema`; others such as
+    `llama-3.3-70b-versatile` get JSON mode. Groq's free tier has low rate limits; a 429 falls back
+    to the deterministic narrative.
   - `openai-compatible`: any OpenAI Chat Completions server (OpenAI, OpenRouter, Ollama, vLLM,
     LM Studio, LiteLLM). Needs `FLAGPILOT_LLM_MODEL` and `FLAGPILOT_LLM_BASE_URL` (with the version
     path, e.g. `https://api.openai.com/v1`); `FLAGPILOT_LLM_API_KEY` is optional for local servers.
-    `FLAGPILOT_LLM_JSON_MODE=json_object` or `none` for servers without structured outputs.
+    `FLAGPILOT_LLM_JSON_MODE=json_object` or `none` for servers without structured outputs
+    (`auto`, the default, means `json_schema` here).
   - `anthropic`, `claude-code` (local only; needs a signed-in Claude Code CLI) or `mock`.
   - A misconfigured provider makes `POST .../analysis` answer 503 with the reason; send
     `{"use_llm": false}` to analyze without it. Whatever the model returns is validated against the

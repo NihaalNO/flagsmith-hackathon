@@ -66,10 +66,14 @@ LLM narrative (optional), via `FLAGPILOT_LLM_PROVIDER`:
   working directory, evidence on stdin, `--json-schema` output). It uses your signed-in Claude Code
   account, so no API key is needed. `FLAGPILOT_LLM_MAX_BUDGET_USD` caps spend per call (default 1.0);
   a plan for the sample `new_checkout` flag cost about $0.07–0.12 and took about 30 s.
+* `groq` calls Groq (`https://api.groq.com/openai/v1`) with `GROQ_API_KEY` (or
+  `FLAGPILOT_LLM_API_KEY`). Model defaults to `openai/gpt-oss-120b`; `FLAGPILOT_LLM_JSON_MODE=auto`
+  uses structured outputs on models that support them and JSON mode on the rest. Live test:
+  `$env:FLAGPILOT_LIVE_GROQ = "1"; $env:GROQ_API_KEY = "..."; .venv\Scripts\python -m pytest -s -m groq_live`.
 * `openai-compatible` calls any OpenAI Chat Completions server (OpenAI, OpenRouter, Ollama, vLLM,
   LM Studio, LiteLLM) with `FLAGPILOT_LLM_MODEL`, `FLAGPILOT_LLM_BASE_URL` (e.g.
   `http://localhost:11434/v1`), optional `FLAGPILOT_LLM_API_KEY`, and `FLAGPILOT_LLM_JSON_MODE`
-  (`json_schema` by default; `json_object` or `none` for servers without structured outputs).
+  (`auto` = `json_schema` by default; `json_object` or `none` for servers without structured outputs).
   Standard library only, no extra dependency.
 * `anthropic` uses the official SDK (`pip install -e ".[llm]"` and Anthropic credentials).
 * `mock` is deterministic, for development and tests.

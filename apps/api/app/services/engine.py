@@ -69,6 +69,16 @@ def llm_provider():
         return llm.ClaudeCodeProvider(model=model)
     if kind == "mock":
         return llm.MockLLMProvider()
+    if kind == "groq":
+        try:
+            return llm.GroqProvider(
+                model=model,
+                api_key=settings.flagpilot_llm_api_key.strip() or settings.groq_api_key.strip() or None,
+                base_url=settings.flagpilot_llm_base_url.strip() or None,
+                json_mode=settings.flagpilot_llm_json_mode.strip().lower(),
+            )
+        except ValueError as exc:
+            raise EngineUnavailable(f"LLM provider misconfigured: {exc}") from exc
     if kind == "openai-compatible":
         try:
             return llm.OpenAICompatibleProvider(
@@ -80,7 +90,7 @@ def llm_provider():
         except ValueError as exc:
             raise EngineUnavailable(f"LLM provider misconfigured: {exc}") from exc
     raise EngineUnavailable(f"LLM provider misconfigured: unknown FLAGPILOT_LLM_PROVIDER "
-                            f"'{settings.flagpilot_llm_provider}' (openai-compatible, anthropic, claude-code, mock)")
+                            f"'{settings.flagpilot_llm_provider}' (groq, openai-compatible, anthropic, claude-code, mock)")
 
 
 @dataclass

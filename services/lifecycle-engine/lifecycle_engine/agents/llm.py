@@ -239,7 +239,7 @@ class ClaudeCodeProvider:
 
 
 HttpPost = Callable[[str, dict, dict, float], tuple[int, str]]
-JSON_MODES = ("json_schema", "json_object", "none")
+JSON_MODES = ("auto", "json_schema", "json_object", "none")
 _FENCE_RE = re.compile(r"^\s*```(?:json)?\s*(.*?)\s*```\s*$", re.S)
 
 
@@ -258,15 +258,16 @@ class OpenAICompatibleProvider:
 
     POSTs to `{base_url}/chat/completions`. `json_mode` controls how JSON is requested:
     'json_schema' (structured outputs; sent with strict=false because the plan schema has
-    optional fields), 'json_object' (JSON mode, schema given in the prompt), or 'none'
-    (schema in the prompt only, for servers that support neither). Uses only the standard
+    optional fields), 'json_object' (JSON mode, schema given in the prompt), 'none'
+    (schema in the prompt only, for servers that support neither), or 'auto' (the
+    provider's choice for the model: json_schema here, per-model for presets like Groq). Uses only the standard
     library; the API key is optional (local servers usually need none) and never appears in
     error messages.
     """
 
     name = "openai-compatible"
 
-    def __init__(self, model: str, base_url: str, api_key: str | None = None, *, json_mode: str = "json_schema",
+    def __init__(self, model: str, base_url: str, api_key: str | None = None, *, json_mode: str = "auto",
                  timeout_s: float = 120, max_tokens: int | None = None, post: HttpPost | None = None):
         if not model:
             raise ValueError("OpenAI-compatible provider needs a model name (FLAGPILOT_LLM_MODEL)")
@@ -277,10 +278,13 @@ class OpenAICompatibleProvider:
         self.model = model
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key or None
-        self.json_mode = json_mode
+        self.json_mode = self.resolve_json_mode(json_mode)
         self.timeout_s = timeout_s
         self.max_tokens = max_tokens
         self.post = post or _urllib_post
+
+    def resolve_json_mode(self, json_mode: str) -> str:
+        return "json_schema" if json_mode == "auto" else json_mode
 
     @property
     def endpoint(self) -> str:
@@ -347,19 +351,62 @@ class OpenAICompatibleProvider:
         return str(msg)[:300]
 
 
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+GROQ_DEFAULT_MODEL = "openai/gpt-oss-120b"
+# Models documented by Groq as supporting response_format json_schema (checked 2026-11-27,
+# console.groq.com/docs/structured-outputs). Every other Groq model gets JSON mode.
+GROQ_JSON_SCHEMA_MODELS = frozenset({
+    "openai/gpt-oss-120b", "openai/gpt-oss-20b", "openai/gpt-oss-safeguard-20b",
+    "qwen/qwen3.8-27b", "meta-models/muse-spark-open",
+})
+
+
+class GroqProvider(OpenAICompatibleProvider):
+    """Groq (console.groq.com) through its OpenAI-compatible API.
+
+    Defaults to `openai/gpt-oss-120b` and Groq's base URL. With json_mode='auto', models
+    that support structured outputs get `json_schema`; all others get JSON mode
+    (`json_object`, which Groq supports on every model) with the schema in the prompt.
+    An API key is required (GROQ_API_KEY).
+    """
+
+    name = "groq"
+
+    def __init__(self, model: str | None = None, api_key: str | None = None, *, base_url: str | None = None,
+                 json_mode: str = "auto", **kw):
+        if not api_key:
+            raise ValueError("Groq provider needs an API key (GROQ_API_KEY)")
+        super().__init__(model=model or GROQ_DEFAULT_MODEL, base_url=base_url or GROQ_BASE_URL,
+                         api_key=api_key, json_mode=json_mode, **kw)
+
+    def resolve_json_mode(self, json_mode: str) -> str:
+        if json_mode != "auto":
+            return json_mode
+        return "json_schema" if self.model in GROQ_JSON_SCHEMA_MODELS else "json_object"
+
+
 def provider_from_env() -> LLMProvider | None:
-    """`FLAGPILOT_LLM_PROVIDER` = 'openai-compatible' | 'claude-code' | 'anthropic' | 'mock' | unset (no LLM).
+    """`FLAGPILOT_LLM_PROVIDER` = 'groq' | 'openai-compatible' | 'claude-code' | 'anthropic' | 'mock' | unset.
 
     openai-compatible reads FLAGPILOT_LLM_MODEL, FLAGPILOT_LLM_BASE_URL, optional
-    FLAGPILOT_LLM_API_KEY and FLAGPILOT_LLM_JSON_MODE (json_schema | json_object | none).
+    FLAGPILOT_LLM_API_KEY and FLAGPILOT_LLM_JSON_MODE (auto | json_schema | json_object | none).
+    groq reads GROQ_API_KEY (or FLAGPILOT_LLM_API_KEY), optional FLAGPILOT_LLM_MODEL
+    (default openai/gpt-oss-120b), FLAGPILOT_LLM_BASE_URL and FLAGPILOT_LLM_JSON_MODE.
     """
     kind = os.environ.get("FLAGPILOT_LLM_PROVIDER", "").lower()
+    if kind == "groq":
+        return GroqProvider(
+            model=os.environ.get("FLAGPILOT_LLM_MODEL") or None,
+            api_key=os.environ.get("FLAGPILOT_LLM_API_KEY") or os.environ.get("GROQ_API_KEY") or None,
+            base_url=os.environ.get("FLAGPILOT_LLM_BASE_URL") or None,
+            json_mode=os.environ.get("FLAGPILOT_LLM_JSON_MODE", "auto").lower(),
+        )
     if kind == "openai-compatible":
         return OpenAICompatibleProvider(
             model=os.environ.get("FLAGPILOT_LLM_MODEL", ""),
             base_url=os.environ.get("FLAGPILOT_LLM_BASE_URL", ""),
             api_key=os.environ.get("FLAGPILOT_LLM_API_KEY") or None,
-            json_mode=os.environ.get("FLAGPILOT_LLM_JSON_MODE", "json_schema").lower(),
+            json_mode=os.environ.get("FLAGPILOT_LLM_JSON_MODE", "auto").lower(),
         )
     if kind == "claude-code":
         return ClaudeCodeProvider(model=os.environ.get("FLAGPILOT_LLM_MODEL") or None,

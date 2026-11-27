@@ -20,15 +20,19 @@ class Settings(BaseSettings):
     # Lifecycle engine (services/lifecycle-engine): Flagsmith environment names that count as
     # production when judging rollout state. Matching is case-insensitive.
     production_environment_names: str = "production,prod,live"
-    # Optional LLM narrative for cleanup plans: "openai-compatible", "anthropic", "claude-code"
-    # (local only: needs a signed-in Claude Code CLI) or "mock". Empty = deterministic narrative.
+    # Optional LLM narrative for cleanup plans: "groq", "openai-compatible", "anthropic",
+    # "claude-code" (local only: needs a signed-in Claude Code CLI) or "mock". Empty = deterministic.
     flagpilot_llm_provider: str = ""
     flagpilot_llm_model: str = ""
     # openai-compatible only: server root including the API version path, e.g.
     # https://api.openai.com/v1, https://openrouter.ai/api/v1, http://localhost:11434/v1 (Ollama).
     flagpilot_llm_base_url: str = ""
     flagpilot_llm_api_key: str = ""  # optional for local servers
-    flagpilot_llm_json_mode: str = "json_schema"  # json_schema | json_object | none
+    # auto | json_schema | json_object | none. auto picks per provider/model (Groq: json_schema
+    # only on models that support it, JSON mode otherwise).
+    flagpilot_llm_json_mode: str = "auto"
+    # groq only (Groq's conventional variable). FLAGPILOT_LLM_API_KEY takes precedence if set.
+    groq_api_key: str = ""
 
     @property
     def production_environment_list(self) -> set[str]:
