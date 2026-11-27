@@ -1,0 +1,176 @@
+name: CI / CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # ---------------------------------------------------------------- CI ----
+
+  api:
+    name: API tests + migrations
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: apps/api/.python-version
+          cache: pip
+          cache-dependency-path: |
+            apps/api/requirements.txt
+            services/lifecycle-engine/pyproject.toml
+      - run: pip install -r requirements-engine.txt # backend + lifecycle engine
+      - name: Unit tests (in-memory SQLite)
+        run: pytest -q
+      - name: Migrations apply cleanly to a fresh Postgres
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
+          ENCRYPTION_KEY: ci-placeholder-not-used-by-migrations
+          SUPABASE_URL: https://ci.supabase.co
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          alembic upgrade head
+
+  engine:
+    name: Lifecycle engine tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/lifecycle-engine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/lifecycle-engine/pyproject.toml
+      - uses: actions/setup-node@v4 # some tests run sample repos with Node >= 22.6
+        with:
+          node-version: 24
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+
+  web:
+    name: Web lint + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      # Public placeholders so the build compiles; deploys use the Vercel project env.
+      NEXT_PUBLIC_SUPABASE_URL: https://ci.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci
+      NEXT_PUBLIC_API_URL: https://flagpilot-api.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+  # ---------------------------------------------------------------- CD ----
+  # Runs only on pushes to main, after every CI job passes.
+  # Needs repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_API_PROJECT_ID,
+  # VERCEL_WEB_PROJECT_ID, DATABASE_URL (Supabase session pooler URL).
+  # Without them the deploy jobs skip instead of failing.
+
+  migrate:
+    name: Migrate Supabase
+    needs: [api, engine, web]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ENCRYPTION_KEY: ci-placeholder-not-used-by-migrations
+      SUPABASE_URL: https://ci.supabase.co
+    steps:
+      - name: Skip if DATABASE_URL is not configured
+        id: check
+        working-directory: .
+        run: echo "ok=${{ env.DATABASE_URL != '' }}" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ok == 'true'
+      - uses: actions/setup-python@v5
+        if: steps.check.outputs.ok == 'true'
+        with:
+          python-version-file: apps/api/.python-version
+          cache: pip
+          cache-dependency-path: apps/api/requirements.txt
+      - if: steps.check.outputs.ok == 'true'
+        run: pip install -r requirements.txt && alembic upgrade head
+
+  deploy:
+    name: Deploy ${{ matrix.name }}
+    needs: [migrate]
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: deploy-${{ matrix.name }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: api
+            dir: apps/api
+            project_secret: VERCEL_API_PROJECT_ID
+          - name: web
+            dir: apps/web
+            project_secret: VERCEL_WEB_PROJECT_ID
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets[matrix.project_secret] }}
+    steps:
+      - name: Skip if Vercel secrets are not configured
+        id: check
+        working-directory: .
+        run: echo "ok=${{ env.VERCEL_TOKEN != '' && env.VERCEL_PROJECT_ID != '' }}" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ok == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.ok == 'true'
+        with:
+          node-version: 24
+      - if: steps.check.outputs.ok == 'true'
+        run: npm i -g vercel@latest
+      - if: steps.check.outputs.ok == 'true'
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - if: steps.check.outputs.ok == 'true'
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+      - if: steps.check.outputs.ok == 'true'
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
