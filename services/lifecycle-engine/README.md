@@ -12,7 +12,8 @@ merges a pull request, or archives a flag.
 
 ```
 lifecycle_engine/
-  discovery/      Module 1 - Tree-sitter scanner (TS/TSX/JS), Flagsmith SDK catalog, binding resolution
+  discovery/      Module 1 - Tree-sitter scanner (TS/TSX/JS), Flagsmith SDK catalog, binding resolution,
+                  GitHub tarball source (sources.py)
   analyzers/      Module 2 - branches, fallbacks, related symbols/tests, findings, uncertainties
   state_machine/  Module 3 - lifecycle states, evidence-gated transitions, overrides, evaluation
   policies/       Module 4 - configurable, evidence-based stale detection
@@ -24,7 +25,7 @@ sample_repos/     checkout-web (browser + React SDK), pricing-service (Node serv
 sample_data/      mock Flagsmith configuration (flags.json)
 mocks/            real engine outputs for the frontend (regenerate: scripts/generate_mocks.py)
 docs/             architecture.md, api-contract.md, integration.md, openapi.json
-tests/            140 pytest tests (unit, safety, integration with real Node tests)
+tests/            145 pytest tests (unit, safety, integration with real Node tests)
 ```
 
 ## Setup
@@ -35,7 +36,7 @@ python -m venv .venv
 .venv\Scripts\python -m pip install -e ".[dev]"
 ```
 
-Python >= 3.11. Node >= 22.6 on PATH is needed only for the two integration tests that run the
+Python >= 3.11 (tested on 3.11 and 3.14). Node >= 22.6 on PATH is needed only for the two integration tests that run the
 sample repositories' own test suites (they are skipped otherwise).
 
 ## Use
