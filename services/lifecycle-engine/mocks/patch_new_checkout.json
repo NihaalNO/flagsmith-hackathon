@@ -1,0 +1,122 @@
+{
+  "id": "patch_5f38e7952e9821ce",
+  "flag_name": "new_checkout",
+  "direction": "keep_enabled_path",
+  "inline_value": null,
+  "status": "complete",
+  "files": [
+    {
+      "repository": "acme/checkout-web",
+      "file_path": "src/checkout/CheckoutPage.tsx",
+      "original_sha256": "4cf37b65f2a4e70725ee07dcbb50cba3d054d109075f27797e299e7c821d695a",
+      "patched_sha256": "898b144405e4cf4c2fa74e14354af1e2870ff9f9909e7a6fa5f22e402f5d649a",
+      "diff": "--- a/src/checkout/CheckoutPage.tsx\n+++ b/src/checkout/CheckoutPage.tsx\n@@ -1,14 +1,11 @@\n import React from \"react\";\n-import { useFlags } from \"flagsmith/react\";\n import { NewCheckout } from \"./NewCheckout\";\n-import { LegacyCheckout } from \"./LegacyCheckout\";\n \n export function CheckoutPage() {\n-  const flags = useFlags([\"new_checkout\"]);\n   return (\n     <main>\n       <h1>Checkout</h1>\n-      {flags.new_checkout.enabled ? <NewCheckout /> : <LegacyCheckout />}\n+      <NewCheckout />\n     </main>\n   );\n }\n",
+      "patched_content": "import React from \"react\";\nimport { NewCheckout } from \"./NewCheckout\";\n\nexport function CheckoutPage() {\n  return (\n    <main>\n      <h1>Checkout</h1>\n      <NewCheckout />\n    </main>\n  );\n}\n",
+      "edits": [
+        {
+          "kind": "remove_subscription",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 7,
+          "reference_id": "ref_fb43798c6caefa8c",
+          "description": "flag removed from useFlags()",
+          "before": "[\"new_checkout\"]",
+          "after": "[]"
+        },
+        {
+          "kind": "keep_branch",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 11,
+          "reference_id": "ref_ad7c8ddced41e4e2",
+          "description": "render `<NewCheckout />` unconditionally",
+          "before": "{flags.new_checkout.enabled ? <NewCheckout /> : <LegacyCheckout />}",
+          "after": "<NewCheckout />"
+        },
+        {
+          "kind": "remove_statement",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 7,
+          "reference_id": null,
+          "description": "useFlags() no longer subscribes to any flag; removed",
+          "before": "  const flags = useFlags([]);\n",
+          "after": ""
+        },
+        {
+          "kind": "remove_unused_import",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 2,
+          "reference_id": null,
+          "description": "import of useFlags no longer used; removed",
+          "before": "import { useFlags } from \"flagsmith/react\";\n",
+          "after": ""
+        },
+        {
+          "kind": "remove_unused_import",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 4,
+          "reference_id": null,
+          "description": "import of LegacyCheckout no longer used; removed",
+          "before": "import { LegacyCheckout } from \"./LegacyCheckout\";\n",
+          "after": ""
+        }
+      ]
+    },
+    {
+      "repository": "acme/checkout-web",
+      "file_path": "src/lib/cart.ts",
+      "original_sha256": "c992e08f8d8929a3119fd6dc7d652d61531a58d00a24778c90e547ff3bc02c84",
+      "patched_sha256": "4a298fda4223ef66d6e3c259e985d0f58f7db23129cd26ca8f40aa1b6c2cc080",
+      "diff": "--- a/src/lib/cart.ts\n+++ b/src/lib/cart.ts\n@@ -1,5 +1,4 @@\n import type { IFlagsmith } from \"flagsmith\";\n-import { FLAGS } from \"./flags.ts\";\n \n export interface CartItem {\n   price: number;\n@@ -20,9 +19,5 @@\n }\n \n export function cartTotal(flagsmith: IFlagsmith, items: CartItem[]): number {\n-  if (flagsmith.hasFeature(FLAGS.NEW_CHECKOUT)) {\n-    return itemizedTotal(items);\n-  } else {\n-    return legacyTotal(items);\n-  }\n+  return itemizedTotal(items);\n }\n",
+      "patched_content": "import type { IFlagsmith } from \"flagsmith\";\n\nexport interface CartItem {\n  price: number;\n  quantity: number;\n}\n\nfunction legacyTotal(items: CartItem[]): number {\n  let total = 0;\n  for (const item of items) {\n    total += item.price * item.quantity;\n  }\n  return Math.round(total);\n}\n\nfunction itemizedTotal(items: CartItem[]): number {\n  const cents = items.reduce((sum, i) => sum + Math.round(i.price * 100) * i.quantity, 0);\n  return cents / 100;\n}\n\nexport function cartTotal(flagsmith: IFlagsmith, items: CartItem[]): number {\n  return itemizedTotal(items);\n}\n",
+      "edits": [
+        {
+          "kind": "keep_branch",
+          "file_path": "src/lib/cart.ts",
+          "line": 23,
+          "reference_id": "ref_c8b5c7ed10ffcaf1",
+          "description": "if-consequence kept, else-branch removed",
+          "before": "if (flagsmith.hasFeature(FLAGS.NEW_CHECKOUT)) {\n    return itemizedTotal(items);\n  } else {\n    return legacyTotal(items);\n  }",
+          "after": "return itemizedTotal(items);"
+        },
+        {
+          "kind": "remove_unused_import",
+          "file_path": "src/lib/cart.ts",
+          "line": 2,
+          "reference_id": null,
+          "description": "import of FLAGS no longer used; removed",
+          "before": "import { FLAGS } from \"./flags.ts\";\n",
+          "after": ""
+        }
+      ]
+    },
+    {
+      "repository": "acme/pricing-service",
+      "file_path": "src/handlers.ts",
+      "original_sha256": "434ddb48b166e5347ba0fe48bd2a3755afeb866cf814c0d3e163f6f855dd844f",
+      "patched_sha256": "1213fcb5c613ec1c78eb5deb74da992914861a057e6a463cf15685d2abfb121c",
+      "diff": "--- a/src/handlers.ts\n+++ b/src/handlers.ts\n@@ -2,8 +2,5 @@\n \n export async function quoteHandler(userId: string) {\n   const flags = await flagsmith.getIdentityFlags(userId);\n-  if (flags.isFeatureEnabled(\"new_checkout\")) {\n-    return { version: 2 };\n-  }\n-  return { version: 1 };\n+  return { version: 2 };\n }\n",
+      "patched_content": "import { flagsmith } from \"./client\";\n\nexport async function quoteHandler(userId: string) {\n  const flags = await flagsmith.getIdentityFlags(userId);\n  return { version: 2 };\n}\n",
+      "edits": [
+        {
+          "kind": "keep_branch",
+          "file_path": "src/handlers.ts",
+          "line": 5,
+          "reference_id": "ref_5c616e92f5df7d25",
+          "description": "guard always taken: keep `return { version: 2 };` and drop unreachable statements after the guard",
+          "before": "if (flags.isFeatureEnabled(\"new_checkout\")) {\n    return { version: 2 };\n  }\n  return { version: 1 };",
+          "after": "return { version: 2 };"
+        }
+      ]
+    }
+  ],
+  "manual_steps": [],
+  "follow_ups": [
+    "`flagsmith` (client) in acme/checkout-web:src/lib/cart.ts is no longer used; the code that creates or passes it may be removable (Flagsmith calls can have side effects such as network requests) - review",
+    "`flags` (server_flags) in acme/pricing-service:src/handlers.ts is no longer used; the code that creates or passes it may be removable (Flagsmith calls can have side effects such as network requests) - review",
+    "`LegacyCheckout` (component, acme/checkout-web:src/checkout/LegacyCheckout.tsx) is no longer used; the whole file may be removable - review before deleting",
+    "`legacyTotal` (function, acme/checkout-web:src/lib/cart.ts) is no longer used; consider removing it - review before deleting"
+  ],
+  "base_scan_id": "scan_d0ab07e92284a861",
+  "generated_by": "deterministic-transformer",
+  "created_at": "2026-11-27T13:54:03.214126Z",
+  "notes": []
+}

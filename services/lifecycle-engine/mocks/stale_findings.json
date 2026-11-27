@@ -1,0 +1,1044 @@
+{
+  "scan_id": "scan_d0ab07e92284a861",
+  "findings": [
+    {
+      "id": "stale_45e4a454d8fa098f",
+      "flag_id": "acme-web:new_checkout",
+      "flag_name": "new_checkout",
+      "status": "potentially_stale",
+      "confidence": 0.79,
+      "score": 0.9,
+      "cleanup_direction": "keep_enabled_path",
+      "inline_value": null,
+      "lifecycle_state": null,
+      "evidence": [
+        {
+          "id": "ev_289d3e270aa5",
+          "kind": "flag_age",
+          "source": "flagsmith",
+          "description": "flag is 271 days old; age alone does not indicate staleness",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": 271,
+          "observed_at": null
+        },
+        {
+          "id": "ev_268abcb8515d",
+          "kind": "production_state",
+          "source": "flagsmith",
+          "description": "flag is uniformly enabled (100%) in all production environments; this alone does not prove the rollout is finished",
+          "direction": "supports",
+          "weight": 0.25,
+          "value": true,
+          "observed_at": null
+        },
+        {
+          "id": "ev_cc4b0d4e226e",
+          "kind": "environments_agree",
+          "source": "flagsmith",
+          "description": "all non-production environments match production",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": null,
+          "observed_at": null
+        },
+        {
+          "id": "ev_e3c26e039c4a",
+          "kind": "config_stability",
+          "source": "flagsmith",
+          "description": "production configuration unchanged for 104 days",
+          "direction": "supports",
+          "weight": 0.15,
+          "value": 104,
+          "observed_at": "2026-08-15T12:00:00Z"
+        },
+        {
+          "id": "ev_7f63158517f4",
+          "kind": "ownership",
+          "source": "flagsmith",
+          "description": "owners: checkout-team@acme.example",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        },
+        {
+          "id": "ev_28bbc7aa822f",
+          "kind": "owner_confirmation",
+          "source": "owner",
+          "description": "checkout-team@acme.example confirmed the flag is no longer needed (release)",
+          "direction": "supports",
+          "weight": 0.3,
+          "value": null,
+          "observed_at": "2026-11-20T15:00:00Z"
+        },
+        {
+          "id": "ev_6e75531dbaf0",
+          "kind": "code_reference_count",
+          "source": "code_scan",
+          "description": "4 confirmed reference(s) in 3 file(s): acme/checkout-web:src/checkout/CheckoutPage.tsx, acme/checkout-web:src/lib/cart.ts, acme/pricing-service:src/handlers.ts",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 4,
+          "observed_at": null
+        },
+        {
+          "id": "ev_c494eae3472f",
+          "kind": "evaluation_activity",
+          "source": "mock",
+          "description": "120344 evaluation(s) in the last 30 days",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 120344,
+          "observed_at": null
+        }
+      ],
+      "missing_evidence": [
+        {
+          "kind": "consumer_coverage",
+          "description": "not confirmed that every codebase consuming this flag was scanned",
+          "blocks": []
+        }
+      ],
+      "blockers": [
+        {
+          "kind": "dynamic_references",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "caps_status_at": "potentially_stale"
+        }
+      ],
+      "uncertainty": [],
+      "recommended_next_action": "Ask the flag owner to review. Before cleanup: 1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+      "requires_human_decision": true,
+      "policy_id": "default",
+      "policy_version": "1",
+      "evaluated_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "id": "stale_12acc725f799cac6",
+      "flag_id": "acme-web:legacy_search",
+      "flag_name": "legacy_search",
+      "status": "potentially_stale",
+      "confidence": 0.6,
+      "score": 0.6,
+      "cleanup_direction": "keep_disabled_path",
+      "inline_value": null,
+      "lifecycle_state": null,
+      "evidence": [
+        {
+          "id": "ev_291a120471d1",
+          "kind": "flag_age",
+          "source": "flagsmith",
+          "description": "flag is 452 days old; age alone does not indicate staleness",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": 452,
+          "observed_at": null
+        },
+        {
+          "id": "ev_9ca98e4ce726",
+          "kind": "production_state",
+          "source": "flagsmith",
+          "description": "flag is uniformly disabled in all production environments; this alone does not prove the rollout is finished",
+          "direction": "supports",
+          "weight": 0.25,
+          "value": false,
+          "observed_at": null
+        },
+        {
+          "id": "ev_7eff58e15033",
+          "kind": "environments_agree",
+          "source": "flagsmith",
+          "description": "all non-production environments match production",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": null,
+          "observed_at": null
+        },
+        {
+          "id": "ev_56075440c003",
+          "kind": "config_stability",
+          "source": "flagsmith",
+          "description": "production configuration unchanged for 321 days",
+          "direction": "supports",
+          "weight": 0.15,
+          "value": 321,
+          "observed_at": "2026-01-10T09:00:00Z"
+        },
+        {
+          "id": "ev_99a8303777f7",
+          "kind": "ownership",
+          "source": "flagsmith",
+          "description": "owners: search-team@acme.example",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        },
+        {
+          "id": "ev_e8ef2d7dc802",
+          "kind": "code_reference_count",
+          "source": "code_scan",
+          "description": "1 confirmed reference(s) in 1 file(s): acme/checkout-web:src/search/search.ts",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        },
+        {
+          "id": "ev_42999182d67d",
+          "kind": "evaluation_activity",
+          "source": "mock",
+          "description": "40100 evaluation(s) in the last 30 days",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 40100,
+          "observed_at": null
+        }
+      ],
+      "missing_evidence": [
+        {
+          "kind": "owner_confirmation",
+          "description": "owner has not confirmed whether the flag is still needed",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "consumer_coverage",
+          "description": "not confirmed that every codebase consuming this flag was scanned",
+          "blocks": []
+        }
+      ],
+      "blockers": [
+        {
+          "kind": "dynamic_references",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "caps_status_at": "potentially_stale"
+        }
+      ],
+      "uncertainty": [],
+      "recommended_next_action": "Ask the flag owner to review. Before cleanup: 1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9; owner has not confirmed whether the flag is still needed",
+      "requires_human_decision": true,
+      "policy_id": "default",
+      "policy_version": "1",
+      "evaluated_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "id": "stale_f7ece11b7412135d",
+      "flag_id": "acme-web:old_promo_banner",
+      "flag_name": "old_promo_banner",
+      "status": "potentially_stale",
+      "confidence": 0.59,
+      "score": 0.55,
+      "cleanup_direction": "archive_only",
+      "inline_value": null,
+      "lifecycle_state": null,
+      "evidence": [
+        {
+          "id": "ev_6391258a61cd",
+          "kind": "flag_age",
+          "source": "flagsmith",
+          "description": "flag is 575 days old; age alone does not indicate staleness",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": 575,
+          "observed_at": null
+        },
+        {
+          "id": "ev_f38fa65eeab5",
+          "kind": "production_state",
+          "source": "flagsmith",
+          "description": "flag is uniformly disabled in all production environments; this alone does not prove the rollout is finished",
+          "direction": "supports",
+          "weight": 0.25,
+          "value": false,
+          "observed_at": null
+        },
+        {
+          "id": "ev_0decce5b21af",
+          "kind": "config_stability",
+          "source": "flagsmith",
+          "description": "production configuration unchanged for 514 days",
+          "direction": "supports",
+          "weight": 0.15,
+          "value": 514,
+          "observed_at": "2025-07-01T09:00:00Z"
+        },
+        {
+          "id": "ev_7a629b164437",
+          "kind": "ownership",
+          "source": "flagsmith",
+          "description": "owners: marketing@acme.example",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        },
+        {
+          "id": "ev_4b7fc3c8900b",
+          "kind": "code_reference_count",
+          "source": "code_scan",
+          "description": "no confirmed references in acme/checkout-web, acme/pricing-service; not proof of non-use",
+          "direction": "supports",
+          "weight": 0.05,
+          "value": 0,
+          "observed_at": null
+        },
+        {
+          "id": "ev_aa5fc6e88c21",
+          "kind": "evaluation_activity",
+          "source": "mock",
+          "description": "0 evaluation(s) in the last 30 days",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 0,
+          "observed_at": null
+        }
+      ],
+      "missing_evidence": [
+        {
+          "kind": "owner_confirmation",
+          "description": "owner has not confirmed whether the flag is still needed",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "consumer_coverage",
+          "description": "not confirmed that every codebase consuming this flag was scanned",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        }
+      ],
+      "blockers": [
+        {
+          "kind": "dynamic_references",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "caps_status_at": "potentially_stale"
+        }
+      ],
+      "uncertainty": [],
+      "recommended_next_action": "Ask the flag owner to review. Before cleanup: 1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9; owner has not confirmed whether the flag is still needed; not confirmed that every codebase consuming this flag was scanned",
+      "requires_human_decision": true,
+      "policy_id": "default",
+      "policy_version": "1",
+      "evaluated_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "id": "stale_e30e98518e03d78d",
+      "flag_id": "acme-web:analytics_v2",
+      "flag_name": "analytics_v2",
+      "status": "potentially_stale",
+      "confidence": 0.47,
+      "score": 0.55,
+      "cleanup_direction": "keep_enabled_path",
+      "inline_value": null,
+      "lifecycle_state": null,
+      "evidence": [
+        {
+          "id": "ev_29bdb72238ee",
+          "kind": "flag_age",
+          "source": "flagsmith",
+          "description": "flag is 361 days old; age alone does not indicate staleness",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": 361,
+          "observed_at": null
+        },
+        {
+          "id": "ev_e91fe92911fa",
+          "kind": "production_state",
+          "source": "flagsmith",
+          "description": "flag is uniformly enabled (100%) in all production environments; this alone does not prove the rollout is finished",
+          "direction": "supports",
+          "weight": 0.25,
+          "value": true,
+          "observed_at": null
+        },
+        {
+          "id": "ev_245e1731e443",
+          "kind": "config_stability",
+          "source": "flagsmith",
+          "description": "production configuration unchanged for 299 days",
+          "direction": "supports",
+          "weight": 0.15,
+          "value": 299,
+          "observed_at": "2026-02-01T09:00:00Z"
+        },
+        {
+          "id": "ev_67113e47a266",
+          "kind": "ownership",
+          "source": "flagsmith",
+          "description": "owners: data@acme.example",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        },
+        {
+          "id": "ev_542b944245ba",
+          "kind": "code_reference_count",
+          "source": "code_scan",
+          "description": "no confirmed references in acme/checkout-web, acme/pricing-service; not proof of non-use",
+          "direction": "supports",
+          "weight": 0.05,
+          "value": 0,
+          "observed_at": null
+        }
+      ],
+      "missing_evidence": [
+        {
+          "kind": "owner_confirmation",
+          "description": "owner has not confirmed whether the flag is still needed",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "consumer_coverage",
+          "description": "not confirmed that every codebase consuming this flag was scanned",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "evaluation_activity",
+          "description": "no flag evaluation analytics available",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        }
+      ],
+      "blockers": [
+        {
+          "kind": "potential_references",
+          "description": "1 unconfirmed reference(s) need review: src/legacy/analytics.js:3",
+          "caps_status_at": "potentially_stale"
+        },
+        {
+          "kind": "dynamic_references",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "caps_status_at": "potentially_stale"
+        }
+      ],
+      "uncertainty": [],
+      "recommended_next_action": "Ask the flag owner to review. Before cleanup: 1 unconfirmed reference(s) need review: src/legacy/analytics.js:3; 1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9; owner has not confirmed whether the flag is still needed; not confirmed that every codebase consuming this flag was scanned; no flag evaluation analytics available",
+      "requires_human_decision": true,
+      "policy_id": "default",
+      "policy_version": "1",
+      "evaluated_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "id": "stale_15b33988b11e677d",
+      "flag_id": "acme-pricing:shipping_rate",
+      "flag_name": "shipping_rate",
+      "status": "potentially_stale",
+      "confidence": 0.46,
+      "score": 0.5,
+      "cleanup_direction": "inline_value",
+      "inline_value": 4.99,
+      "lifecycle_state": null,
+      "evidence": [
+        {
+          "id": "ev_dadd9e5b18bc",
+          "kind": "flag_age",
+          "source": "flagsmith",
+          "description": "flag is 299 days old; age alone does not indicate staleness",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": 299,
+          "observed_at": null
+        },
+        {
+          "id": "ev_8bec645dad08",
+          "kind": "production_state",
+          "source": "flagsmith",
+          "description": "flag is uniformly enabled (100%) in all production environments; this alone does not prove the rollout is finished",
+          "direction": "supports",
+          "weight": 0.25,
+          "value": true,
+          "observed_at": null
+        },
+        {
+          "id": "ev_dd738a9580af",
+          "kind": "config_stability",
+          "source": "flagsmith",
+          "description": "production configuration unchanged for 240 days",
+          "direction": "supports",
+          "weight": 0.15,
+          "value": 240,
+          "observed_at": "2026-04-01T09:00:00Z"
+        },
+        {
+          "id": "ev_1c77ed23ccd1",
+          "kind": "code_reference_count",
+          "source": "code_scan",
+          "description": "1 confirmed reference(s) in 1 file(s): acme/pricing-service:src/shipping.ts",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        }
+      ],
+      "missing_evidence": [
+        {
+          "kind": "ownership",
+          "description": "flag has no recorded owner who can confirm its purpose",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "owner_confirmation",
+          "description": "owner has not confirmed whether the flag is still needed",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "consumer_coverage",
+          "description": "not confirmed that every codebase consuming this flag was scanned",
+          "blocks": []
+        },
+        {
+          "kind": "evaluation_activity",
+          "description": "no flag evaluation analytics available",
+          "blocks": []
+        }
+      ],
+      "blockers": [
+        {
+          "kind": "dynamic_references",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "caps_status_at": "potentially_stale"
+        }
+      ],
+      "uncertainty": [],
+      "recommended_next_action": "Ask the flag owner to review. Before cleanup: 1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9; flag has no recorded owner who can confirm its purpose; owner has not confirmed whether the flag is still needed",
+      "requires_human_decision": true,
+      "policy_id": "default",
+      "policy_version": "1",
+      "evaluated_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "id": "stale_82b1913faa15d7e1",
+      "flag_id": "acme-web:dark_mode",
+      "flag_name": "dark_mode",
+      "status": "not_stale",
+      "confidence": 0.51,
+      "score": -0.35,
+      "cleanup_direction": "undetermined",
+      "inline_value": null,
+      "lifecycle_state": null,
+      "evidence": [
+        {
+          "id": "ev_fb9f7ed82c33",
+          "kind": "flag_age",
+          "source": "flagsmith",
+          "description": "flag is 179 days old; age alone does not indicate staleness",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": 179,
+          "observed_at": null
+        },
+        {
+          "id": "ev_0cecef130372",
+          "kind": "production_targeting",
+          "source": "flagsmith",
+          "description": "production targeting is active (production: 2 segment / 0 identity overrides)",
+          "direction": "opposes",
+          "weight": -0.6,
+          "value": null,
+          "observed_at": null
+        },
+        {
+          "id": "ev_668c822281cc",
+          "kind": "config_stability",
+          "source": "flagsmith",
+          "description": "production configuration unchanged for 57 days",
+          "direction": "supports",
+          "weight": 0.15,
+          "value": 57,
+          "observed_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "id": "ev_38000d455555",
+          "kind": "ownership",
+          "source": "flagsmith",
+          "description": "owners: design-system@acme.example",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        },
+        {
+          "id": "ev_002a7b3c17b7",
+          "kind": "code_reference_count",
+          "source": "code_scan",
+          "description": "2 confirmed reference(s) in 1 file(s): acme/checkout-web:src/components/Header.tsx",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 2,
+          "observed_at": null
+        },
+        {
+          "id": "ev_a7d036420017",
+          "kind": "evaluation_activity",
+          "source": "mock",
+          "description": "98000 evaluation(s) in the last 30 days",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 98000,
+          "observed_at": null
+        }
+      ],
+      "missing_evidence": [
+        {
+          "kind": "owner_confirmation",
+          "description": "owner has not confirmed whether the flag is still needed",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "consumer_coverage",
+          "description": "not confirmed that every codebase consuming this flag was scanned",
+          "blocks": []
+        }
+      ],
+      "blockers": [
+        {
+          "kind": "dynamic_references",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "caps_status_at": "potentially_stale"
+        }
+      ],
+      "uncertainty": [],
+      "recommended_next_action": "No cleanup action. Re-evaluate later or when configuration changes.",
+      "requires_human_decision": true,
+      "policy_id": "default",
+      "policy_version": "1",
+      "evaluated_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "id": "stale_45bded6cf63bfa10",
+      "flag_id": "acme-web:recommendations_v2",
+      "flag_name": "recommendations_v2",
+      "status": "not_stale",
+      "confidence": 0.46,
+      "score": -0.35,
+      "cleanup_direction": "undetermined",
+      "inline_value": null,
+      "lifecycle_state": null,
+      "evidence": [
+        {
+          "id": "ev_3baefad34b0b",
+          "kind": "flag_age",
+          "source": "flagsmith",
+          "description": "flag is 87 days old; age alone does not indicate staleness",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": 87,
+          "observed_at": null
+        },
+        {
+          "id": "ev_afa9bf968ae4",
+          "kind": "production_targeting",
+          "source": "flagsmith",
+          "description": "production targeting is active (production: 0 segment / 0 identity overrides, 30.0% split)",
+          "direction": "opposes",
+          "weight": -0.6,
+          "value": null,
+          "observed_at": null
+        },
+        {
+          "id": "ev_22c9cc28bc20",
+          "kind": "config_stability",
+          "source": "flagsmith",
+          "description": "production configuration unchanged for 26 days",
+          "direction": "supports",
+          "weight": 0.15,
+          "value": 26,
+          "observed_at": "2026-11-01T09:00:00Z"
+        },
+        {
+          "id": "ev_00fb5ce369af",
+          "kind": "ownership",
+          "source": "flagsmith",
+          "description": "owners: growth@acme.example",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        },
+        {
+          "id": "ev_9b65c38adbf8",
+          "kind": "code_reference_count",
+          "source": "code_scan",
+          "description": "1 confirmed reference(s) in 1 file(s): acme/checkout-web:src/services/recommendations.ts",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        }
+      ],
+      "missing_evidence": [
+        {
+          "kind": "owner_confirmation",
+          "description": "owner has not confirmed whether the flag is still needed",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "consumer_coverage",
+          "description": "not confirmed that every codebase consuming this flag was scanned",
+          "blocks": []
+        },
+        {
+          "kind": "evaluation_activity",
+          "description": "no flag evaluation analytics available",
+          "blocks": []
+        }
+      ],
+      "blockers": [
+        {
+          "kind": "dynamic_references",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "caps_status_at": "potentially_stale"
+        }
+      ],
+      "uncertainty": [],
+      "recommended_next_action": "No cleanup action. Re-evaluate later or when configuration changes.",
+      "requires_human_decision": true,
+      "policy_id": "default",
+      "policy_version": "1",
+      "evaluated_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "id": "stale_bdae7db8229df484",
+      "flag_id": "acme-web:banner_text",
+      "flag_name": "banner_text",
+      "status": "not_stale",
+      "confidence": 0.38,
+      "score": -0.1,
+      "cleanup_direction": "inline_value",
+      "inline_value": "Welcome back!",
+      "lifecycle_state": null,
+      "evidence": [
+        {
+          "id": "ev_9efda70fc425",
+          "kind": "flag_age",
+          "source": "flagsmith",
+          "description": "flag is 391 days old; age alone does not indicate staleness",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": 391,
+          "observed_at": null
+        },
+        {
+          "id": "ev_84866bc29e99",
+          "kind": "long_lived_tag",
+          "source": "flagsmith",
+          "description": "flag is tagged ['remote-config'] (long-lived by design)",
+          "direction": "opposes",
+          "weight": -0.6,
+          "value": null,
+          "observed_at": null
+        },
+        {
+          "id": "ev_86abf813ebd0",
+          "kind": "production_state",
+          "source": "flagsmith",
+          "description": "flag is uniformly enabled (100%) in all production environments; this alone does not prove the rollout is finished",
+          "direction": "supports",
+          "weight": 0.25,
+          "value": true,
+          "observed_at": null
+        },
+        {
+          "id": "ev_769de73f3cfa",
+          "kind": "config_stability",
+          "source": "flagsmith",
+          "description": "production configuration unchanged for 26 days",
+          "direction": "supports",
+          "weight": 0.15,
+          "value": 26,
+          "observed_at": "2026-11-01T08:00:00Z"
+        },
+        {
+          "id": "ev_d24af6add61a",
+          "kind": "ownership",
+          "source": "flagsmith",
+          "description": "owners: marketing@acme.example",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        },
+        {
+          "id": "ev_eadf9173960d",
+          "kind": "code_reference_count",
+          "source": "code_scan",
+          "description": "1 confirmed reference(s) in 1 file(s): acme/checkout-web:src/components/Banner.tsx",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        }
+      ],
+      "missing_evidence": [
+        {
+          "kind": "owner_confirmation",
+          "description": "owner has not confirmed whether the flag is still needed",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "consumer_coverage",
+          "description": "not confirmed that every codebase consuming this flag was scanned",
+          "blocks": []
+        },
+        {
+          "kind": "evaluation_activity",
+          "description": "no flag evaluation analytics available",
+          "blocks": []
+        }
+      ],
+      "blockers": [
+        {
+          "kind": "dynamic_references",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "caps_status_at": "potentially_stale"
+        }
+      ],
+      "uncertainty": [],
+      "recommended_next_action": "No cleanup action. Re-evaluate later or when configuration changes.",
+      "requires_human_decision": true,
+      "policy_id": "default",
+      "policy_version": "1",
+      "evaluated_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "id": "stale_f03ed3294330d094",
+      "flag_id": "acme-web:maintenance_mode",
+      "flag_name": "maintenance_mode",
+      "status": "not_stale",
+      "confidence": 0.36,
+      "score": -0.05,
+      "cleanup_direction": "archive_only",
+      "inline_value": null,
+      "lifecycle_state": null,
+      "evidence": [
+        {
+          "id": "ev_425be4a45474",
+          "kind": "flag_age",
+          "source": "flagsmith",
+          "description": "flag is 1061 days old; age alone does not indicate staleness",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": 1061,
+          "observed_at": null
+        },
+        {
+          "id": "ev_8bb12f8ace9c",
+          "kind": "long_lived_tag",
+          "source": "flagsmith",
+          "description": "flag is tagged ['kill-switch'] (long-lived by design)",
+          "direction": "opposes",
+          "weight": -0.6,
+          "value": null,
+          "observed_at": null
+        },
+        {
+          "id": "ev_5c443bf728a0",
+          "kind": "production_state",
+          "source": "flagsmith",
+          "description": "flag is uniformly disabled in all production environments; this alone does not prove the rollout is finished",
+          "direction": "supports",
+          "weight": 0.25,
+          "value": false,
+          "observed_at": null
+        },
+        {
+          "id": "ev_5eafec52c8a8",
+          "kind": "config_stability",
+          "source": "flagsmith",
+          "description": "production configuration unchanged for 909 days",
+          "direction": "supports",
+          "weight": 0.15,
+          "value": 909,
+          "observed_at": "2024-06-01T09:00:00Z"
+        },
+        {
+          "id": "ev_98ac1666f73b",
+          "kind": "ownership",
+          "source": "flagsmith",
+          "description": "owners: sre@acme.example",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        },
+        {
+          "id": "ev_6b9cbfb8db31",
+          "kind": "code_reference_count",
+          "source": "code_scan",
+          "description": "no confirmed references in acme/checkout-web, acme/pricing-service; not proof of non-use",
+          "direction": "supports",
+          "weight": 0.05,
+          "value": 0,
+          "observed_at": null
+        }
+      ],
+      "missing_evidence": [
+        {
+          "kind": "owner_confirmation",
+          "description": "owner has not confirmed whether the flag is still needed",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "consumer_coverage",
+          "description": "not confirmed that every codebase consuming this flag was scanned",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "evaluation_activity",
+          "description": "no flag evaluation analytics available",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        }
+      ],
+      "blockers": [
+        {
+          "kind": "dynamic_references",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "caps_status_at": "potentially_stale"
+        }
+      ],
+      "uncertainty": [],
+      "recommended_next_action": "No cleanup action. Re-evaluate later or when configuration changes.",
+      "requires_human_decision": true,
+      "policy_id": "default",
+      "policy_version": "1",
+      "evaluated_at": "2026-11-27T12:00:00Z"
+    },
+    {
+      "id": "stale_e2c20684d1683bb3",
+      "flag_id": "acme-pricing:free_shipping",
+      "flag_name": "free_shipping",
+      "status": "not_stale",
+      "confidence": 0.3,
+      "score": 0.0,
+      "cleanup_direction": "keep_enabled_path",
+      "inline_value": null,
+      "lifecycle_state": null,
+      "evidence": [
+        {
+          "id": "ev_de79faa515a6",
+          "kind": "flag_age",
+          "source": "flagsmith",
+          "description": "flag is 210 days old; age alone does not indicate staleness",
+          "direction": "supports",
+          "weight": 0.1,
+          "value": 210,
+          "observed_at": null
+        },
+        {
+          "id": "ev_ce42d0fb8bbd",
+          "kind": "production_state",
+          "source": "flagsmith",
+          "description": "flag is uniformly enabled (100%) in all production environments; this alone does not prove the rollout is finished",
+          "direction": "supports",
+          "weight": 0.25,
+          "value": true,
+          "observed_at": null
+        },
+        {
+          "id": "ev_17d7ef1649f2",
+          "kind": "config_stability",
+          "source": "flagsmith",
+          "description": "production configuration changed 7 days ago",
+          "direction": "opposes",
+          "weight": -0.35,
+          "value": 7,
+          "observed_at": "2026-11-20T09:00:00Z"
+        },
+        {
+          "id": "ev_62090f3023de",
+          "kind": "ownership",
+          "source": "flagsmith",
+          "description": "owners: pricing@acme.example",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        },
+        {
+          "id": "ev_61464bb25bee",
+          "kind": "code_reference_count",
+          "source": "code_scan",
+          "description": "1 confirmed reference(s) in 1 file(s): acme/pricing-service:src/shipping.ts",
+          "direction": "neutral",
+          "weight": 0.0,
+          "value": 1,
+          "observed_at": null
+        }
+      ],
+      "missing_evidence": [
+        {
+          "kind": "owner_confirmation",
+          "description": "owner has not confirmed whether the flag is still needed",
+          "blocks": [
+            "ready_for_cleanup"
+          ]
+        },
+        {
+          "kind": "consumer_coverage",
+          "description": "not confirmed that every codebase consuming this flag was scanned",
+          "blocks": []
+        },
+        {
+          "kind": "evaluation_activity",
+          "description": "no flag evaluation analytics available",
+          "blocks": []
+        }
+      ],
+      "blockers": [
+        {
+          "kind": "recent_config_change",
+          "description": "production configuration changed 7 days ago (policy requires 14 stable days)",
+          "caps_status_at": "potentially_stale"
+        },
+        {
+          "kind": "dynamic_references",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "caps_status_at": "potentially_stale"
+        }
+      ],
+      "uncertainty": [
+        "some flag-controlled branches are compound/indeterminate; cleanup will need manual edits"
+      ],
+      "recommended_next_action": "No cleanup action. Re-evaluate later or when configuration changes.",
+      "requires_human_decision": true,
+      "policy_id": "default",
+      "policy_version": "1",
+      "evaluated_at": "2026-11-27T12:00:00Z"
+    }
+  ],
+  "counts": {
+    "not_stale": 5,
+    "insufficient_evidence": 0,
+    "potentially_stale": 5,
+    "ready_for_cleanup": 0,
+    "safe_to_retire": 0
+  }
+}

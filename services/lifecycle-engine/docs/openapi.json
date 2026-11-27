@@ -1,0 +1,4305 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "FlagPilot Lifecycle Engine",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/api/v1/engine/discover": {
+   "post": {
+    "summary": "Scan repositories for Flagsmith flag references",
+    "operationId": "discover_api_v1_engine_discover_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DiscoverRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ScanResult"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "Forbidden",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "409": {
+      "description": "Conflict",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Content",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal Server Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/engine/flags/analyze": {
+   "post": {
+    "summary": "Code intelligence report for one flag",
+    "operationId": "analyze_api_v1_engine_flags_analyze_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AnalyzeFlagRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/FlagAnalysisReport"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "Forbidden",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "409": {
+      "description": "Conflict",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Content",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal Server Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/engine/lifecycle/evaluate": {
+   "post": {
+    "summary": "Suggest a lifecycle state (never applied)",
+    "operationId": "evaluate_api_v1_engine_lifecycle_evaluate_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EvaluateLifecycleRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LifecycleEvaluation"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "Forbidden",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "409": {
+      "description": "Conflict",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Content",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal Server Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/engine/lifecycle/transition": {
+   "post": {
+    "summary": "Apply an evidence-gated transition",
+    "operationId": "transition_api_v1_engine_lifecycle_transition_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TransitionRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/FlagLifecycle"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "Forbidden",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "409": {
+      "description": "Conflict",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Content",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal Server Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/engine/stale/detect": {
+   "post": {
+    "summary": "Evaluate flags against the stale policy",
+    "operationId": "stale_api_v1_engine_stale_detect_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DetectStaleRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/StaleDetectionResponse"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "Forbidden",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "409": {
+      "description": "Conflict",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Content",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal Server Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/engine/cleanup/plan": {
+   "post": {
+    "summary": "Evidence-backed cleanup plan",
+    "operationId": "plan_api_v1_engine_cleanup_plan_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CleanupPlanRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CleanupPlanResponse"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "Forbidden",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "409": {
+      "description": "Conflict",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Content",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal Server Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/engine/cleanup/patch": {
+   "post": {
+    "summary": "Suggested patch for review (not applied)",
+    "operationId": "patch_api_v1_engine_cleanup_patch_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GeneratePatchRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CleanupPatch"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "Forbidden",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "409": {
+      "description": "Conflict",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Content",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal Server Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/engine/cleanup/verify": {
+   "post": {
+    "summary": "Verify a patch in an isolated workspace",
+    "operationId": "verify_api_v1_engine_cleanup_verify_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/VerifyCleanupRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/VerificationResult"
+        }
+       }
+      }
+     },
+     "403": {
+      "description": "Forbidden",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "409": {
+      "description": "Conflict",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Content",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal Server Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "AnalyzeFlagRequest": {
+    "properties": {
+     "repositories": {
+      "items": {
+       "$ref": "#/components/schemas/RepositoryTarget"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Repositories"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "configuration": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FlagConfiguration"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repositories",
+     "flag_name"
+    ],
+    "title": "AnalyzeFlagRequest"
+   },
+   "AppliedEdit": {
+    "properties": {
+     "kind": {
+      "$ref": "#/components/schemas/EditKind"
+     },
+     "file_path": {
+      "type": "string",
+      "title": "File Path"
+     },
+     "line": {
+      "type": "integer",
+      "title": "Line",
+      "description": "Line in the file content the edit was computed against."
+     },
+     "reference_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reference Id"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "before": {
+      "type": "string",
+      "title": "Before"
+     },
+     "after": {
+      "type": "string",
+      "title": "After"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "kind",
+     "file_path",
+     "line",
+     "description",
+     "before",
+     "after"
+    ],
+    "title": "AppliedEdit"
+   },
+   "Approval": {
+    "properties": {
+     "approved_by": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Approved By"
+     },
+     "role": {
+      "$ref": "#/components/schemas/ApprovalRole"
+     },
+     "approved_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Approved At"
+     },
+     "comment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Comment"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "approved_by",
+     "role",
+     "approved_at"
+    ],
+    "title": "Approval"
+   },
+   "ApprovalRole": {
+    "type": "string",
+    "enum": [
+     "flag_owner",
+     "code_reviewer",
+     "release_manager"
+    ],
+    "title": "ApprovalRole"
+   },
+   "Blocker": {
+    "properties": {
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "caps_status_at": {
+      "$ref": "#/components/schemas/StaleStatus"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "kind",
+     "description",
+     "caps_status_at"
+    ],
+    "title": "Blocker"
+   },
+   "BranchKind": {
+    "type": "string",
+    "enum": [
+     "if_else",
+     "if",
+     "guard_clause",
+     "ternary",
+     "logical_and",
+     "logical_or"
+    ],
+    "title": "BranchKind"
+   },
+   "CheckStatus": {
+    "type": "string",
+    "enum": [
+     "passed",
+     "failed",
+     "error",
+     "skipped"
+    ],
+    "title": "CheckStatus"
+   },
+   "CleanupDirection": {
+    "type": "string",
+    "enum": [
+     "keep_enabled_path",
+     "keep_disabled_path",
+     "inline_value",
+     "archive_only",
+     "undetermined"
+    ],
+    "title": "CleanupDirection"
+   },
+   "CleanupPatch": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "direction": {
+      "$ref": "#/components/schemas/CleanupDirection"
+     },
+     "inline_value": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "number"
+       },
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Inline Value"
+     },
+     "status": {
+      "$ref": "#/components/schemas/PatchStatus"
+     },
+     "files": {
+      "items": {
+       "$ref": "#/components/schemas/FileChange"
+      },
+      "type": "array",
+      "title": "Files"
+     },
+     "manual_steps": {
+      "items": {
+       "$ref": "#/components/schemas/ManualStep"
+      },
+      "type": "array",
+      "title": "Manual Steps"
+     },
+     "follow_ups": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Follow Ups",
+      "description": "Suggested review items, e.g. symbols that became unused."
+     },
+     "base_scan_id": {
+      "type": "string",
+      "title": "Base Scan Id"
+     },
+     "generated_by": {
+      "type": "string",
+      "title": "Generated By",
+      "default": "deterministic-transformer"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "notes": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Notes"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "flag_name",
+     "direction",
+     "status",
+     "base_scan_id"
+    ],
+    "title": "CleanupPatch"
+   },
+   "CleanupPlan": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "flag_id": {
+      "type": "string",
+      "title": "Flag Id"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "lifecycle_state": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/LifecycleState"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "stale_status": {
+      "$ref": "#/components/schemas/StaleStatus"
+     },
+     "cleanup_direction": {
+      "$ref": "#/components/schemas/CleanupDirection"
+     },
+     "recommended_action": {
+      "$ref": "#/components/schemas/RecommendedAction"
+     },
+     "reasoning_summary": {
+      "type": "string",
+      "title": "Reasoning Summary"
+     },
+     "statements": {
+      "items": {
+       "$ref": "#/components/schemas/ReasonedStatement"
+      },
+      "type": "array",
+      "title": "Statements"
+     },
+     "evidence": {
+      "items": {
+       "$ref": "#/components/schemas/EvidenceRef"
+      },
+      "type": "array",
+      "title": "Evidence",
+      "description": "Everything statements may cite."
+     },
+     "affected_files": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Affected Files",
+      "description": "'repository:path' entries."
+     },
+     "obsolete_code_paths": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Obsolete Code Paths"
+     },
+     "proposed_changes": {
+      "items": {
+       "$ref": "#/components/schemas/ProposedChange"
+      },
+      "type": "array",
+      "title": "Proposed Changes"
+     },
+     "patch_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patch Id"
+     },
+     "patch_rationale": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patch Rationale"
+     },
+     "risk": {
+      "$ref": "#/components/schemas/RiskAssessment"
+     },
+     "confidence": {
+      "type": "number",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence"
+     },
+     "missing_evidence": {
+      "items": {
+       "$ref": "#/components/schemas/MissingEvidence"
+      },
+      "type": "array",
+      "title": "Missing Evidence"
+     },
+     "required_approvals": {
+      "items": {
+       "$ref": "#/components/schemas/ApprovalRole"
+      },
+      "type": "array",
+      "title": "Required Approvals"
+     },
+     "verification_requirements": {
+      "items": {
+       "$ref": "#/components/schemas/VerificationRequirement"
+      },
+      "type": "array",
+      "title": "Verification Requirements"
+     },
+     "llm": {
+      "$ref": "#/components/schemas/LLMUsage"
+     },
+     "is_recommendation": {
+      "type": "boolean",
+      "const": true,
+      "title": "Is Recommendation",
+      "default": true
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "flag_id",
+     "flag_name",
+     "lifecycle_state",
+     "stale_status",
+     "cleanup_direction",
+     "recommended_action",
+     "reasoning_summary",
+     "risk",
+     "confidence",
+     "llm"
+    ],
+    "title": "CleanupPlan"
+   },
+   "CleanupPlanRequest": {
+    "properties": {
+     "repositories": {
+      "items": {
+       "$ref": "#/components/schemas/RepositoryTarget"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Repositories"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "configuration": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FlagConfiguration"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "lifecycle": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FlagLifecycle"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "coverage": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ConsumerCoverage"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "policy": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/StalePolicy"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "include_patch": {
+      "type": "boolean",
+      "title": "Include Patch",
+      "description": "Generate a suggested patch when the flag is ready for cleanup.",
+      "default": true
+     },
+     "use_llm": {
+      "type": "boolean",
+      "title": "Use Llm",
+      "default": true
+     },
+     "as_of": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "As Of"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repositories",
+     "flag_name"
+    ],
+    "title": "CleanupPlanRequest"
+   },
+   "CleanupPlanResponse": {
+    "properties": {
+     "plan": {
+      "$ref": "#/components/schemas/CleanupPlan"
+     },
+     "stale_finding": {
+      "$ref": "#/components/schemas/StaleFlagFinding"
+     },
+     "analysis": {
+      "$ref": "#/components/schemas/FlagAnalysisReport"
+     },
+     "patch": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/CleanupPatch"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "plan",
+     "stale_finding",
+     "analysis"
+    ],
+    "title": "CleanupPlanResponse"
+   },
+   "CodePath": {
+    "properties": {
+     "span": {
+      "$ref": "#/components/schemas/SourceSpan"
+     },
+     "excerpt": {
+      "type": "string",
+      "title": "Excerpt"
+     },
+     "callees": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Callees"
+     },
+     "rendered_components": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Rendered Components"
+     },
+     "is_empty": {
+      "type": "boolean",
+      "title": "Is Empty",
+      "default": false
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "span",
+     "excerpt",
+     "description"
+    ],
+    "title": "CodePath"
+   },
+   "CommandResult": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "repository": {
+      "type": "string",
+      "title": "Repository"
+     },
+     "argv": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Argv"
+     },
+     "status": {
+      "$ref": "#/components/schemas/CheckStatus"
+     },
+     "exit_code": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exit Code"
+     },
+     "duration_s": {
+      "type": "number",
+      "title": "Duration S",
+      "default": 0.0
+     },
+     "output_tail": {
+      "type": "string",
+      "title": "Output Tail",
+      "default": ""
+     },
+     "error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "name",
+     "kind",
+     "repository",
+     "argv",
+     "status"
+    ],
+    "title": "CommandResult"
+   },
+   "CommandSpec": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind",
+      "description": "'tests' or 'static'."
+     },
+     "repository": {
+      "type": "string",
+      "title": "Repository"
+     },
+     "argv": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Argv"
+     },
+     "cwd": {
+      "type": "string",
+      "title": "Cwd",
+      "description": "Relative to the repository root.",
+      "default": "."
+     },
+     "timeout_s": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "Timeout S",
+      "default": 300
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "name",
+     "kind",
+     "repository",
+     "argv"
+    ],
+    "title": "CommandSpec"
+   },
+   "ConfigChange": {
+    "properties": {
+     "at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "At"
+     },
+     "environment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Environment"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "at",
+     "description"
+    ],
+    "title": "ConfigChange"
+   },
+   "ConsumerCoverage": {
+    "properties": {
+     "scanned_repositories": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Scanned Repositories"
+     },
+     "all_consumers_scanned": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "All Consumers Scanned",
+      "description": "True only when someone confirmed every consuming codebase was scanned."
+     },
+     "known_external_consumers": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Known External Consumers",
+      "description": "e.g. mobile apps, other services, data pipelines not scanned."
+     },
+     "dynamic_reference_reviews": {
+      "items": {
+       "$ref": "#/components/schemas/DynamicReferenceReview"
+      },
+      "type": "array",
+      "title": "Dynamic Reference Reviews"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "title": "ConsumerCoverage",
+    "description": "What is known about where a flag may be consumed outside the scanned code."
+   },
+   "DetectStaleRequest": {
+    "properties": {
+     "repositories": {
+      "items": {
+       "$ref": "#/components/schemas/RepositoryTarget"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Repositories"
+     },
+     "configurations": {
+      "items": {
+       "$ref": "#/components/schemas/FlagConfiguration"
+      },
+      "type": "array",
+      "title": "Configurations"
+     },
+     "lifecycles": {
+      "additionalProperties": {
+       "$ref": "#/components/schemas/FlagLifecycle"
+      },
+      "type": "object",
+      "title": "Lifecycles",
+      "description": "flag_name -> lifecycle record"
+     },
+     "coverage": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ConsumerCoverage"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "policy": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/StalePolicy"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "include_unconfigured_code_flags": {
+      "type": "boolean",
+      "title": "Include Unconfigured Code Flags",
+      "description": "Also evaluate flags found in code but absent from config.",
+      "default": true
+     },
+     "as_of": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "As Of"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repositories",
+     "configurations"
+    ],
+    "title": "DetectStaleRequest"
+   },
+   "DiscoverRequest": {
+    "properties": {
+     "repositories": {
+      "items": {
+       "$ref": "#/components/schemas/RepositoryTarget"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Repositories"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repositories"
+    ],
+    "title": "DiscoverRequest"
+   },
+   "DynamicReferenceReview": {
+    "properties": {
+     "reference_id": {
+      "type": "string",
+      "title": "Reference Id"
+     },
+     "reviewed_by": {
+      "type": "string",
+      "title": "Reviewed By"
+     },
+     "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Reviewed At"
+     },
+     "excluded_flags": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Excluded Flags",
+      "description": "Flags this reference never evaluates; ['*'] for all."
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "reference_id",
+     "reviewed_by",
+     "reviewed_at",
+     "excluded_flags"
+    ],
+    "title": "DynamicReferenceReview",
+    "description": "A human's statement that a dynamic reference cannot evaluate certain flags."
+   },
+   "EditKind": {
+    "type": "string",
+    "enum": [
+     "keep_branch",
+     "remove_conditional",
+     "simplify_condition",
+     "replace_with_literal",
+     "inline_value",
+     "remove_subscription",
+     "remove_statement",
+     "remove_unused_import"
+    ],
+    "title": "EditKind"
+   },
+   "EnvironmentFlagState": {
+    "properties": {
+     "environment": {
+      "type": "string",
+      "title": "Environment"
+     },
+     "is_production": {
+      "type": "boolean",
+      "title": "Is Production",
+      "default": false
+     },
+     "enabled": {
+      "type": "boolean",
+      "title": "Enabled"
+     },
+     "value": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "number"
+       },
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Value"
+     },
+     "segment_overrides": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "Segment Overrides",
+      "default": 0
+     },
+     "identity_overrides": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "Identity Overrides",
+      "default": 0
+     },
+     "percentage_allocation": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 100.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Percentage Allocation",
+      "description": "Multivariate/percentage split; None or 100 means no split."
+     },
+     "updated_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Updated At"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "environment",
+     "enabled"
+    ],
+    "title": "EnvironmentFlagState"
+   },
+   "ErrorDetail": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "message": {
+      "type": "string",
+      "title": "Message"
+     },
+     "details": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Details"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "code",
+     "message"
+    ],
+    "title": "ErrorDetail"
+   },
+   "ErrorResponse": {
+    "properties": {
+     "error": {
+      "$ref": "#/components/schemas/ErrorDetail"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "error"
+    ],
+    "title": "ErrorResponse"
+   },
+   "EvaluateLifecycleRequest": {
+    "properties": {
+     "repositories": {
+      "items": {
+       "$ref": "#/components/schemas/RepositoryTarget"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Repositories"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "configuration": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FlagConfiguration"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "lifecycle": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FlagLifecycle"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "coverage": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ConsumerCoverage"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "policy": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/StalePolicy"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "as_of": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "As Of",
+      "description": "Evaluation time; defaults to now."
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repositories",
+     "flag_name"
+    ],
+    "title": "EvaluateLifecycleRequest"
+   },
+   "EvidenceDirection": {
+    "type": "string",
+    "enum": [
+     "supports",
+     "opposes",
+     "neutral"
+    ],
+    "title": "EvidenceDirection"
+   },
+   "EvidenceItem": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind",
+      "description": "Machine-readable evidence kind, e.g. 'code_reference_count'."
+     },
+     "source": {
+      "type": "string",
+      "title": "Source",
+      "description": "Where the observation came from: 'code_scan', 'flagsmith', 'owner', 'verification'..."
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "direction": {
+      "$ref": "#/components/schemas/EvidenceDirection",
+      "default": "neutral"
+     },
+     "weight": {
+      "type": "number",
+      "title": "Weight",
+      "description": "Contribution to the conclusion; sign follows direction.",
+      "default": 0.0
+     },
+     "value": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "number"
+       },
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Value"
+     },
+     "observed_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Observed At"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "kind",
+     "source",
+     "description"
+    ],
+    "title": "EvidenceItem",
+    "description": "A single verifiable observation used to justify a conclusion."
+   },
+   "EvidenceKind": {
+    "type": "string",
+    "enum": [
+     "code_references_present",
+     "enabled_in_non_production",
+     "production_rollout_started",
+     "full_production_exposure",
+     "rollout_stable",
+     "stale_assessment_ready_for_cleanup",
+     "owner_confirmed_not_needed",
+     "cleanup_plan_approved",
+     "cleanup_verified",
+     "cleanup_merged",
+     "no_remaining_references",
+     "rollback_reason",
+     "manual_note"
+    ],
+    "title": "EvidenceKind"
+   },
+   "EvidenceRef": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "summary": {
+      "type": "string",
+      "title": "Summary"
+     },
+     "location": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SourceSpan"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "kind",
+     "summary"
+    ],
+    "title": "EvidenceRef"
+   },
+   "FallbackBehavior": {
+    "properties": {
+     "reference_id": {
+      "type": "string",
+      "title": "Reference Id"
+     },
+     "kind": {
+      "$ref": "#/components/schemas/FallbackKind"
+     },
+     "default_expression": {
+      "type": "string",
+      "title": "Default Expression"
+     },
+     "location": {
+      "$ref": "#/components/schemas/SourceSpan"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "reference_id",
+     "kind",
+     "default_expression",
+     "location"
+    ],
+    "title": "FallbackBehavior"
+   },
+   "FallbackKind": {
+    "type": "string",
+    "enum": [
+     "sdk_fallback_option",
+     "logical_or_default",
+     "nullish_default",
+     "type_guard_default"
+    ],
+    "title": "FallbackKind"
+   },
+   "FeatureScope": {
+    "type": "string",
+    "enum": [
+     "full_feature_candidate",
+     "partial",
+     "unknown",
+     "not_referenced"
+    ],
+    "title": "FeatureScope"
+   },
+   "FeatureType": {
+    "type": "string",
+    "enum": [
+     "standard",
+     "multivariate"
+    ],
+    "title": "FeatureType"
+   },
+   "FileChange": {
+    "properties": {
+     "repository": {
+      "type": "string",
+      "title": "Repository"
+     },
+     "file_path": {
+      "type": "string",
+      "title": "File Path"
+     },
+     "original_sha256": {
+      "type": "string",
+      "title": "Original Sha256"
+     },
+     "patched_sha256": {
+      "type": "string",
+      "title": "Patched Sha256"
+     },
+     "diff": {
+      "type": "string",
+      "title": "Diff",
+      "description": "Unified diff for review."
+     },
+     "patched_content": {
+      "type": "string",
+      "title": "Patched Content"
+     },
+     "edits": {
+      "items": {
+       "$ref": "#/components/schemas/AppliedEdit"
+      },
+      "type": "array",
+      "title": "Edits"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repository",
+     "file_path",
+     "original_sha256",
+     "patched_sha256",
+     "diff",
+     "patched_content"
+    ],
+    "title": "FileChange"
+   },
+   "FileScanError": {
+    "properties": {
+     "repository": {
+      "type": "string",
+      "title": "Repository"
+     },
+     "file_path": {
+      "type": "string",
+      "title": "File Path"
+     },
+     "error": {
+      "type": "string",
+      "title": "Error"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repository",
+     "file_path",
+     "error"
+    ],
+    "title": "FileScanError"
+   },
+   "Finding": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "kind": {
+      "$ref": "#/components/schemas/FindingKind"
+     },
+     "severity": {
+      "type": "string",
+      "title": "Severity",
+      "description": "'info' or 'warning'."
+     },
+     "message": {
+      "type": "string",
+      "title": "Message"
+     },
+     "reference_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Reference Ids"
+     },
+     "location": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SourceSpan"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "is_hypothesis": {
+      "type": "boolean",
+      "title": "Is Hypothesis",
+      "description": "True when the finding depends on assumptions beyond static facts.",
+      "default": false
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "kind",
+     "severity",
+     "message"
+    ],
+    "title": "Finding"
+   },
+   "FindingKind": {
+    "type": "string",
+    "enum": [
+     "redundant_nested_check",
+     "identical_branches",
+     "potentially_unreachable_branch",
+     "flag_value_escapes_scope",
+     "compound_condition",
+     "subscription_without_evaluation",
+     "unanalyzed_usage"
+    ],
+    "title": "FindingKind"
+   },
+   "FlagActivity": {
+    "properties": {
+     "source": {
+      "type": "string",
+      "title": "Source",
+      "description": "e.g. 'flagsmith_analytics', 'mock'."
+     },
+     "window_days": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "Window Days"
+     },
+     "evaluation_count": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Evaluation Count"
+     },
+     "last_evaluated_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Evaluated At"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "source",
+     "window_days"
+    ],
+    "title": "FlagActivity"
+   },
+   "FlagAnalysisReport": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Generated At"
+     },
+     "repositories": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Repositories"
+     },
+     "references": {
+      "items": {
+       "$ref": "#/components/schemas/FlagReference"
+      },
+      "type": "array",
+      "title": "References",
+      "description": "Confirmed and potential references to this flag."
+     },
+     "usage_patterns": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "type": "object",
+      "title": "Usage Patterns",
+      "description": "usage_type -> count"
+     },
+     "branches": {
+      "items": {
+       "$ref": "#/components/schemas/FlagBranch"
+      },
+      "type": "array",
+      "title": "Branches"
+     },
+     "fallbacks": {
+      "items": {
+       "$ref": "#/components/schemas/FallbackBehavior"
+      },
+      "type": "array",
+      "title": "Fallbacks"
+     },
+     "related_symbols": {
+      "items": {
+       "$ref": "#/components/schemas/RelatedSymbol"
+      },
+      "type": "array",
+      "title": "Related Symbols"
+     },
+     "related_tests": {
+      "items": {
+       "$ref": "#/components/schemas/RelatedTest"
+      },
+      "type": "array",
+      "title": "Related Tests"
+     },
+     "feature_scope": {
+      "$ref": "#/components/schemas/FeatureScope"
+     },
+     "feature_scope_evidence": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Feature Scope Evidence"
+     },
+     "findings": {
+      "items": {
+       "$ref": "#/components/schemas/Finding"
+      },
+      "type": "array",
+      "title": "Findings"
+     },
+     "unresolved_dynamic_references": {
+      "items": {
+       "$ref": "#/components/schemas/FlagReference"
+      },
+      "type": "array",
+      "title": "Unresolved Dynamic References",
+      "description": "Dynamic references in scanned repositories that might evaluate this flag."
+     },
+     "uncertainties": {
+      "items": {
+       "$ref": "#/components/schemas/Uncertainty"
+      },
+      "type": "array",
+      "title": "Uncertainties"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "flag_name",
+     "repositories",
+     "references",
+     "usage_patterns",
+     "feature_scope"
+    ],
+    "title": "FlagAnalysisReport"
+   },
+   "FlagApi": {
+    "type": "string",
+    "enum": [
+     "hasFeature",
+     "getValue",
+     "getTrait",
+     "isFeatureEnabled",
+     "getFeatureValue",
+     "getFlag",
+     "useFlags",
+     "flags.<name>"
+    ],
+    "title": "FlagApi"
+   },
+   "FlagBranch": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "reference_id": {
+      "type": "string",
+      "title": "Reference Id"
+     },
+     "kind": {
+      "$ref": "#/components/schemas/BranchKind"
+     },
+     "polarity": {
+      "$ref": "#/components/schemas/Polarity"
+     },
+     "condition": {
+      "type": "string",
+      "title": "Condition"
+     },
+     "condition_is_exact": {
+      "type": "boolean",
+      "title": "Condition Is Exact",
+      "description": "True when the flag check is the entire condition (modulo negation/boolean comparison)."
+     },
+     "construct_span": {
+      "$ref": "#/components/schemas/SourceSpan"
+     },
+     "enabled_path": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/CodePath"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "disabled_path": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/CodePath"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "determinable": {
+      "type": "boolean",
+      "title": "Determinable",
+      "description": "Whether enabled/disabled paths were determined with certainty."
+     },
+     "via_alias": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Via Alias",
+      "description": "Variable the flag value was stored in, if any."
+     },
+     "notes": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Notes"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "reference_id",
+     "kind",
+     "polarity",
+     "condition",
+     "condition_is_exact",
+     "construct_span",
+     "determinable"
+    ],
+    "title": "FlagBranch"
+   },
+   "FlagConfiguration": {
+    "properties": {
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "project": {
+      "type": "string",
+      "title": "Project"
+     },
+     "flagsmith_feature_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Flagsmith Feature Id"
+     },
+     "description": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Description"
+     },
+     "created_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Created At"
+     },
+     "owners": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Owners"
+     },
+     "tags": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Tags"
+     },
+     "is_archived": {
+      "type": "boolean",
+      "title": "Is Archived",
+      "default": false
+     },
+     "feature_type": {
+      "$ref": "#/components/schemas/FeatureType",
+      "default": "standard"
+     },
+     "environments": {
+      "items": {
+       "$ref": "#/components/schemas/EnvironmentFlagState"
+      },
+      "type": "array",
+      "title": "Environments"
+     },
+     "recent_changes": {
+      "items": {
+       "$ref": "#/components/schemas/ConfigChange"
+      },
+      "type": "array",
+      "title": "Recent Changes"
+     },
+     "activity": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FlagActivity"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "owner_confirmation": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/OwnerConfirmation"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "data_source": {
+      "type": "string",
+      "title": "Data Source",
+      "description": "'flagsmith' when fetched live, 'mock' for sample data.",
+      "default": "mock"
+     },
+     "fetched_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fetched At"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "flag_name",
+     "project"
+    ],
+    "title": "FlagConfiguration"
+   },
+   "FlagLifecycle": {
+    "properties": {
+     "flag_id": {
+      "type": "string",
+      "title": "Flag Id"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "state": {
+      "$ref": "#/components/schemas/LifecycleState",
+      "default": "created"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "history": {
+      "items": {
+       "$ref": "#/components/schemas/TransitionRecord"
+      },
+      "type": "array",
+      "title": "History"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "flag_id",
+     "flag_name"
+    ],
+    "title": "FlagLifecycle"
+   },
+   "FlagPurpose": {
+    "type": "string",
+    "enum": [
+     "release",
+     "experiment",
+     "ops_kill_switch",
+     "permission",
+     "remote_config"
+    ],
+    "title": "FlagPurpose"
+   },
+   "FlagReference": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "repository": {
+      "type": "string",
+      "title": "Repository"
+     },
+     "location": {
+      "$ref": "#/components/schemas/SourceSpan"
+     },
+     "flag_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Flag Name",
+      "description": "Statically resolved flag name; None for dynamic references and trait reads."
+     },
+     "trait_key": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trait Key",
+      "description": "Trait key, only for usage_type=trait_read."
+     },
+     "sdk": {
+      "$ref": "#/components/schemas/FlagsmithSdk"
+     },
+     "api": {
+      "$ref": "#/components/schemas/FlagApi"
+     },
+     "usage_type": {
+      "$ref": "#/components/schemas/UsageType"
+     },
+     "classification": {
+      "$ref": "#/components/schemas/ReferenceClassification"
+     },
+     "is_dynamic": {
+      "type": "boolean",
+      "title": "Is Dynamic"
+     },
+     "name_resolution": {
+      "$ref": "#/components/schemas/NameResolution"
+     },
+     "argument_expression": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Argument Expression",
+      "description": "Raw source of the flag-name argument."
+     },
+     "confidence": {
+      "type": "number",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence"
+     },
+     "evidence": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Evidence",
+      "description": "Human-readable reasons for the classification."
+     },
+     "context": {
+      "$ref": "#/components/schemas/ReferenceContext"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "repository",
+     "location",
+     "flag_name",
+     "sdk",
+     "api",
+     "usage_type",
+     "classification",
+     "is_dynamic",
+     "name_resolution",
+     "confidence",
+     "context"
+    ],
+    "title": "FlagReference"
+   },
+   "FlagSummary": {
+    "properties": {
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "confirmed": {
+      "type": "integer",
+      "title": "Confirmed",
+      "default": 0
+     },
+     "potential": {
+      "type": "integer",
+      "title": "Potential",
+      "default": 0
+     },
+     "files": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Files"
+     },
+     "repositories": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Repositories"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "flag_name"
+    ],
+    "title": "FlagSummary"
+   },
+   "FlagsmithSdk": {
+    "type": "string",
+    "enum": [
+     "flagsmith-js",
+     "flagsmith-react",
+     "flagsmith-nodejs",
+     "unknown"
+    ],
+    "title": "FlagsmithSdk"
+   },
+   "GeneratePatchRequest": {
+    "properties": {
+     "repositories": {
+      "items": {
+       "$ref": "#/components/schemas/RepositoryTarget"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Repositories"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "direction": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/CleanupDirection"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Derived from configuration when omitted."
+     },
+     "inline_value": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "number"
+       },
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Inline Value"
+     },
+     "configuration": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FlagConfiguration"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repositories",
+     "flag_name"
+    ],
+    "title": "GeneratePatchRequest"
+   },
+   "LLMStatus": {
+    "type": "string",
+    "enum": [
+     "not_configured",
+     "used",
+     "unavailable",
+     "rejected_invalid_output"
+    ],
+    "title": "LLMStatus"
+   },
+   "LLMUsage": {
+    "properties": {
+     "status": {
+      "$ref": "#/components/schemas/LLMStatus"
+     },
+     "provider": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Provider"
+     },
+     "model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model"
+     },
+     "validation_errors": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Validation Errors"
+     },
+     "error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "status"
+    ],
+    "title": "LLMUsage"
+   },
+   "LifecycleEvaluation": {
+    "properties": {
+     "flag_id": {
+      "type": "string",
+      "title": "Flag Id"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "current_state": {
+      "$ref": "#/components/schemas/LifecycleState"
+     },
+     "suggested_state": {
+      "$ref": "#/components/schemas/LifecycleState"
+     },
+     "suggestion_confidence": {
+      "type": "number",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Suggestion Confidence"
+     },
+     "is_recommendation": {
+      "type": "boolean",
+      "const": true,
+      "title": "Is Recommendation",
+      "description": "Always true: a suggestion is never an applied transition.",
+      "default": true
+     },
+     "rationale": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Rationale"
+     },
+     "available_evidence": {
+      "items": {
+       "$ref": "#/components/schemas/TransitionEvidence"
+      },
+      "type": "array",
+      "title": "Available Evidence"
+     },
+     "transitions": {
+      "items": {
+       "$ref": "#/components/schemas/TransitionCheck"
+      },
+      "type": "array",
+      "title": "Transitions",
+      "description": "Valid next transitions from the current state and what they still need."
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Warnings"
+     },
+     "evaluated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Evaluated At"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "flag_id",
+     "flag_name",
+     "current_state",
+     "suggested_state",
+     "suggestion_confidence"
+    ],
+    "title": "LifecycleEvaluation"
+   },
+   "LifecycleState": {
+    "type": "string",
+    "enum": [
+     "created",
+     "in_development",
+     "testing",
+     "rolling_out",
+     "fully_released",
+     "ready_for_cleanup",
+     "cleanup_in_progress",
+     "retired"
+    ],
+    "title": "LifecycleState"
+   },
+   "ManualStep": {
+    "properties": {
+     "repository": {
+      "type": "string",
+      "title": "Repository"
+     },
+     "file_path": {
+      "type": "string",
+      "title": "File Path"
+     },
+     "line": {
+      "type": "integer",
+      "title": "Line"
+     },
+     "reference_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reference Id"
+     },
+     "reason": {
+      "type": "string",
+      "title": "Reason"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repository",
+     "file_path",
+     "line",
+     "reason"
+    ],
+    "title": "ManualStep"
+   },
+   "MissingEvidence": {
+    "properties": {
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "blocks": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Blocks",
+      "description": "Conclusions this missing evidence prevents."
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "kind",
+     "description"
+    ],
+    "title": "MissingEvidence"
+   },
+   "NameResolution": {
+    "type": "string",
+    "enum": [
+     "literal",
+     "local_constant",
+     "imported_constant",
+     "unresolved"
+    ],
+    "title": "NameResolution"
+   },
+   "OwnerConfirmation": {
+    "properties": {
+     "confirmed_by": {
+      "type": "string",
+      "title": "Confirmed By"
+     },
+     "confirmed_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Confirmed At"
+     },
+     "purpose": {
+      "$ref": "#/components/schemas/FlagPurpose"
+     },
+     "still_needed": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Still Needed",
+      "description": "Owner's statement whether the flag is still needed."
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "confirmed_by",
+     "confirmed_at",
+     "purpose"
+    ],
+    "title": "OwnerConfirmation"
+   },
+   "PatchStatus": {
+    "type": "string",
+    "enum": [
+     "complete",
+     "partial",
+     "not_generated"
+    ],
+    "title": "PatchStatus"
+   },
+   "Polarity": {
+    "type": "string",
+    "enum": [
+     "positive",
+     "negative"
+    ],
+    "title": "Polarity"
+   },
+   "ProposedChange": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "repository": {
+      "type": "string",
+      "title": "Repository"
+     },
+     "file_path": {
+      "type": "string",
+      "title": "File Path"
+     },
+     "line": {
+      "type": "integer",
+      "title": "Line"
+     },
+     "reference_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reference Id"
+     },
+     "change_kind": {
+      "type": "string",
+      "title": "Change Kind",
+      "description": "EditKind value, or 'manual'."
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "repository",
+     "file_path",
+     "line",
+     "change_kind",
+     "description"
+    ],
+    "title": "ProposedChange"
+   },
+   "ReasonedStatement": {
+    "properties": {
+     "type": {
+      "$ref": "#/components/schemas/StatementType"
+     },
+     "text": {
+      "type": "string",
+      "title": "Text"
+     },
+     "evidence_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Evidence Ids"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "type",
+     "text"
+    ],
+    "title": "ReasonedStatement"
+   },
+   "RecommendedAction": {
+    "type": "string",
+    "enum": [
+     "no_action",
+     "gather_evidence",
+     "request_owner_review",
+     "prepare_cleanup_patch",
+     "request_archive_approval"
+    ],
+    "title": "RecommendedAction"
+   },
+   "ReferenceClassification": {
+    "type": "string",
+    "enum": [
+     "confirmed",
+     "potential",
+     "dynamic"
+    ],
+    "title": "ReferenceClassification"
+   },
+   "ReferenceContext": {
+    "properties": {
+     "snippet": {
+      "type": "string",
+      "title": "Snippet",
+      "description": "The source line(s) containing the reference."
+     },
+     "enclosing_function": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enclosing Function"
+     },
+     "in_conditional": {
+      "type": "boolean",
+      "title": "In Conditional",
+      "default": false
+     },
+     "is_test_file": {
+      "type": "boolean",
+      "title": "Is Test File",
+      "default": false
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "snippet"
+    ],
+    "title": "ReferenceContext"
+   },
+   "RelatedSymbol": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind",
+      "description": "'function', 'component', 'class' or 'method'."
+     },
+     "relation": {
+      "$ref": "#/components/schemas/SymbolRelation"
+     },
+     "defined_at": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SourceSpan"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "exclusively_flag_gated": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exclusively Flag Gated",
+      "description": "True when every non-definition use of the symbol in scanned code sits inside this path."
+     },
+     "other_usages": {
+      "type": "integer",
+      "title": "Other Usages",
+      "default": 0
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "name",
+     "kind",
+     "relation"
+    ],
+    "title": "RelatedSymbol"
+   },
+   "RelatedTest": {
+    "properties": {
+     "repository": {
+      "type": "string",
+      "title": "Repository"
+     },
+     "file_path": {
+      "type": "string",
+      "title": "File Path"
+     },
+     "strength": {
+      "type": "string",
+      "title": "Strength",
+      "description": "'strong' or 'weak'."
+     },
+     "reasons": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Reasons"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repository",
+     "file_path",
+     "strength",
+     "reasons"
+    ],
+    "title": "RelatedTest"
+   },
+   "RepositoryTarget": {
+    "properties": {
+     "repository": {
+      "type": "string",
+      "title": "Repository",
+      "description": "Stable repository identifier, e.g. 'acme/checkout-web'."
+     },
+     "root_path": {
+      "type": "string",
+      "title": "Root Path",
+      "description": "Local filesystem path to a checkout of the repository."
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repository",
+     "root_path"
+    ],
+    "title": "RepositoryTarget"
+   },
+   "RiskAssessment": {
+    "properties": {
+     "overall": {
+      "$ref": "#/components/schemas/RiskLevel"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/RiskItem"
+      },
+      "type": "array",
+      "title": "Items"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "overall"
+    ],
+    "title": "RiskAssessment"
+   },
+   "RiskItem": {
+    "properties": {
+     "level": {
+      "$ref": "#/components/schemas/RiskLevel"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "evidence_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Evidence Ids"
+     },
+     "mitigation": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Mitigation"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "level",
+     "description"
+    ],
+    "title": "RiskItem"
+   },
+   "RiskLevel": {
+    "type": "string",
+    "enum": [
+     "low",
+     "medium",
+     "high"
+    ],
+    "title": "RiskLevel"
+   },
+   "ScanResult": {
+    "properties": {
+     "scan_id": {
+      "type": "string",
+      "title": "Scan Id"
+     },
+     "engine_version": {
+      "type": "string",
+      "title": "Engine Version"
+     },
+     "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Generated At"
+     },
+     "repositories": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Repositories"
+     },
+     "files_scanned": {
+      "type": "integer",
+      "title": "Files Scanned"
+     },
+     "files_with_references": {
+      "type": "integer",
+      "title": "Files With References"
+     },
+     "errors": {
+      "items": {
+       "$ref": "#/components/schemas/FileScanError"
+      },
+      "type": "array",
+      "title": "Errors"
+     },
+     "references": {
+      "items": {
+       "$ref": "#/components/schemas/FlagReference"
+      },
+      "type": "array",
+      "title": "References",
+      "description": "Flag references (confirmed, potential, dynamic)."
+     },
+     "trait_reads": {
+      "items": {
+       "$ref": "#/components/schemas/FlagReference"
+      },
+      "type": "array",
+      "title": "Trait Reads",
+      "description": "Trait reads; related to evaluation but not flags."
+     },
+     "summary": {
+      "$ref": "#/components/schemas/ScanSummary"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "scan_id",
+     "engine_version",
+     "repositories",
+     "files_scanned",
+     "files_with_references",
+     "summary"
+    ],
+    "title": "ScanResult"
+   },
+   "ScanSummary": {
+    "properties": {
+     "confirmed": {
+      "type": "integer",
+      "title": "Confirmed",
+      "default": 0
+     },
+     "potential": {
+      "type": "integer",
+      "title": "Potential",
+      "default": 0
+     },
+     "dynamic": {
+      "type": "integer",
+      "title": "Dynamic",
+      "default": 0
+     },
+     "trait_reads": {
+      "type": "integer",
+      "title": "Trait Reads",
+      "default": 0
+     },
+     "flags": {
+      "items": {
+       "$ref": "#/components/schemas/FlagSummary"
+      },
+      "type": "array",
+      "title": "Flags"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "title": "ScanSummary"
+   },
+   "SourceSpan": {
+    "properties": {
+     "repository": {
+      "type": "string",
+      "title": "Repository"
+     },
+     "file_path": {
+      "type": "string",
+      "title": "File Path",
+      "description": "POSIX path relative to the repository root."
+     },
+     "line": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "Line"
+     },
+     "column": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "Column"
+     },
+     "end_line": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "End Line"
+     },
+     "end_column": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "End Column"
+     },
+     "start_byte": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Start Byte",
+      "description": "Byte offset in the scanned file content (internal use)."
+     },
+     "end_byte": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "End Byte"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repository",
+     "file_path",
+     "line",
+     "column",
+     "end_line",
+     "end_column"
+    ],
+    "title": "SourceSpan",
+    "description": "A location in a repository file. Lines and columns are 1-based."
+   },
+   "StaleDetectionResponse": {
+    "properties": {
+     "scan_id": {
+      "type": "string",
+      "title": "Scan Id"
+     },
+     "findings": {
+      "items": {
+       "$ref": "#/components/schemas/StaleFlagFinding"
+      },
+      "type": "array",
+      "title": "Findings"
+     },
+     "counts": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "propertyNames": {
+       "$ref": "#/components/schemas/StaleStatus"
+      },
+      "type": "object",
+      "title": "Counts"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "scan_id",
+     "findings",
+     "counts"
+    ],
+    "title": "StaleDetectionResponse"
+   },
+   "StaleFlagFinding": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "flag_id": {
+      "type": "string",
+      "title": "Flag Id"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "status": {
+      "$ref": "#/components/schemas/StaleStatus"
+     },
+     "confidence": {
+      "type": "number",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence"
+     },
+     "score": {
+      "type": "number",
+      "title": "Score",
+      "description": "Net weighted evidence score (supports minus opposes)."
+     },
+     "cleanup_direction": {
+      "$ref": "#/components/schemas/CleanupDirection"
+     },
+     "inline_value": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "number"
+       },
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Inline Value"
+     },
+     "lifecycle_state": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/LifecycleState"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "evidence": {
+      "items": {
+       "$ref": "#/components/schemas/EvidenceItem"
+      },
+      "type": "array",
+      "title": "Evidence"
+     },
+     "missing_evidence": {
+      "items": {
+       "$ref": "#/components/schemas/MissingEvidence"
+      },
+      "type": "array",
+      "title": "Missing Evidence"
+     },
+     "blockers": {
+      "items": {
+       "$ref": "#/components/schemas/Blocker"
+      },
+      "type": "array",
+      "title": "Blockers"
+     },
+     "uncertainty": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Uncertainty"
+     },
+     "recommended_next_action": {
+      "type": "string",
+      "title": "Recommended Next Action"
+     },
+     "requires_human_decision": {
+      "type": "boolean",
+      "const": true,
+      "title": "Requires Human Decision",
+      "description": "Always true: a finding is a recommendation, never a deletion decision.",
+      "default": true
+     },
+     "policy_id": {
+      "type": "string",
+      "title": "Policy Id"
+     },
+     "policy_version": {
+      "type": "string",
+      "title": "Policy Version"
+     },
+     "evaluated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Evaluated At"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "flag_id",
+     "flag_name",
+     "status",
+     "confidence",
+     "score",
+     "cleanup_direction",
+     "recommended_next_action",
+     "policy_id",
+     "policy_version"
+    ],
+    "title": "StaleFlagFinding"
+   },
+   "StalePolicy": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id",
+      "default": "default"
+     },
+     "version": {
+      "type": "string",
+      "title": "Version",
+      "default": "1"
+     },
+     "min_age_days": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "Min Age Days",
+      "description": "Younger flags are not considered stale. Age is never proof by itself.",
+      "default": 30
+     },
+     "stable_config_days": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "Stable Config Days",
+      "description": "Production config must be unchanged this long.",
+      "default": 14
+     },
+     "activity_window_days": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "Activity Window Days",
+      "default": 30
+     },
+     "potential_threshold": {
+      "type": "number",
+      "title": "Potential Threshold",
+      "description": "Net evidence score needed for POTENTIALLY_STALE.",
+      "default": 0.3
+     },
+     "require_owner_confirmation": {
+      "type": "boolean",
+      "title": "Require Owner Confirmation",
+      "description": "READY_FOR_CLEANUP requires an owner statement.",
+      "default": true
+     },
+     "long_lived_tags": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Long Lived Tags"
+     },
+     "weights": {
+      "additionalProperties": {
+       "type": "number"
+      },
+      "type": "object",
+      "title": "Weights"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "title": "StalePolicy"
+   },
+   "StaleStatus": {
+    "type": "string",
+    "enum": [
+     "not_stale",
+     "insufficient_evidence",
+     "potentially_stale",
+     "ready_for_cleanup",
+     "safe_to_retire"
+    ],
+    "title": "StaleStatus"
+   },
+   "StatementType": {
+    "type": "string",
+    "enum": [
+     "fact",
+     "hypothesis",
+     "recommendation"
+    ],
+    "title": "StatementType"
+   },
+   "StaticFinding": {
+    "properties": {
+     "check": {
+      "type": "string",
+      "title": "Check"
+     },
+     "repository": {
+      "type": "string",
+      "title": "Repository"
+     },
+     "file_path": {
+      "type": "string",
+      "title": "File Path"
+     },
+     "line": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Line"
+     },
+     "message": {
+      "type": "string",
+      "title": "Message"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "check",
+     "repository",
+     "file_path",
+     "message"
+    ],
+    "title": "StaticFinding"
+   },
+   "SymbolRelation": {
+    "type": "string",
+    "enum": [
+     "enclosing",
+     "used_in_enabled_path",
+     "used_in_disabled_path"
+    ],
+    "title": "SymbolRelation"
+   },
+   "TransitionCheck": {
+    "properties": {
+     "to_state": {
+      "$ref": "#/components/schemas/LifecycleState"
+     },
+     "allowed": {
+      "type": "boolean",
+      "title": "Allowed"
+     },
+     "is_rollback": {
+      "type": "boolean",
+      "title": "Is Rollback",
+      "default": false
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "missing_evidence": {
+      "items": {
+       "$ref": "#/components/schemas/EvidenceKind"
+      },
+      "type": "array",
+      "title": "Missing Evidence"
+     },
+     "missing_any_of": {
+      "items": {
+       "$ref": "#/components/schemas/EvidenceKind"
+      },
+      "type": "array",
+      "title": "Missing Any Of"
+     },
+     "missing_approvals": {
+      "items": {
+       "$ref": "#/components/schemas/ApprovalRole"
+      },
+      "type": "array",
+      "title": "Missing Approvals"
+     },
+     "problems": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Problems"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "to_state",
+     "allowed",
+     "description"
+    ],
+    "title": "TransitionCheck"
+   },
+   "TransitionEvidence": {
+    "properties": {
+     "kind": {
+      "$ref": "#/components/schemas/EvidenceKind"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "source": {
+      "type": "string",
+      "title": "Source",
+      "description": "'code_scan', 'flagsmith', 'stale_detector', 'verification', 'github', 'owner', 'manual'."
+     },
+     "reference": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reference",
+      "description": "Id/URL of the supporting artifact (scan id, verification id, PR URL...)."
+     },
+     "observed_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Observed At"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "kind",
+     "description",
+     "source"
+    ],
+    "title": "TransitionEvidence"
+   },
+   "TransitionRecord": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "flag_id": {
+      "type": "string",
+      "title": "Flag Id"
+     },
+     "from_state": {
+      "$ref": "#/components/schemas/LifecycleState"
+     },
+     "to_state": {
+      "$ref": "#/components/schemas/LifecycleState"
+     },
+     "at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "At"
+     },
+     "actor": {
+      "type": "string",
+      "title": "Actor"
+     },
+     "reason": {
+      "type": "string",
+      "title": "Reason"
+     },
+     "evidence": {
+      "items": {
+       "$ref": "#/components/schemas/TransitionEvidence"
+      },
+      "type": "array",
+      "title": "Evidence"
+     },
+     "approvals": {
+      "items": {
+       "$ref": "#/components/schemas/Approval"
+      },
+      "type": "array",
+      "title": "Approvals"
+     },
+     "is_manual_override": {
+      "type": "boolean",
+      "title": "Is Manual Override",
+      "default": false
+     },
+     "override_justification": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Override Justification"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "flag_id",
+     "from_state",
+     "to_state",
+     "at",
+     "actor",
+     "reason"
+    ],
+    "title": "TransitionRecord"
+   },
+   "TransitionRequest": {
+    "properties": {
+     "lifecycle": {
+      "$ref": "#/components/schemas/FlagLifecycle"
+     },
+     "to_state": {
+      "$ref": "#/components/schemas/LifecycleState"
+     },
+     "actor": {
+      "type": "string",
+      "title": "Actor"
+     },
+     "reason": {
+      "type": "string",
+      "title": "Reason"
+     },
+     "evidence": {
+      "items": {
+       "$ref": "#/components/schemas/TransitionEvidence"
+      },
+      "type": "array",
+      "title": "Evidence"
+     },
+     "approvals": {
+      "items": {
+       "$ref": "#/components/schemas/Approval"
+      },
+      "type": "array",
+      "title": "Approvals"
+     },
+     "override": {
+      "type": "boolean",
+      "title": "Override",
+      "description": "Manual override (audited; cannot bypass cleanup/retire safety).",
+      "default": false
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "lifecycle",
+     "to_state",
+     "actor",
+     "reason"
+    ],
+    "title": "TransitionRequest"
+   },
+   "Uncertainty": {
+    "properties": {
+     "kind": {
+      "$ref": "#/components/schemas/UncertaintyKind"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "reference_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Reference Ids"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "kind",
+     "description"
+    ],
+    "title": "Uncertainty"
+   },
+   "UncertaintyKind": {
+    "type": "string",
+    "enum": [
+     "dynamic_reference",
+     "potential_reference",
+     "no_references_found",
+     "indeterminate_branch",
+     "flag_value_escapes",
+     "unscanned_consumers",
+     "parse_errors"
+    ],
+    "title": "UncertaintyKind"
+   },
+   "UsageType": {
+    "type": "string",
+    "enum": [
+     "boolean_evaluation",
+     "value_retrieval",
+     "flag_object_retrieval",
+     "hook_subscription",
+     "trait_read"
+    ],
+    "title": "UsageType"
+   },
+   "VerificationRequirement": {
+    "properties": {
+     "kind": {
+      "type": "string",
+      "title": "Kind",
+      "description": "'tests', 'static_check', 'rescan' or 'manual_review'."
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "repository": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Repository"
+     },
+     "target": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Target"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "kind",
+     "description"
+    ],
+    "title": "VerificationRequirement"
+   },
+   "VerificationResult": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "patch_id": {
+      "type": "string",
+      "title": "Patch Id"
+     },
+     "flag_name": {
+      "type": "string",
+      "title": "Flag Name"
+     },
+     "files_changed": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Files Changed"
+     },
+     "patch_applied": {
+      "type": "boolean",
+      "title": "Patch Applied"
+     },
+     "apply_errors": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Apply Errors"
+     },
+     "remaining_references": {
+      "items": {
+       "$ref": "#/components/schemas/FlagReference"
+      },
+      "type": "array",
+      "title": "Remaining References"
+     },
+     "unresolved_dynamic_references": {
+      "items": {
+       "$ref": "#/components/schemas/FlagReference"
+      },
+      "type": "array",
+      "title": "Unresolved Dynamic References"
+     },
+     "static_findings": {
+      "items": {
+       "$ref": "#/components/schemas/StaticFinding"
+      },
+      "type": "array",
+      "title": "Static Findings"
+     },
+     "test_results": {
+      "items": {
+       "$ref": "#/components/schemas/CommandResult"
+      },
+      "type": "array",
+      "title": "Test Results"
+     },
+     "static_results": {
+      "items": {
+       "$ref": "#/components/schemas/CommandResult"
+      },
+      "type": "array",
+      "title": "Static Results"
+     },
+     "status": {
+      "$ref": "#/components/schemas/VerificationStatus"
+     },
+     "ready_for_human_review": {
+      "type": "boolean",
+      "title": "Ready For Human Review"
+     },
+     "unresolved_risks": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Unresolved Risks"
+     },
+     "required_approvals": {
+      "items": {
+       "$ref": "#/components/schemas/ApprovalRole"
+      },
+      "type": "array",
+      "title": "Required Approvals"
+     },
+     "actions_not_taken": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Actions Not Taken"
+     },
+     "workspace_path": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Workspace Path",
+      "description": "Set only when the isolated workspace was retained."
+     },
+     "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Started At"
+     },
+     "finished_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Finished At"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "id",
+     "patch_id",
+     "flag_name",
+     "files_changed",
+     "patch_applied",
+     "status",
+     "ready_for_human_review"
+    ],
+    "title": "VerificationResult"
+   },
+   "VerificationStatus": {
+    "type": "string",
+    "enum": [
+     "failed",
+     "incomplete",
+     "ready_for_review"
+    ],
+    "title": "VerificationStatus"
+   },
+   "VerifyCleanupRequest": {
+    "properties": {
+     "repositories": {
+      "items": {
+       "$ref": "#/components/schemas/RepositoryTarget"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Repositories"
+     },
+     "patch": {
+      "$ref": "#/components/schemas/CleanupPatch"
+     },
+     "commands": {
+      "items": {
+       "$ref": "#/components/schemas/CommandSpec"
+      },
+      "type": "array",
+      "title": "Commands",
+      "description": "Only honoured when the service allows request commands."
+     },
+     "auto_detect_tests": {
+      "type": "boolean",
+      "title": "Auto Detect Tests",
+      "default": true
+     },
+     "require_tests": {
+      "type": "boolean",
+      "title": "Require Tests",
+      "default": true
+     },
+     "dynamic_reference_reviews": {
+      "items": {
+       "$ref": "#/components/schemas/DynamicReferenceReview"
+      },
+      "type": "array",
+      "title": "Dynamic Reference Reviews"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "repositories",
+     "patch"
+    ],
+    "title": "VerifyCleanupRequest"
+   }
+  }
+ }
+}

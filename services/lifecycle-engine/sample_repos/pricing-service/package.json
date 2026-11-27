@@ -1,0 +1,7 @@
+{
+  "name": "pricing-service",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test" },
+  "dependencies": { "flagsmith-nodejs": "^5.0.0" }
+}

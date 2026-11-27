@@ -1,0 +1,18 @@
+{
+  "http_status": 422,
+  "error": {
+    "code": "transition_requirements_not_met",
+    "message": "requirements not met for rolling_out -> fully_released",
+    "details": {
+      "missing_evidence": [
+        "full_production_exposure",
+        "rollout_stable"
+      ],
+      "missing_any_of": [],
+      "missing_approvals": [
+        "flag_owner"
+      ],
+      "problems": []
+    }
+  }
+}

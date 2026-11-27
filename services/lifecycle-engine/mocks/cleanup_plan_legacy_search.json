@@ -1,0 +1,664 @@
+{
+  "plan": {
+    "id": "plan_4e0c0259879dddaf",
+    "flag_id": "acme-web:legacy_search",
+    "flag_name": "legacy_search",
+    "lifecycle_state": null,
+    "stale_status": "potentially_stale",
+    "cleanup_direction": "keep_disabled_path",
+    "recommended_action": "request_owner_review",
+    "reasoning_summary": "Mock narrative for 'legacy_search': stale status is potentially_stale; recommended action is request_owner_review.",
+    "statements": [
+      {
+        "type": "fact",
+        "text": "The stale assessment found 4 supporting signal(s) for 'legacy_search'.",
+        "evidence_ids": [
+          "ev_291a120471d1",
+          "ev_9ca98e4ce726",
+          "ev_7eff58e15033",
+          "ev_56075440c003"
+        ]
+      },
+      {
+        "type": "fact",
+        "text": "'legacy_search' has 1 code reference(s) that cleanup must address.",
+        "evidence_ids": [
+          "ref_11b4d0629b738992"
+        ]
+      },
+      {
+        "type": "hypothesis",
+        "text": "Unresolved blockers mean the flag may still be evaluated in ways the scan cannot see.",
+        "evidence_ids": [
+          "blk_0d52f53420f8"
+        ]
+      },
+      {
+        "type": "recommendation",
+        "text": "Ask the flag owner to review. Before cleanup: 1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9; owner has not confirmed whether the flag is still needed",
+        "evidence_ids": []
+      }
+    ],
+    "evidence": [
+      {
+        "id": "ref_11b4d0629b738992",
+        "kind": "code_reference",
+        "summary": "confirmed hasFeature (boolean_evaluation) at acme/checkout-web:src/search/search.ts:13",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 13,
+          "column": 8,
+          "end_line": 13,
+          "end_column": 48,
+          "start_byte": 358,
+          "end_byte": 398
+        }
+      },
+      {
+        "id": "ref_c54be1ce3cc82af2",
+        "kind": "dynamic_reference",
+        "summary": "dynamic flag name `name` at acme/checkout-web:src/lib/experiments.ts:9",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/experiments.ts",
+          "line": 9,
+          "column": 10,
+          "end_line": 9,
+          "end_column": 31,
+          "start_byte": 338,
+          "end_byte": 359
+        }
+      },
+      {
+        "id": "branch_c4ecd9b572150f94",
+        "kind": "branch",
+        "summary": "guard_clause on `(!flagsmith.hasFeature(LEGACY_SEARCH_FLAG))` (determinable)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 13,
+          "column": 3,
+          "end_line": 15,
+          "end_column": 4,
+          "start_byte": 353,
+          "end_byte": 437
+        }
+      },
+      {
+        "id": "sym_5b00e084479b",
+        "kind": "related_symbol",
+        "summary": "function `search` (enclosing)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 12,
+          "column": 8,
+          "end_line": 17,
+          "end_column": 2,
+          "start_byte": 285,
+          "end_byte": 469
+        }
+      },
+      {
+        "id": "sym_ea5ace3a6079",
+        "kind": "related_symbol",
+        "summary": "function `legacySearch` (used_in_enabled_path, only used behind the flag)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 8,
+          "column": 8,
+          "end_line": 10,
+          "end_column": 2,
+          "start_byte": 196,
+          "end_byte": 276
+        }
+      },
+      {
+        "id": "sym_844833468e05",
+        "kind": "related_symbol",
+        "summary": "function `modernSearch` (used_in_disabled_path, only used behind the flag)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 4,
+          "column": 8,
+          "end_line": 6,
+          "end_column": 2,
+          "start_byte": 107,
+          "end_byte": 187
+        }
+      },
+      {
+        "id": "test_3b6f1114e31c",
+        "kind": "related_test",
+        "summary": "strong test association acme/checkout-web:src/search/search.test.ts: imports flag-controlled module src/search/search.ts; references related symbols: search",
+        "location": null
+      },
+      {
+        "id": "finding_70ee79ff00679227",
+        "kind": "analysis_finding",
+        "summary": "[hypothesis] the enabled path is not taken in all known environments under the current configuration (flag uniformly off); it may still run in other environments, local development, tests or after a configuration change",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 16,
+          "column": 3,
+          "end_line": 16,
+          "end_column": 30,
+          "start_byte": 440,
+          "end_byte": 467
+        }
+      },
+      {
+        "id": "ev_291a120471d1",
+        "kind": "stale:flag_age",
+        "summary": "[supports] flag is 452 days old; age alone does not indicate staleness",
+        "location": null
+      },
+      {
+        "id": "ev_9ca98e4ce726",
+        "kind": "stale:production_state",
+        "summary": "[supports] flag is uniformly disabled in all production environments; this alone does not prove the rollout is finished",
+        "location": null
+      },
+      {
+        "id": "ev_7eff58e15033",
+        "kind": "stale:environments_agree",
+        "summary": "[supports] all non-production environments match production",
+        "location": null
+      },
+      {
+        "id": "ev_56075440c003",
+        "kind": "stale:config_stability",
+        "summary": "[supports] production configuration unchanged for 321 days",
+        "location": null
+      },
+      {
+        "id": "ev_99a8303777f7",
+        "kind": "stale:ownership",
+        "summary": "[neutral] owners: search-team@acme.example",
+        "location": null
+      },
+      {
+        "id": "ev_e8ef2d7dc802",
+        "kind": "stale:code_reference_count",
+        "summary": "[neutral] 1 confirmed reference(s) in 1 file(s): acme/checkout-web:src/search/search.ts",
+        "location": null
+      },
+      {
+        "id": "ev_42999182d67d",
+        "kind": "stale:evaluation_activity",
+        "summary": "[neutral] 40100 evaluation(s) in the last 30 days",
+        "location": null
+      },
+      {
+        "id": "blk_0d52f53420f8",
+        "kind": "blocker",
+        "summary": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+        "location": null
+      },
+      {
+        "id": "miss_b173ebcfb520",
+        "kind": "missing_evidence",
+        "summary": "owner has not confirmed whether the flag is still needed",
+        "location": null
+      },
+      {
+        "id": "miss_5ee968798180",
+        "kind": "missing_evidence",
+        "summary": "not confirmed that every codebase consuming this flag was scanned",
+        "location": null
+      }
+    ],
+    "affected_files": [
+      "acme/checkout-web:src/search/search.ts"
+    ],
+    "obsolete_code_paths": [
+      "acme/checkout-web:src/search/search.ts:16-16 statements after the guard clause: return legacySearch(query);",
+      "acme/checkout-web:src/search/search.ts:8 function `legacySearch` is only reachable through the removed path"
+    ],
+    "proposed_changes": [],
+    "patch_id": null,
+    "patch_rationale": null,
+    "risk": {
+      "overall": "high",
+      "items": [
+        {
+          "level": "high",
+          "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+          "evidence_ids": [
+            "blk_0d52f53420f8"
+          ],
+          "mitigation": "resolve or explicitly review before cleanup"
+        },
+        {
+          "level": "medium",
+          "description": "missing evidence: owner has not confirmed whether the flag is still needed",
+          "evidence_ids": [
+            "miss_b173ebcfb520"
+          ],
+          "mitigation": null
+        },
+        {
+          "level": "medium",
+          "description": "missing evidence: not confirmed that every codebase consuming this flag was scanned",
+          "evidence_ids": [
+            "miss_5ee968798180"
+          ],
+          "mitigation": null
+        },
+        {
+          "level": "medium",
+          "description": "[llm] Blocker requires human review before cleanup.",
+          "evidence_ids": [
+            "blk_0d52f53420f8"
+          ],
+          "mitigation": null
+        }
+      ]
+    },
+    "confidence": 0.6,
+    "missing_evidence": [
+      {
+        "kind": "owner_confirmation",
+        "description": "owner has not confirmed whether the flag is still needed",
+        "blocks": [
+          "ready_for_cleanup"
+        ]
+      },
+      {
+        "kind": "consumer_coverage",
+        "description": "not confirmed that every codebase consuming this flag was scanned",
+        "blocks": []
+      }
+    ],
+    "required_approvals": [
+      "flag_owner"
+    ],
+    "verification_requirements": [
+      {
+        "kind": "tests",
+        "description": "run src/search/search.test.ts (strong: imports flag-controlled module src/search/search.ts; references related symbols: search)",
+        "repository": "acme/checkout-web",
+        "target": "src/search/search.test.ts"
+      },
+      {
+        "kind": "manual_review",
+        "description": "code review by the flag owner and a reviewer",
+        "repository": null,
+        "target": null
+      }
+    ],
+    "llm": {
+      "status": "used",
+      "provider": "mock",
+      "model": "mock-1",
+      "validation_errors": [],
+      "error": null
+    },
+    "is_recommendation": true,
+    "created_at": "2026-11-27T13:54:03.279787Z"
+  },
+  "stale_finding": {
+    "id": "stale_12acc725f799cac6",
+    "flag_id": "acme-web:legacy_search",
+    "flag_name": "legacy_search",
+    "status": "potentially_stale",
+    "confidence": 0.6,
+    "score": 0.6,
+    "cleanup_direction": "keep_disabled_path",
+    "inline_value": null,
+    "lifecycle_state": null,
+    "evidence": [
+      {
+        "id": "ev_291a120471d1",
+        "kind": "flag_age",
+        "source": "flagsmith",
+        "description": "flag is 452 days old; age alone does not indicate staleness",
+        "direction": "supports",
+        "weight": 0.1,
+        "value": 452,
+        "observed_at": null
+      },
+      {
+        "id": "ev_9ca98e4ce726",
+        "kind": "production_state",
+        "source": "flagsmith",
+        "description": "flag is uniformly disabled in all production environments; this alone does not prove the rollout is finished",
+        "direction": "supports",
+        "weight": 0.25,
+        "value": false,
+        "observed_at": null
+      },
+      {
+        "id": "ev_7eff58e15033",
+        "kind": "environments_agree",
+        "source": "flagsmith",
+        "description": "all non-production environments match production",
+        "direction": "supports",
+        "weight": 0.1,
+        "value": null,
+        "observed_at": null
+      },
+      {
+        "id": "ev_56075440c003",
+        "kind": "config_stability",
+        "source": "flagsmith",
+        "description": "production configuration unchanged for 321 days",
+        "direction": "supports",
+        "weight": 0.15,
+        "value": 321,
+        "observed_at": "2026-01-10T09:00:00Z"
+      },
+      {
+        "id": "ev_99a8303777f7",
+        "kind": "ownership",
+        "source": "flagsmith",
+        "description": "owners: search-team@acme.example",
+        "direction": "neutral",
+        "weight": 0.0,
+        "value": 1,
+        "observed_at": null
+      },
+      {
+        "id": "ev_e8ef2d7dc802",
+        "kind": "code_reference_count",
+        "source": "code_scan",
+        "description": "1 confirmed reference(s) in 1 file(s): acme/checkout-web:src/search/search.ts",
+        "direction": "neutral",
+        "weight": 0.0,
+        "value": 1,
+        "observed_at": null
+      },
+      {
+        "id": "ev_42999182d67d",
+        "kind": "evaluation_activity",
+        "source": "mock",
+        "description": "40100 evaluation(s) in the last 30 days",
+        "direction": "neutral",
+        "weight": 0.0,
+        "value": 40100,
+        "observed_at": null
+      }
+    ],
+    "missing_evidence": [
+      {
+        "kind": "owner_confirmation",
+        "description": "owner has not confirmed whether the flag is still needed",
+        "blocks": [
+          "ready_for_cleanup"
+        ]
+      },
+      {
+        "kind": "consumer_coverage",
+        "description": "not confirmed that every codebase consuming this flag was scanned",
+        "blocks": []
+      }
+    ],
+    "blockers": [
+      {
+        "kind": "dynamic_references",
+        "description": "1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9",
+        "caps_status_at": "potentially_stale"
+      }
+    ],
+    "uncertainty": [],
+    "recommended_next_action": "Ask the flag owner to review. Before cleanup: 1 dynamic reference(s) may evaluate this flag at runtime: acme/checkout-web:src/lib/experiments.ts:9; owner has not confirmed whether the flag is still needed",
+    "requires_human_decision": true,
+    "policy_id": "default",
+    "policy_version": "1",
+    "evaluated_at": "2026-11-27T12:00:00Z"
+  },
+  "analysis": {
+    "id": "analysis_4026af31e0f624b0",
+    "flag_name": "legacy_search",
+    "generated_at": "2026-11-27T13:54:03.277671Z",
+    "repositories": [
+      "acme/checkout-web",
+      "acme/pricing-service"
+    ],
+    "references": [
+      {
+        "id": "ref_11b4d0629b738992",
+        "repository": "acme/checkout-web",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 13,
+          "column": 8,
+          "end_line": 13,
+          "end_column": 48,
+          "start_byte": 358,
+          "end_byte": 398
+        },
+        "flag_name": "legacy_search",
+        "trait_key": null,
+        "sdk": "flagsmith-js",
+        "api": "hasFeature",
+        "usage_type": "boolean_evaluation",
+        "classification": "confirmed",
+        "is_dynamic": false,
+        "name_resolution": "imported_constant",
+        "argument_expression": "LEGACY_SEARCH_FLAG",
+        "confidence": 0.9,
+        "evidence": [
+          "receiver: annotated with type IFlagsmith (`IFlagsmith` is a named import 'IFlagsmith' from 'flagsmith' (line 1))",
+          "LEGACY_SEARCH_FLAG = 'legacy_search' from src/lib/flags.ts"
+        ],
+        "context": {
+          "snippet": "if (!flagsmith.hasFeature(LEGACY_SEARCH_FLAG)) {",
+          "enclosing_function": "search",
+          "in_conditional": true,
+          "is_test_file": false
+        }
+      }
+    ],
+    "usage_patterns": {
+      "boolean_evaluation": 1
+    },
+    "branches": [
+      {
+        "id": "branch_c4ecd9b572150f94",
+        "reference_id": "ref_11b4d0629b738992",
+        "kind": "guard_clause",
+        "polarity": "negative",
+        "condition": "(!flagsmith.hasFeature(LEGACY_SEARCH_FLAG))",
+        "condition_is_exact": true,
+        "construct_span": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 13,
+          "column": 3,
+          "end_line": 15,
+          "end_column": 4,
+          "start_byte": 353,
+          "end_byte": 437
+        },
+        "enabled_path": {
+          "span": {
+            "repository": "acme/checkout-web",
+            "file_path": "src/search/search.ts",
+            "line": 16,
+            "column": 3,
+            "end_line": 16,
+            "end_column": 30,
+            "start_byte": 440,
+            "end_byte": 467
+          },
+          "excerpt": "return legacySearch(query);",
+          "callees": [
+            "legacySearch"
+          ],
+          "rendered_components": [],
+          "is_empty": false,
+          "description": "statements after the guard clause"
+        },
+        "disabled_path": {
+          "span": {
+            "repository": "acme/checkout-web",
+            "file_path": "src/search/search.ts",
+            "line": 14,
+            "column": 5,
+            "end_line": 14,
+            "end_column": 32,
+            "start_byte": 406,
+            "end_byte": 433
+          },
+          "excerpt": "return modernSearch(query);",
+          "callees": [
+            "modernSearch"
+          ],
+          "rendered_components": [],
+          "is_empty": false,
+          "description": "early exit taken when the condition is true"
+        },
+        "determinable": true,
+        "via_alias": null,
+        "notes": [
+          "guard clause: the remaining statements run only when the condition is false"
+        ]
+      }
+    ],
+    "fallbacks": [],
+    "related_symbols": [
+      {
+        "name": "search",
+        "kind": "function",
+        "relation": "enclosing",
+        "defined_at": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 12,
+          "column": 8,
+          "end_line": 17,
+          "end_column": 2,
+          "start_byte": 285,
+          "end_byte": 469
+        },
+        "exclusively_flag_gated": null,
+        "other_usages": 0
+      },
+      {
+        "name": "legacySearch",
+        "kind": "function",
+        "relation": "used_in_enabled_path",
+        "defined_at": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 8,
+          "column": 8,
+          "end_line": 10,
+          "end_column": 2,
+          "start_byte": 196,
+          "end_byte": 276
+        },
+        "exclusively_flag_gated": true,
+        "other_usages": 0
+      },
+      {
+        "name": "modernSearch",
+        "kind": "function",
+        "relation": "used_in_disabled_path",
+        "defined_at": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 4,
+          "column": 8,
+          "end_line": 6,
+          "end_column": 2,
+          "start_byte": 107,
+          "end_byte": 187
+        },
+        "exclusively_flag_gated": true,
+        "other_usages": 0
+      }
+    ],
+    "related_tests": [
+      {
+        "repository": "acme/checkout-web",
+        "file_path": "src/search/search.test.ts",
+        "strength": "strong",
+        "reasons": [
+          "imports flag-controlled module src/search/search.ts",
+          "references related symbols: search"
+        ]
+      }
+    ],
+    "feature_scope": "full_feature_candidate",
+    "feature_scope_evidence": [
+      "`legacySearch` (function, src/search/search.ts) is only used in the flag's enabled path",
+      "`modernSearch` (function, src/search/search.ts) is only used in the flag's disabled path",
+      "candidate only: usages outside scanned repositories cannot be ruled out"
+    ],
+    "findings": [
+      {
+        "id": "finding_70ee79ff00679227",
+        "kind": "potentially_unreachable_branch",
+        "severity": "info",
+        "message": "the enabled path is not taken in all known environments under the current configuration (flag uniformly off); it may still run in other environments, local development, tests or after a configuration change",
+        "reference_ids": [
+          "ref_11b4d0629b738992"
+        ],
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/search/search.ts",
+          "line": 16,
+          "column": 3,
+          "end_line": 16,
+          "end_column": 30,
+          "start_byte": 440,
+          "end_byte": 467
+        },
+        "is_hypothesis": true
+      }
+    ],
+    "unresolved_dynamic_references": [
+      {
+        "id": "ref_c54be1ce3cc82af2",
+        "repository": "acme/checkout-web",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/experiments.ts",
+          "line": 9,
+          "column": 10,
+          "end_line": 9,
+          "end_column": 31,
+          "start_byte": 338,
+          "end_byte": 359
+        },
+        "flag_name": null,
+        "trait_key": null,
+        "sdk": "flagsmith-js",
+        "api": "getValue",
+        "usage_type": "value_retrieval",
+        "classification": "dynamic",
+        "is_dynamic": true,
+        "name_resolution": "unresolved",
+        "argument_expression": "name",
+        "confidence": 0.9,
+        "evidence": [
+          "receiver: annotated with type IFlagsmith (`IFlagsmith` is a named import 'IFlagsmith' from 'flagsmith' (line 1))",
+          "flag name expression `name` is not statically resolvable"
+        ],
+        "context": {
+          "snippet": "return client.getValue(name);",
+          "enclosing_function": "readFlag",
+          "in_conditional": false,
+          "is_test_file": false
+        }
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "dynamic_reference",
+        "description": "1 dynamic flag reference(s) could evaluate 'legacy_search' at runtime: src/lib/experiments.ts:9 `name`",
+        "reference_ids": [
+          "ref_c54be1ce3cc82af2"
+        ]
+      }
+    ]
+  },
+  "patch": null
+}

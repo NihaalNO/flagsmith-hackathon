@@ -1,0 +1,7 @@
+{
+  "name": "checkout-web",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test" },
+  "dependencies": { "flagsmith": "^9.0.0", "react": "^18.3.0" }
+}

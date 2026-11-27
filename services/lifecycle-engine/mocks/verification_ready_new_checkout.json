@@ -1,0 +1,68 @@
+{
+  "id": "verify_2d4bee11348d9a01",
+  "patch_id": "patch_5f38e7952e9821ce",
+  "flag_name": "new_checkout",
+  "files_changed": [
+    "acme/checkout-web:src/checkout/CheckoutPage.tsx",
+    "acme/checkout-web:src/lib/cart.ts",
+    "acme/pricing-service:src/handlers.ts"
+  ],
+  "patch_applied": true,
+  "apply_errors": [],
+  "remaining_references": [],
+  "unresolved_dynamic_references": [],
+  "static_findings": [],
+  "test_results": [
+    {
+      "name": "npm test",
+      "kind": "tests",
+      "repository": "acme/checkout-web",
+      "argv": [
+        "npm",
+        "test",
+        "--silent"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_s": 1.19,
+      "output_tail": "✔ cartTotal keeps cent precision with the new checkout (0.9374ms)\n✔ search uses the modern engine (1.7111ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 190.2291",
+      "error": null
+    },
+    {
+      "name": "npm test",
+      "kind": "tests",
+      "repository": "acme/pricing-service",
+      "argv": [
+        "npm",
+        "test",
+        "--silent"
+      ],
+      "status": "passed",
+      "exit_code": 0,
+      "duration_s": 1.23,
+      "output_tail": "✔ free shipping above threshold (1.2529ms)\n✔ falls back to default rate (0.2421ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 210.1707",
+      "error": null
+    }
+  ],
+  "static_results": [],
+  "status": "ready_for_review",
+  "ready_for_human_review": true,
+  "unresolved_risks": [
+    "follow-up: `flagsmith` (client) in acme/checkout-web:src/lib/cart.ts is no longer used; the code that creates or passes it may be removable (Flagsmith calls can have side effects such as network requests) - review",
+    "follow-up: `flags` (server_flags) in acme/pricing-service:src/handlers.ts is no longer used; the code that creates or passes it may be removable (Flagsmith calls can have side effects such as network requests) - review",
+    "follow-up: `LegacyCheckout` (component, acme/checkout-web:src/checkout/LegacyCheckout.tsx) is no longer used; the whole file may be removable - review before deleting",
+    "follow-up: `legacyTotal` (function, acme/checkout-web:src/lib/cart.ts) is no longer used; consider removing it - review before deleting"
+  ],
+  "required_approvals": [
+    "code_reviewer",
+    "flag_owner"
+  ],
+  "actions_not_taken": [
+    "no changes were written to the source repositories",
+    "no branch was pushed and no pull request was opened or merged",
+    "the Flagsmith flag was not modified or archived"
+  ],
+  "workspace_path": null,
+  "started_at": "2026-11-27T13:54:03.285144Z",
+  "finished_at": "2026-11-27T13:54:05.865050Z"
+}

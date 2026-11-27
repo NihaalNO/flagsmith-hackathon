@@ -1,0 +1,1383 @@
+{
+  "plan": {
+    "id": "plan_a43b73182c868bce",
+    "flag_id": "acme-web:new_checkout",
+    "flag_name": "new_checkout",
+    "lifecycle_state": null,
+    "stale_status": "ready_for_cleanup",
+    "cleanup_direction": "keep_enabled_path",
+    "recommended_action": "prepare_cleanup_patch",
+    "reasoning_summary": "Mock narrative for 'new_checkout': stale status is ready_for_cleanup; recommended action is prepare_cleanup_patch.",
+    "statements": [
+      {
+        "type": "fact",
+        "text": "The stale assessment found 5 supporting signal(s) for 'new_checkout'.",
+        "evidence_ids": [
+          "ev_289d3e270aa5",
+          "ev_268abcb8515d",
+          "ev_cc4b0d4e226e",
+          "ev_e3c26e039c4a",
+          "ev_28bbc7aa822f"
+        ]
+      },
+      {
+        "type": "fact",
+        "text": "'new_checkout' has 4 code reference(s) that cleanup must address.",
+        "evidence_ids": [
+          "ref_fb43798c6caefa8c",
+          "ref_ad7c8ddced41e4e2",
+          "ref_c8b5c7ed10ffcaf1",
+          "ref_5c616e92f5df7d25"
+        ]
+      },
+      {
+        "type": "recommendation",
+        "text": "Review the suggested patch (3 file(s), complete) and run verification before opening a pull request. Generate a cleanup plan and patch for human review; do not archive the flag until cleanup is merged and verified.",
+        "evidence_ids": []
+      }
+    ],
+    "evidence": [
+      {
+        "id": "ref_fb43798c6caefa8c",
+        "kind": "code_reference",
+        "summary": "confirmed useFlags (hook_subscription) at acme/checkout-web:src/checkout/CheckoutPage.tsx:7",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 7,
+          "column": 27,
+          "end_line": 7,
+          "end_column": 41,
+          "start_byte": 227,
+          "end_byte": 241
+        }
+      },
+      {
+        "id": "ref_ad7c8ddced41e4e2",
+        "kind": "code_reference",
+        "summary": "confirmed flags.<name> (boolean_evaluation) at acme/checkout-web:src/checkout/CheckoutPage.tsx:11",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 11,
+          "column": 8,
+          "end_line": 11,
+          "end_column": 34,
+          "start_byte": 298,
+          "end_byte": 324
+        }
+      },
+      {
+        "id": "ref_c8b5c7ed10ffcaf1",
+        "kind": "code_reference",
+        "summary": "confirmed hasFeature (boolean_evaluation) at acme/checkout-web:src/lib/cart.ts:23",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 23,
+          "column": 7,
+          "end_line": 23,
+          "end_column": 47,
+          "start_byte": 575,
+          "end_byte": 615
+        }
+      },
+      {
+        "id": "ref_5c616e92f5df7d25",
+        "kind": "code_reference",
+        "summary": "confirmed isFeatureEnabled (boolean_evaluation) at acme/pricing-service:src/handlers.ts:5",
+        "location": {
+          "repository": "acme/pricing-service",
+          "file_path": "src/handlers.ts",
+          "line": 5,
+          "column": 7,
+          "end_line": 5,
+          "end_column": 45,
+          "start_byte": 156,
+          "end_byte": 194
+        }
+      },
+      {
+        "id": "ref_c54be1ce3cc82af2",
+        "kind": "dynamic_reference",
+        "summary": "dynamic flag name `name` at acme/checkout-web:src/lib/experiments.ts:9",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/experiments.ts",
+          "line": 9,
+          "column": 10,
+          "end_line": 9,
+          "end_column": 31,
+          "start_byte": 338,
+          "end_byte": 359
+        }
+      },
+      {
+        "id": "branch_e79e722ba92f3aac",
+        "kind": "branch",
+        "summary": "ternary on `flags.new_checkout.enabled` (determinable)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 11,
+          "column": 8,
+          "end_line": 11,
+          "end_column": 73,
+          "start_byte": 298,
+          "end_byte": 363
+        }
+      },
+      {
+        "id": "branch_3df4b31b8e52ff45",
+        "kind": "branch",
+        "summary": "if_else on `(flagsmith.hasFeature(FLAGS.NEW_CHECKOUT))` (determinable)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 23,
+          "column": 3,
+          "end_line": 27,
+          "end_column": 4,
+          "start_byte": 571,
+          "end_byte": 697
+        }
+      },
+      {
+        "id": "branch_48c27b64930659ae",
+        "kind": "branch",
+        "summary": "guard_clause on `(flags.isFeatureEnabled(\"new_checkout\"))` (determinable)",
+        "location": {
+          "repository": "acme/pricing-service",
+          "file_path": "src/handlers.ts",
+          "line": 5,
+          "column": 3,
+          "end_line": 7,
+          "end_column": 4,
+          "start_byte": 152,
+          "end_byte": 228
+        }
+      },
+      {
+        "id": "sym_956b7e4cdf88",
+        "kind": "related_symbol",
+        "summary": "component `CheckoutPage` (enclosing)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 6,
+          "column": 8,
+          "end_line": 14,
+          "end_column": 2,
+          "start_byte": 175,
+          "end_byte": 383
+        }
+      },
+      {
+        "id": "sym_4dabb44b9c7c",
+        "kind": "related_symbol",
+        "summary": "function `cartTotal` (enclosing)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 22,
+          "column": 8,
+          "end_line": 28,
+          "end_column": 2,
+          "start_byte": 498,
+          "end_byte": 699
+        }
+      },
+      {
+        "id": "sym_d57cb3b6928a",
+        "kind": "related_symbol",
+        "summary": "function `quoteHandler` (enclosing)",
+        "location": {
+          "repository": "acme/pricing-service",
+          "file_path": "src/handlers.ts",
+          "line": 3,
+          "column": 8,
+          "end_line": 9,
+          "end_column": 2,
+          "start_byte": 46,
+          "end_byte": 255
+        }
+      },
+      {
+        "id": "sym_bebffab0b11c",
+        "kind": "related_symbol",
+        "summary": "component `NewCheckout` (used_in_enabled_path, only used behind the flag)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/NewCheckout.tsx",
+          "line": 3,
+          "column": 8,
+          "end_line": 5,
+          "end_column": 2,
+          "start_byte": 35,
+          "end_byte": 142
+        }
+      },
+      {
+        "id": "sym_e68fbedadf54",
+        "kind": "related_symbol",
+        "summary": "function `itemizedTotal` (used_in_enabled_path, only used behind the flag)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 17,
+          "column": 1,
+          "end_line": 20,
+          "end_column": 2,
+          "start_byte": 323,
+          "end_byte": 489
+        }
+      },
+      {
+        "id": "sym_9ba6081921d8",
+        "kind": "related_symbol",
+        "summary": "component `LegacyCheckout` (used_in_disabled_path, only used behind the flag)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/LegacyCheckout.tsx",
+          "line": 3,
+          "column": 8,
+          "end_line": 5,
+          "end_column": 2,
+          "start_byte": 35,
+          "end_byte": 134
+        }
+      },
+      {
+        "id": "sym_8401430a39b7",
+        "kind": "related_symbol",
+        "summary": "function `legacyTotal` (used_in_disabled_path, only used behind the flag)",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 9,
+          "column": 1,
+          "end_line": 15,
+          "end_column": 2,
+          "start_byte": 150,
+          "end_byte": 321
+        }
+      },
+      {
+        "id": "test_6a59c67aaa3f",
+        "kind": "related_test",
+        "summary": "strong test association acme/checkout-web:src/lib/cart.test.ts: imports flag-controlled module src/lib/cart.ts; references related symbols: cartTotal",
+        "location": null
+      },
+      {
+        "id": "finding_7bb221757a103bd7",
+        "kind": "analysis_finding",
+        "summary": "[hypothesis] the disabled path is not taken in all known environments under the current configuration (flag uniformly on); it may still run in other environments, local development, tests or after a configuration change",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 11,
+          "column": 55,
+          "end_line": 11,
+          "end_column": 73,
+          "start_byte": 345,
+          "end_byte": 363
+        }
+      },
+      {
+        "id": "finding_1f26f1d6b3f23585",
+        "kind": "analysis_finding",
+        "summary": "[hypothesis] the disabled path is not taken in all known environments under the current configuration (flag uniformly on); it may still run in other environments, local development, tests or after a configuration change",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 26,
+          "column": 5,
+          "end_line": 26,
+          "end_column": 31,
+          "start_byte": 667,
+          "end_byte": 693
+        }
+      },
+      {
+        "id": "finding_7f34928e59f88d44",
+        "kind": "analysis_finding",
+        "summary": "[hypothesis] the disabled path is not taken in all known environments under the current configuration (flag uniformly on); it may still run in other environments, local development, tests or after a configuration change",
+        "location": {
+          "repository": "acme/pricing-service",
+          "file_path": "src/handlers.ts",
+          "line": 8,
+          "column": 3,
+          "end_line": 8,
+          "end_column": 25,
+          "start_byte": 231,
+          "end_byte": 253
+        }
+      },
+      {
+        "id": "ev_289d3e270aa5",
+        "kind": "stale:flag_age",
+        "summary": "[supports] flag is 271 days old; age alone does not indicate staleness",
+        "location": null
+      },
+      {
+        "id": "ev_268abcb8515d",
+        "kind": "stale:production_state",
+        "summary": "[supports] flag is uniformly enabled (100%) in all production environments; this alone does not prove the rollout is finished",
+        "location": null
+      },
+      {
+        "id": "ev_cc4b0d4e226e",
+        "kind": "stale:environments_agree",
+        "summary": "[supports] all non-production environments match production",
+        "location": null
+      },
+      {
+        "id": "ev_e3c26e039c4a",
+        "kind": "stale:config_stability",
+        "summary": "[supports] production configuration unchanged for 104 days",
+        "location": null
+      },
+      {
+        "id": "ev_7f63158517f4",
+        "kind": "stale:ownership",
+        "summary": "[neutral] owners: checkout-team@acme.example",
+        "location": null
+      },
+      {
+        "id": "ev_28bbc7aa822f",
+        "kind": "stale:owner_confirmation",
+        "summary": "[supports] checkout-team@acme.example confirmed the flag is no longer needed (release)",
+        "location": null
+      },
+      {
+        "id": "ev_e23da9bb95f7",
+        "kind": "stale:dynamic_reference_review",
+        "summary": "[neutral] checkout-lead@acme.example reviewed dynamic reference src/lib/experiments.ts:9 (`name`) and confirmed it does not evaluate this flag",
+        "location": null
+      },
+      {
+        "id": "ev_6e75531dbaf0",
+        "kind": "stale:code_reference_count",
+        "summary": "[neutral] 4 confirmed reference(s) in 3 file(s): acme/checkout-web:src/checkout/CheckoutPage.tsx, acme/checkout-web:src/lib/cart.ts, acme/pricing-service:src/handlers.ts",
+        "location": null
+      },
+      {
+        "id": "ev_c494eae3472f",
+        "kind": "stale:evaluation_activity",
+        "summary": "[neutral] 120344 evaluation(s) in the last 30 days",
+        "location": null
+      },
+      {
+        "id": "edit_dcc6b26333b2",
+        "kind": "patch_edit",
+        "summary": "acme/checkout-web:src/checkout/CheckoutPage.tsx:7 remove_subscription: flag removed from useFlags()",
+        "location": null
+      },
+      {
+        "id": "edit_a20e956cb700",
+        "kind": "patch_edit",
+        "summary": "acme/checkout-web:src/checkout/CheckoutPage.tsx:11 keep_branch: render `<NewCheckout />` unconditionally",
+        "location": null
+      },
+      {
+        "id": "edit_e5b5da6ebe4c",
+        "kind": "patch_edit",
+        "summary": "acme/checkout-web:src/checkout/CheckoutPage.tsx:7 remove_statement: useFlags() no longer subscribes to any flag; removed",
+        "location": null
+      },
+      {
+        "id": "edit_4af59029bdbf",
+        "kind": "patch_edit",
+        "summary": "acme/checkout-web:src/checkout/CheckoutPage.tsx:2 remove_unused_import: import of useFlags no longer used; removed",
+        "location": null
+      },
+      {
+        "id": "edit_bfaf52e00bf2",
+        "kind": "patch_edit",
+        "summary": "acme/checkout-web:src/checkout/CheckoutPage.tsx:4 remove_unused_import: import of LegacyCheckout no longer used; removed",
+        "location": null
+      },
+      {
+        "id": "edit_515695363a23",
+        "kind": "patch_edit",
+        "summary": "acme/checkout-web:src/lib/cart.ts:23 keep_branch: if-consequence kept, else-branch removed",
+        "location": null
+      },
+      {
+        "id": "edit_a1d702c9bd05",
+        "kind": "patch_edit",
+        "summary": "acme/checkout-web:src/lib/cart.ts:2 remove_unused_import: import of FLAGS no longer used; removed",
+        "location": null
+      },
+      {
+        "id": "edit_fa6a62f0f729",
+        "kind": "patch_edit",
+        "summary": "acme/pricing-service:src/handlers.ts:5 keep_branch: guard always taken: keep `return { version: 2 };` and drop unreachable statements after the guard",
+        "location": null
+      }
+    ],
+    "affected_files": [
+      "acme/checkout-web:src/checkout/CheckoutPage.tsx",
+      "acme/checkout-web:src/lib/cart.ts",
+      "acme/pricing-service:src/handlers.ts"
+    ],
+    "obsolete_code_paths": [
+      "acme/checkout-web:src/checkout/CheckoutPage.tsx:11-11 ternary alternative: <LegacyCheckout />",
+      "acme/checkout-web:src/lib/cart.ts:26-26 else-branch: return legacyTotal(items);",
+      "acme/pricing-service:src/handlers.ts:8-8 statements after the guard clause: return { version: 1 };",
+      "acme/checkout-web:src/checkout/LegacyCheckout.tsx:3 component `LegacyCheckout` is only reachable through the removed path",
+      "acme/checkout-web:src/lib/cart.ts:9 function `legacyTotal` is only reachable through the removed path"
+    ],
+    "proposed_changes": [
+      {
+        "id": "chg_67cdca2f5458",
+        "repository": "acme/checkout-web",
+        "file_path": "src/checkout/CheckoutPage.tsx",
+        "line": 7,
+        "reference_id": "ref_fb43798c6caefa8c",
+        "change_kind": "remove_subscription",
+        "description": "flag removed from useFlags()"
+      },
+      {
+        "id": "chg_f3107f1efa6a",
+        "repository": "acme/checkout-web",
+        "file_path": "src/checkout/CheckoutPage.tsx",
+        "line": 11,
+        "reference_id": "ref_ad7c8ddced41e4e2",
+        "change_kind": "keep_branch",
+        "description": "render `<NewCheckout />` unconditionally"
+      },
+      {
+        "id": "chg_2ae3c61fcc26",
+        "repository": "acme/checkout-web",
+        "file_path": "src/checkout/CheckoutPage.tsx",
+        "line": 7,
+        "reference_id": null,
+        "change_kind": "remove_statement",
+        "description": "useFlags() no longer subscribes to any flag; removed"
+      },
+      {
+        "id": "chg_9af773edc121",
+        "repository": "acme/checkout-web",
+        "file_path": "src/checkout/CheckoutPage.tsx",
+        "line": 2,
+        "reference_id": null,
+        "change_kind": "remove_unused_import",
+        "description": "import of useFlags no longer used; removed"
+      },
+      {
+        "id": "chg_5f7fd4908dc3",
+        "repository": "acme/checkout-web",
+        "file_path": "src/checkout/CheckoutPage.tsx",
+        "line": 4,
+        "reference_id": null,
+        "change_kind": "remove_unused_import",
+        "description": "import of LegacyCheckout no longer used; removed"
+      },
+      {
+        "id": "chg_c16ae7eb3d1e",
+        "repository": "acme/checkout-web",
+        "file_path": "src/lib/cart.ts",
+        "line": 23,
+        "reference_id": "ref_c8b5c7ed10ffcaf1",
+        "change_kind": "keep_branch",
+        "description": "if-consequence kept, else-branch removed"
+      },
+      {
+        "id": "chg_2f2783077f0f",
+        "repository": "acme/checkout-web",
+        "file_path": "src/lib/cart.ts",
+        "line": 2,
+        "reference_id": null,
+        "change_kind": "remove_unused_import",
+        "description": "import of FLAGS no longer used; removed"
+      },
+      {
+        "id": "chg_815cf9877c2b",
+        "repository": "acme/pricing-service",
+        "file_path": "src/handlers.ts",
+        "line": 5,
+        "reference_id": "ref_5c616e92f5df7d25",
+        "change_kind": "keep_branch",
+        "description": "guard always taken: keep `return { version: 2 };` and drop unreachable statements after the guard"
+      }
+    ],
+    "patch_id": "patch_5f38e7952e9821ce",
+    "patch_rationale": "The patch keeps the code path that production currently executes and removes the flag check.",
+    "risk": {
+      "overall": "medium",
+      "items": [
+        {
+          "level": "medium",
+          "description": "cleanup spans 2 repositories; changes must ship together or in a safe order",
+          "evidence_ids": [
+            "ref_fb43798c6caefa8c",
+            "ref_ad7c8ddced41e4e2",
+            "ref_c8b5c7ed10ffcaf1",
+            "ref_5c616e92f5df7d25"
+          ],
+          "mitigation": "coordinate merges and deploys"
+        },
+        {
+          "level": "low",
+          "description": "4 follow-up item(s) (newly unused code) need review",
+          "evidence_ids": [],
+          "mitigation": null
+        }
+      ]
+    },
+    "confidence": 0.95,
+    "missing_evidence": [],
+    "required_approvals": [
+      "flag_owner",
+      "code_reviewer"
+    ],
+    "verification_requirements": [
+      {
+        "kind": "tests",
+        "description": "run src/lib/cart.test.ts (strong: imports flag-controlled module src/lib/cart.ts; references related symbols: cartTotal)",
+        "repository": "acme/checkout-web",
+        "target": "src/lib/cart.test.ts"
+      },
+      {
+        "kind": "static_check",
+        "description": "re-parse every changed file; no syntax errors",
+        "repository": null,
+        "target": null
+      },
+      {
+        "kind": "static_check",
+        "description": "run the project's type checker / linter if configured (e.g. tsc --noEmit)",
+        "repository": null,
+        "target": null
+      },
+      {
+        "kind": "rescan",
+        "description": "re-scan all repositories; expect zero references to 'new_checkout'",
+        "repository": null,
+        "target": null
+      },
+      {
+        "kind": "manual_review",
+        "description": "code review by the flag owner and a reviewer",
+        "repository": null,
+        "target": null
+      }
+    ],
+    "llm": {
+      "status": "used",
+      "provider": "mock",
+      "model": "mock-1",
+      "validation_errors": [],
+      "error": null
+    },
+    "is_recommendation": true,
+    "created_at": "2026-11-27T13:54:03.221741Z"
+  },
+  "stale_finding": {
+    "id": "stale_f5c952356bc1be78",
+    "flag_id": "acme-web:new_checkout",
+    "flag_name": "new_checkout",
+    "status": "ready_for_cleanup",
+    "confidence": 0.95,
+    "score": 0.9,
+    "cleanup_direction": "keep_enabled_path",
+    "inline_value": null,
+    "lifecycle_state": null,
+    "evidence": [
+      {
+        "id": "ev_289d3e270aa5",
+        "kind": "flag_age",
+        "source": "flagsmith",
+        "description": "flag is 271 days old; age alone does not indicate staleness",
+        "direction": "supports",
+        "weight": 0.1,
+        "value": 271,
+        "observed_at": null
+      },
+      {
+        "id": "ev_268abcb8515d",
+        "kind": "production_state",
+        "source": "flagsmith",
+        "description": "flag is uniformly enabled (100%) in all production environments; this alone does not prove the rollout is finished",
+        "direction": "supports",
+        "weight": 0.25,
+        "value": true,
+        "observed_at": null
+      },
+      {
+        "id": "ev_cc4b0d4e226e",
+        "kind": "environments_agree",
+        "source": "flagsmith",
+        "description": "all non-production environments match production",
+        "direction": "supports",
+        "weight": 0.1,
+        "value": null,
+        "observed_at": null
+      },
+      {
+        "id": "ev_e3c26e039c4a",
+        "kind": "config_stability",
+        "source": "flagsmith",
+        "description": "production configuration unchanged for 104 days",
+        "direction": "supports",
+        "weight": 0.15,
+        "value": 104,
+        "observed_at": "2026-08-15T12:00:00Z"
+      },
+      {
+        "id": "ev_7f63158517f4",
+        "kind": "ownership",
+        "source": "flagsmith",
+        "description": "owners: checkout-team@acme.example",
+        "direction": "neutral",
+        "weight": 0.0,
+        "value": 1,
+        "observed_at": null
+      },
+      {
+        "id": "ev_28bbc7aa822f",
+        "kind": "owner_confirmation",
+        "source": "owner",
+        "description": "checkout-team@acme.example confirmed the flag is no longer needed (release)",
+        "direction": "supports",
+        "weight": 0.3,
+        "value": null,
+        "observed_at": "2026-11-20T15:00:00Z"
+      },
+      {
+        "id": "ev_e23da9bb95f7",
+        "kind": "dynamic_reference_review",
+        "source": "owner",
+        "description": "checkout-lead@acme.example reviewed dynamic reference src/lib/experiments.ts:9 (`name`) and confirmed it does not evaluate this flag",
+        "direction": "neutral",
+        "weight": 0.0,
+        "value": "ref_c54be1ce3cc82af2",
+        "observed_at": "2026-11-27T12:00:00Z"
+      },
+      {
+        "id": "ev_6e75531dbaf0",
+        "kind": "code_reference_count",
+        "source": "code_scan",
+        "description": "4 confirmed reference(s) in 3 file(s): acme/checkout-web:src/checkout/CheckoutPage.tsx, acme/checkout-web:src/lib/cart.ts, acme/pricing-service:src/handlers.ts",
+        "direction": "neutral",
+        "weight": 0.0,
+        "value": 4,
+        "observed_at": null
+      },
+      {
+        "id": "ev_c494eae3472f",
+        "kind": "evaluation_activity",
+        "source": "mock",
+        "description": "120344 evaluation(s) in the last 30 days",
+        "direction": "neutral",
+        "weight": 0.0,
+        "value": 120344,
+        "observed_at": null
+      }
+    ],
+    "missing_evidence": [],
+    "blockers": [],
+    "uncertainty": [],
+    "recommended_next_action": "Generate a cleanup plan and patch for human review; do not archive the flag until cleanup is merged and verified.",
+    "requires_human_decision": true,
+    "policy_id": "default",
+    "policy_version": "1",
+    "evaluated_at": "2026-11-27T12:00:00Z"
+  },
+  "analysis": {
+    "id": "analysis_48866060f727574e",
+    "flag_name": "new_checkout",
+    "generated_at": "2026-11-27T13:54:03.029025Z",
+    "repositories": [
+      "acme/checkout-web",
+      "acme/pricing-service"
+    ],
+    "references": [
+      {
+        "id": "ref_fb43798c6caefa8c",
+        "repository": "acme/checkout-web",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 7,
+          "column": 27,
+          "end_line": 7,
+          "end_column": 41,
+          "start_byte": 227,
+          "end_byte": 241
+        },
+        "flag_name": "new_checkout",
+        "trait_key": null,
+        "sdk": "flagsmith-react",
+        "api": "useFlags",
+        "usage_type": "hook_subscription",
+        "classification": "confirmed",
+        "is_dynamic": false,
+        "name_resolution": "literal",
+        "argument_expression": "\"new_checkout\"",
+        "confidence": 0.95,
+        "evidence": [
+          "argument 1 of useFlags(): `useFlags` is a named import 'useFlags' from 'flagsmith/react' (line 2)"
+        ],
+        "context": {
+          "snippet": "const flags = useFlags([\"new_checkout\"]);",
+          "enclosing_function": "CheckoutPage",
+          "in_conditional": false,
+          "is_test_file": false
+        }
+      },
+      {
+        "id": "ref_ad7c8ddced41e4e2",
+        "repository": "acme/checkout-web",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 11,
+          "column": 8,
+          "end_line": 11,
+          "end_column": 34,
+          "start_byte": 298,
+          "end_byte": 324
+        },
+        "flag_name": "new_checkout",
+        "trait_key": null,
+        "sdk": "flagsmith-react",
+        "api": "flags.<name>",
+        "usage_type": "boolean_evaluation",
+        "classification": "confirmed",
+        "is_dynamic": false,
+        "name_resolution": "literal",
+        "argument_expression": "new_checkout",
+        "confidence": 0.9,
+        "evidence": [
+          "object: result of useFlags() (`useFlags` is a named import 'useFlags' from 'flagsmith/react' (line 2))"
+        ],
+        "context": {
+          "snippet": "{flags.new_checkout.enabled ? <NewCheckout /> : <LegacyCheckout />}",
+          "enclosing_function": "CheckoutPage",
+          "in_conditional": true,
+          "is_test_file": false
+        }
+      },
+      {
+        "id": "ref_c8b5c7ed10ffcaf1",
+        "repository": "acme/checkout-web",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 23,
+          "column": 7,
+          "end_line": 23,
+          "end_column": 47,
+          "start_byte": 575,
+          "end_byte": 615
+        },
+        "flag_name": "new_checkout",
+        "trait_key": null,
+        "sdk": "flagsmith-js",
+        "api": "hasFeature",
+        "usage_type": "boolean_evaluation",
+        "classification": "confirmed",
+        "is_dynamic": false,
+        "name_resolution": "imported_constant",
+        "argument_expression": "FLAGS.NEW_CHECKOUT",
+        "confidence": 0.9,
+        "evidence": [
+          "receiver: annotated with type IFlagsmith (`IFlagsmith` is a named import 'IFlagsmith' from 'flagsmith' (line 1))",
+          "FLAGS.NEW_CHECKOUT = 'new_checkout' from src/lib/flags.ts"
+        ],
+        "context": {
+          "snippet": "if (flagsmith.hasFeature(FLAGS.NEW_CHECKOUT)) {",
+          "enclosing_function": "cartTotal",
+          "in_conditional": true,
+          "is_test_file": false
+        }
+      },
+      {
+        "id": "ref_5c616e92f5df7d25",
+        "repository": "acme/pricing-service",
+        "location": {
+          "repository": "acme/pricing-service",
+          "file_path": "src/handlers.ts",
+          "line": 5,
+          "column": 7,
+          "end_line": 5,
+          "end_column": 45,
+          "start_byte": 156,
+          "end_byte": 194
+        },
+        "flag_name": "new_checkout",
+        "trait_key": null,
+        "sdk": "flagsmith-nodejs",
+        "api": "isFeatureEnabled",
+        "usage_type": "boolean_evaluation",
+        "classification": "confirmed",
+        "is_dynamic": false,
+        "name_resolution": "literal",
+        "argument_expression": "\"new_checkout\"",
+        "confidence": 0.95,
+        "evidence": [
+          "receiver: flags from .getIdentityFlags() on server client (`flagsmith` imported from src/client.ts where new server client (`Flagsmith` is a default import from 'flagsmith-nodejs' (line 1)))"
+        ],
+        "context": {
+          "snippet": "if (flags.isFeatureEnabled(\"new_checkout\")) {",
+          "enclosing_function": "quoteHandler",
+          "in_conditional": true,
+          "is_test_file": false
+        }
+      }
+    ],
+    "usage_patterns": {
+      "boolean_evaluation": 3,
+      "hook_subscription": 1
+    },
+    "branches": [
+      {
+        "id": "branch_e79e722ba92f3aac",
+        "reference_id": "ref_ad7c8ddced41e4e2",
+        "kind": "ternary",
+        "polarity": "positive",
+        "condition": "flags.new_checkout.enabled",
+        "condition_is_exact": true,
+        "construct_span": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 11,
+          "column": 8,
+          "end_line": 11,
+          "end_column": 73,
+          "start_byte": 298,
+          "end_byte": 363
+        },
+        "enabled_path": {
+          "span": {
+            "repository": "acme/checkout-web",
+            "file_path": "src/checkout/CheckoutPage.tsx",
+            "line": 11,
+            "column": 37,
+            "end_line": 11,
+            "end_column": 52,
+            "start_byte": 327,
+            "end_byte": 342
+          },
+          "excerpt": "<NewCheckout />",
+          "callees": [],
+          "rendered_components": [
+            "NewCheckout"
+          ],
+          "is_empty": false,
+          "description": "ternary consequence"
+        },
+        "disabled_path": {
+          "span": {
+            "repository": "acme/checkout-web",
+            "file_path": "src/checkout/CheckoutPage.tsx",
+            "line": 11,
+            "column": 55,
+            "end_line": 11,
+            "end_column": 73,
+            "start_byte": 345,
+            "end_byte": 363
+          },
+          "excerpt": "<LegacyCheckout />",
+          "callees": [],
+          "rendered_components": [
+            "LegacyCheckout"
+          ],
+          "is_empty": false,
+          "description": "ternary alternative"
+        },
+        "determinable": true,
+        "via_alias": null,
+        "notes": []
+      },
+      {
+        "id": "branch_3df4b31b8e52ff45",
+        "reference_id": "ref_c8b5c7ed10ffcaf1",
+        "kind": "if_else",
+        "polarity": "positive",
+        "condition": "(flagsmith.hasFeature(FLAGS.NEW_CHECKOUT))",
+        "condition_is_exact": true,
+        "construct_span": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 23,
+          "column": 3,
+          "end_line": 27,
+          "end_column": 4,
+          "start_byte": 571,
+          "end_byte": 697
+        },
+        "enabled_path": {
+          "span": {
+            "repository": "acme/checkout-web",
+            "file_path": "src/lib/cart.ts",
+            "line": 24,
+            "column": 5,
+            "end_line": 24,
+            "end_column": 33,
+            "start_byte": 623,
+            "end_byte": 651
+          },
+          "excerpt": "return itemizedTotal(items);",
+          "callees": [
+            "itemizedTotal"
+          ],
+          "rendered_components": [],
+          "is_empty": false,
+          "description": "if-consequence"
+        },
+        "disabled_path": {
+          "span": {
+            "repository": "acme/checkout-web",
+            "file_path": "src/lib/cart.ts",
+            "line": 26,
+            "column": 5,
+            "end_line": 26,
+            "end_column": 31,
+            "start_byte": 667,
+            "end_byte": 693
+          },
+          "excerpt": "return legacyTotal(items);",
+          "callees": [
+            "legacyTotal"
+          ],
+          "rendered_components": [],
+          "is_empty": false,
+          "description": "else-branch"
+        },
+        "determinable": true,
+        "via_alias": null,
+        "notes": []
+      },
+      {
+        "id": "branch_48c27b64930659ae",
+        "reference_id": "ref_5c616e92f5df7d25",
+        "kind": "guard_clause",
+        "polarity": "positive",
+        "condition": "(flags.isFeatureEnabled(\"new_checkout\"))",
+        "condition_is_exact": true,
+        "construct_span": {
+          "repository": "acme/pricing-service",
+          "file_path": "src/handlers.ts",
+          "line": 5,
+          "column": 3,
+          "end_line": 7,
+          "end_column": 4,
+          "start_byte": 152,
+          "end_byte": 228
+        },
+        "enabled_path": {
+          "span": {
+            "repository": "acme/pricing-service",
+            "file_path": "src/handlers.ts",
+            "line": 6,
+            "column": 5,
+            "end_line": 6,
+            "end_column": 27,
+            "start_byte": 202,
+            "end_byte": 224
+          },
+          "excerpt": "return { version: 2 };",
+          "callees": [],
+          "rendered_components": [],
+          "is_empty": false,
+          "description": "early exit taken when the condition is true"
+        },
+        "disabled_path": {
+          "span": {
+            "repository": "acme/pricing-service",
+            "file_path": "src/handlers.ts",
+            "line": 8,
+            "column": 3,
+            "end_line": 8,
+            "end_column": 25,
+            "start_byte": 231,
+            "end_byte": 253
+          },
+          "excerpt": "return { version: 1 };",
+          "callees": [],
+          "rendered_components": [],
+          "is_empty": false,
+          "description": "statements after the guard clause"
+        },
+        "determinable": true,
+        "via_alias": null,
+        "notes": [
+          "guard clause: the remaining statements run only when the condition is false"
+        ]
+      }
+    ],
+    "fallbacks": [],
+    "related_symbols": [
+      {
+        "name": "CheckoutPage",
+        "kind": "component",
+        "relation": "enclosing",
+        "defined_at": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 6,
+          "column": 8,
+          "end_line": 14,
+          "end_column": 2,
+          "start_byte": 175,
+          "end_byte": 383
+        },
+        "exclusively_flag_gated": null,
+        "other_usages": 0
+      },
+      {
+        "name": "cartTotal",
+        "kind": "function",
+        "relation": "enclosing",
+        "defined_at": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 22,
+          "column": 8,
+          "end_line": 28,
+          "end_column": 2,
+          "start_byte": 498,
+          "end_byte": 699
+        },
+        "exclusively_flag_gated": null,
+        "other_usages": 0
+      },
+      {
+        "name": "quoteHandler",
+        "kind": "function",
+        "relation": "enclosing",
+        "defined_at": {
+          "repository": "acme/pricing-service",
+          "file_path": "src/handlers.ts",
+          "line": 3,
+          "column": 8,
+          "end_line": 9,
+          "end_column": 2,
+          "start_byte": 46,
+          "end_byte": 255
+        },
+        "exclusively_flag_gated": null,
+        "other_usages": 0
+      },
+      {
+        "name": "NewCheckout",
+        "kind": "component",
+        "relation": "used_in_enabled_path",
+        "defined_at": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/NewCheckout.tsx",
+          "line": 3,
+          "column": 8,
+          "end_line": 5,
+          "end_column": 2,
+          "start_byte": 35,
+          "end_byte": 142
+        },
+        "exclusively_flag_gated": true,
+        "other_usages": 0
+      },
+      {
+        "name": "itemizedTotal",
+        "kind": "function",
+        "relation": "used_in_enabled_path",
+        "defined_at": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 17,
+          "column": 1,
+          "end_line": 20,
+          "end_column": 2,
+          "start_byte": 323,
+          "end_byte": 489
+        },
+        "exclusively_flag_gated": true,
+        "other_usages": 0
+      },
+      {
+        "name": "LegacyCheckout",
+        "kind": "component",
+        "relation": "used_in_disabled_path",
+        "defined_at": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/LegacyCheckout.tsx",
+          "line": 3,
+          "column": 8,
+          "end_line": 5,
+          "end_column": 2,
+          "start_byte": 35,
+          "end_byte": 134
+        },
+        "exclusively_flag_gated": true,
+        "other_usages": 0
+      },
+      {
+        "name": "legacyTotal",
+        "kind": "function",
+        "relation": "used_in_disabled_path",
+        "defined_at": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 9,
+          "column": 1,
+          "end_line": 15,
+          "end_column": 2,
+          "start_byte": 150,
+          "end_byte": 321
+        },
+        "exclusively_flag_gated": true,
+        "other_usages": 0
+      }
+    ],
+    "related_tests": [
+      {
+        "repository": "acme/checkout-web",
+        "file_path": "src/lib/cart.test.ts",
+        "strength": "strong",
+        "reasons": [
+          "imports flag-controlled module src/lib/cart.ts",
+          "references related symbols: cartTotal"
+        ]
+      }
+    ],
+    "feature_scope": "full_feature_candidate",
+    "feature_scope_evidence": [
+      "`NewCheckout` (component, src/checkout/NewCheckout.tsx) is only used in the flag's enabled path",
+      "`itemizedTotal` (function, src/lib/cart.ts) is only used in the flag's enabled path",
+      "`LegacyCheckout` (component, src/checkout/LegacyCheckout.tsx) is only used in the flag's disabled path",
+      "`legacyTotal` (function, src/lib/cart.ts) is only used in the flag's disabled path",
+      "candidate only: usages outside scanned repositories cannot be ruled out"
+    ],
+    "findings": [
+      {
+        "id": "finding_7bb221757a103bd7",
+        "kind": "potentially_unreachable_branch",
+        "severity": "info",
+        "message": "the disabled path is not taken in all known environments under the current configuration (flag uniformly on); it may still run in other environments, local development, tests or after a configuration change",
+        "reference_ids": [
+          "ref_ad7c8ddced41e4e2"
+        ],
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/checkout/CheckoutPage.tsx",
+          "line": 11,
+          "column": 55,
+          "end_line": 11,
+          "end_column": 73,
+          "start_byte": 345,
+          "end_byte": 363
+        },
+        "is_hypothesis": true
+      },
+      {
+        "id": "finding_1f26f1d6b3f23585",
+        "kind": "potentially_unreachable_branch",
+        "severity": "info",
+        "message": "the disabled path is not taken in all known environments under the current configuration (flag uniformly on); it may still run in other environments, local development, tests or after a configuration change",
+        "reference_ids": [
+          "ref_c8b5c7ed10ffcaf1"
+        ],
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/cart.ts",
+          "line": 26,
+          "column": 5,
+          "end_line": 26,
+          "end_column": 31,
+          "start_byte": 667,
+          "end_byte": 693
+        },
+        "is_hypothesis": true
+      },
+      {
+        "id": "finding_7f34928e59f88d44",
+        "kind": "potentially_unreachable_branch",
+        "severity": "info",
+        "message": "the disabled path is not taken in all known environments under the current configuration (flag uniformly on); it may still run in other environments, local development, tests or after a configuration change",
+        "reference_ids": [
+          "ref_5c616e92f5df7d25"
+        ],
+        "location": {
+          "repository": "acme/pricing-service",
+          "file_path": "src/handlers.ts",
+          "line": 8,
+          "column": 3,
+          "end_line": 8,
+          "end_column": 25,
+          "start_byte": 231,
+          "end_byte": 253
+        },
+        "is_hypothesis": true
+      }
+    ],
+    "unresolved_dynamic_references": [
+      {
+        "id": "ref_c54be1ce3cc82af2",
+        "repository": "acme/checkout-web",
+        "location": {
+          "repository": "acme/checkout-web",
+          "file_path": "src/lib/experiments.ts",
+          "line": 9,
+          "column": 10,
+          "end_line": 9,
+          "end_column": 31,
+          "start_byte": 338,
+          "end_byte": 359
+        },
+        "flag_name": null,
+        "trait_key": null,
+        "sdk": "flagsmith-js",
+        "api": "getValue",
+        "usage_type": "value_retrieval",
+        "classification": "dynamic",
+        "is_dynamic": true,
+        "name_resolution": "unresolved",
+        "argument_expression": "name",
+        "confidence": 0.9,
+        "evidence": [
+          "receiver: annotated with type IFlagsmith (`IFlagsmith` is a named import 'IFlagsmith' from 'flagsmith' (line 1))",
+          "flag name expression `name` is not statically resolvable"
+        ],
+        "context": {
+          "snippet": "return client.getValue(name);",
+          "enclosing_function": "readFlag",
+          "in_conditional": false,
+          "is_test_file": false
+        }
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "dynamic_reference",
+        "description": "1 dynamic flag reference(s) could evaluate 'new_checkout' at runtime: src/lib/experiments.ts:9 `name`",
+        "reference_ids": [
+          "ref_c54be1ce3cc82af2"
+        ]
+      }
+    ]
+  },
+  "patch": {
+    "id": "patch_5f38e7952e9821ce",
+    "flag_name": "new_checkout",
+    "direction": "keep_enabled_path",
+    "inline_value": null,
+    "status": "complete",
+    "files": [
+      {
+        "repository": "acme/checkout-web",
+        "file_path": "src/checkout/CheckoutPage.tsx",
+        "original_sha256": "4cf37b65f2a4e70725ee07dcbb50cba3d054d109075f27797e299e7c821d695a",
+        "patched_sha256": "898b144405e4cf4c2fa74e14354af1e2870ff9f9909e7a6fa5f22e402f5d649a",
+        "diff": "--- a/src/checkout/CheckoutPage.tsx\n+++ b/src/checkout/CheckoutPage.tsx\n@@ -1,14 +1,11 @@\n import React from \"react\";\n-import { useFlags } from \"flagsmith/react\";\n import { NewCheckout } from \"./NewCheckout\";\n-import { LegacyCheckout } from \"./LegacyCheckout\";\n \n export function CheckoutPage() {\n-  const flags = useFlags([\"new_checkout\"]);\n   return (\n     <main>\n       <h1>Checkout</h1>\n-      {flags.new_checkout.enabled ? <NewCheckout /> : <LegacyCheckout />}\n+      <NewCheckout />\n     </main>\n   );\n }\n",
+        "patched_content": "import React from \"react\";\nimport { NewCheckout } from \"./NewCheckout\";\n\nexport function CheckoutPage() {\n  return (\n    <main>\n      <h1>Checkout</h1>\n      <NewCheckout />\n    </main>\n  );\n}\n",
+        "edits": [
+          {
+            "kind": "remove_subscription",
+            "file_path": "src/checkout/CheckoutPage.tsx",
+            "line": 7,
+            "reference_id": "ref_fb43798c6caefa8c",
+            "description": "flag removed from useFlags()",
+            "before": "[\"new_checkout\"]",
+            "after": "[]"
+          },
+          {
+            "kind": "keep_branch",
+            "file_path": "src/checkout/CheckoutPage.tsx",
+            "line": 11,
+            "reference_id": "ref_ad7c8ddced41e4e2",
+            "description": "render `<NewCheckout />` unconditionally",
+            "before": "{flags.new_checkout.enabled ? <NewCheckout /> : <LegacyCheckout />}",
+            "after": "<NewCheckout />"
+          },
+          {
+            "kind": "remove_statement",
+            "file_path": "src/checkout/CheckoutPage.tsx",
+            "line": 7,
+            "reference_id": null,
+            "description": "useFlags() no longer subscribes to any flag; removed",
+            "before": "  const flags = useFlags([]);\n",
+            "after": ""
+          },
+          {
+            "kind": "remove_unused_import",
+            "file_path": "src/checkout/CheckoutPage.tsx",
+            "line": 2,
+            "reference_id": null,
+            "description": "import of useFlags no longer used; removed",
+            "before": "import { useFlags } from \"flagsmith/react\";\n",
+            "after": ""
+          },
+          {
+            "kind": "remove_unused_import",
+            "file_path": "src/checkout/CheckoutPage.tsx",
+            "line": 4,
+            "reference_id": null,
+            "description": "import of LegacyCheckout no longer used; removed",
+            "before": "import { LegacyCheckout } from \"./LegacyCheckout\";\n",
+            "after": ""
+          }
+        ]
+      },
+      {
+        "repository": "acme/checkout-web",
+        "file_path": "src/lib/cart.ts",
+        "original_sha256": "c992e08f8d8929a3119fd6dc7d652d61531a58d00a24778c90e547ff3bc02c84",
+        "patched_sha256": "4a298fda4223ef66d6e3c259e985d0f58f7db23129cd26ca8f40aa1b6c2cc080",
+        "diff": "--- a/src/lib/cart.ts\n+++ b/src/lib/cart.ts\n@@ -1,5 +1,4 @@\n import type { IFlagsmith } from \"flagsmith\";\n-import { FLAGS } from \"./flags.ts\";\n \n export interface CartItem {\n   price: number;\n@@ -20,9 +19,5 @@\n }\n \n export function cartTotal(flagsmith: IFlagsmith, items: CartItem[]): number {\n-  if (flagsmith.hasFeature(FLAGS.NEW_CHECKOUT)) {\n-    return itemizedTotal(items);\n-  } else {\n-    return legacyTotal(items);\n-  }\n+  return itemizedTotal(items);\n }\n",
+        "patched_content": "import type { IFlagsmith } from \"flagsmith\";\n\nexport interface CartItem {\n  price: number;\n  quantity: number;\n}\n\nfunction legacyTotal(items: CartItem[]): number {\n  let total = 0;\n  for (const item of items) {\n    total += item.price * item.quantity;\n  }\n  return Math.round(total);\n}\n\nfunction itemizedTotal(items: CartItem[]): number {\n  const cents = items.reduce((sum, i) => sum + Math.round(i.price * 100) * i.quantity, 0);\n  return cents / 100;\n}\n\nexport function cartTotal(flagsmith: IFlagsmith, items: CartItem[]): number {\n  return itemizedTotal(items);\n}\n",
+        "edits": [
+          {
+            "kind": "keep_branch",
+            "file_path": "src/lib/cart.ts",
+            "line": 23,
+            "reference_id": "ref_c8b5c7ed10ffcaf1",
+            "description": "if-consequence kept, else-branch removed",
+            "before": "if (flagsmith.hasFeature(FLAGS.NEW_CHECKOUT)) {\n    return itemizedTotal(items);\n  } else {\n    return legacyTotal(items);\n  }",
+            "after": "return itemizedTotal(items);"
+          },
+          {
+            "kind": "remove_unused_import",
+            "file_path": "src/lib/cart.ts",
+            "line": 2,
+            "reference_id": null,
+            "description": "import of FLAGS no longer used; removed",
+            "before": "import { FLAGS } from \"./flags.ts\";\n",
+            "after": ""
+          }
+        ]
+      },
+      {
+        "repository": "acme/pricing-service",
+        "file_path": "src/handlers.ts",
+        "original_sha256": "434ddb48b166e5347ba0fe48bd2a3755afeb866cf814c0d3e163f6f855dd844f",
+        "patched_sha256": "1213fcb5c613ec1c78eb5deb74da992914861a057e6a463cf15685d2abfb121c",
+        "diff": "--- a/src/handlers.ts\n+++ b/src/handlers.ts\n@@ -2,8 +2,5 @@\n \n export async function quoteHandler(userId: string) {\n   const flags = await flagsmith.getIdentityFlags(userId);\n-  if (flags.isFeatureEnabled(\"new_checkout\")) {\n-    return { version: 2 };\n-  }\n-  return { version: 1 };\n+  return { version: 2 };\n }\n",
+        "patched_content": "import { flagsmith } from \"./client\";\n\nexport async function quoteHandler(userId: string) {\n  const flags = await flagsmith.getIdentityFlags(userId);\n  return { version: 2 };\n}\n",
+        "edits": [
+          {
+            "kind": "keep_branch",
+            "file_path": "src/handlers.ts",
+            "line": 5,
+            "reference_id": "ref_5c616e92f5df7d25",
+            "description": "guard always taken: keep `return { version: 2 };` and drop unreachable statements after the guard",
+            "before": "if (flags.isFeatureEnabled(\"new_checkout\")) {\n    return { version: 2 };\n  }\n  return { version: 1 };",
+            "after": "return { version: 2 };"
+          }
+        ]
+      }
+    ],
+    "manual_steps": [],
+    "follow_ups": [
+      "`flagsmith` (client) in acme/checkout-web:src/lib/cart.ts is no longer used; the code that creates or passes it may be removable (Flagsmith calls can have side effects such as network requests) - review",
+      "`flags` (server_flags) in acme/pricing-service:src/handlers.ts is no longer used; the code that creates or passes it may be removable (Flagsmith calls can have side effects such as network requests) - review",
+      "`LegacyCheckout` (component, acme/checkout-web:src/checkout/LegacyCheckout.tsx) is no longer used; the whole file may be removable - review before deleting",
+      "`legacyTotal` (function, acme/checkout-web:src/lib/cart.ts) is no longer used; consider removing it - review before deleting"
+    ],
+    "base_scan_id": "scan_d0ab07e92284a861",
+    "generated_by": "deterministic-transformer",
+    "created_at": "2026-11-27T13:54:03.214126Z",
+    "notes": []
+  }
+}

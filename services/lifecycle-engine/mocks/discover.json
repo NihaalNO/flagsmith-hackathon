@@ -1,0 +1,648 @@
+{
+  "scan_id": "scan_d0ab07e92284a861",
+  "engine_version": "0.1.0",
+  "generated_at": "2026-11-27T13:54:02.898053Z",
+  "repositories": [
+    "acme/checkout-web",
+    "acme/pricing-service"
+  ],
+  "files_scanned": 20,
+  "files_with_references": 10,
+  "errors": [],
+  "references": [
+    {
+      "id": "ref_fb43798c6caefa8c",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/checkout/CheckoutPage.tsx",
+        "line": 7,
+        "column": 27,
+        "end_line": 7,
+        "end_column": 41,
+        "start_byte": 227,
+        "end_byte": 241
+      },
+      "flag_name": "new_checkout",
+      "trait_key": null,
+      "sdk": "flagsmith-react",
+      "api": "useFlags",
+      "usage_type": "hook_subscription",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "\"new_checkout\"",
+      "confidence": 0.95,
+      "evidence": [
+        "argument 1 of useFlags(): `useFlags` is a named import 'useFlags' from 'flagsmith/react' (line 2)"
+      ],
+      "context": {
+        "snippet": "const flags = useFlags([\"new_checkout\"]);",
+        "enclosing_function": "CheckoutPage",
+        "in_conditional": false,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_ad7c8ddced41e4e2",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/checkout/CheckoutPage.tsx",
+        "line": 11,
+        "column": 8,
+        "end_line": 11,
+        "end_column": 34,
+        "start_byte": 298,
+        "end_byte": 324
+      },
+      "flag_name": "new_checkout",
+      "trait_key": null,
+      "sdk": "flagsmith-react",
+      "api": "flags.<name>",
+      "usage_type": "boolean_evaluation",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "new_checkout",
+      "confidence": 0.9,
+      "evidence": [
+        "object: result of useFlags() (`useFlags` is a named import 'useFlags' from 'flagsmith/react' (line 2))"
+      ],
+      "context": {
+        "snippet": "{flags.new_checkout.enabled ? <NewCheckout /> : <LegacyCheckout />}",
+        "enclosing_function": "CheckoutPage",
+        "in_conditional": true,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_1e968b3cf47fbcb1",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/components/Banner.tsx",
+        "line": 5,
+        "column": 16,
+        "end_line": 5,
+        "end_column": 86,
+        "start_byte": 128,
+        "end_byte": 198
+      },
+      "flag_name": "banner_text",
+      "trait_key": null,
+      "sdk": "flagsmith-js",
+      "api": "getValue",
+      "usage_type": "value_retrieval",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "\"banner_text\"",
+      "confidence": 0.95,
+      "evidence": [
+        "receiver: `flagsmithClient` imported from src/lib/flagsmithClient.ts where `flagsmith` is a default import from 'flagsmith' (line 1)"
+      ],
+      "context": {
+        "snippet": "const text = flagsmithClient.getValue(\"banner_text\", { fallback: \"Welcome back!\" });",
+        "enclosing_function": "Banner",
+        "in_conditional": false,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_487b4263fa1d3486",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/components/Header.tsx",
+        "line": 6,
+        "column": 35,
+        "end_line": 6,
+        "end_column": 46,
+        "start_byte": 192,
+        "end_byte": 203
+      },
+      "flag_name": "dark_mode",
+      "trait_key": null,
+      "sdk": "flagsmith-react",
+      "api": "useFlags",
+      "usage_type": "hook_subscription",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "\"dark_mode\"",
+      "confidence": 0.95,
+      "evidence": [
+        "argument 1 of useFlags(): `useFlags` is a named import 'useFlags' from 'flagsmith/react' (line 2)"
+      ],
+      "context": {
+        "snippet": "const { dark_mode } = useFlags([\"dark_mode\"], [\"plan\"]);",
+        "enclosing_function": "Header",
+        "in_conditional": false,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_590c81f18d3d1704",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/components/Header.tsx",
+        "line": 12,
+        "column": 8,
+        "end_line": 12,
+        "end_column": 25,
+        "start_byte": 353,
+        "end_byte": 370
+      },
+      "flag_name": "dark_mode",
+      "trait_key": null,
+      "sdk": "flagsmith-react",
+      "api": "flags.<name>",
+      "usage_type": "boolean_evaluation",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "dark_mode",
+      "confidence": 0.9,
+      "evidence": [
+        "object: `dark_mode` destructured from result of useFlags() (`useFlags` is a named import 'useFlags' from 'flagsmith/react' (line 2))"
+      ],
+      "context": {
+        "snippet": "{dark_mode.enabled && <ThemeToggle />}",
+        "enclosing_function": "Header",
+        "in_conditional": true,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_8838461504fe4d89",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/legacy/analytics.js",
+        "line": 3,
+        "column": 7,
+        "end_line": 3,
+        "end_column": 50,
+        "start_byte": 132,
+        "end_byte": 175
+      },
+      "flag_name": "analytics_v2",
+      "trait_key": null,
+      "sdk": "unknown",
+      "api": "hasFeature",
+      "usage_type": "boolean_evaluation",
+      "classification": "potential",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "\"analytics_v2\"",
+      "confidence": 0.6,
+      "evidence": [
+        "`.hasFeature()` matches a Flagsmith API but receiver `window.flagsmith` could not be traced to a Flagsmith SDK binding",
+        "receiver `window.flagsmith` is named like a Flagsmith client"
+      ],
+      "context": {
+        "snippet": "if (window.flagsmith.hasFeature(\"analytics_v2\")) {",
+        "enclosing_function": "trackCheckout",
+        "in_conditional": true,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_c8b5c7ed10ffcaf1",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/lib/cart.ts",
+        "line": 23,
+        "column": 7,
+        "end_line": 23,
+        "end_column": 47,
+        "start_byte": 575,
+        "end_byte": 615
+      },
+      "flag_name": "new_checkout",
+      "trait_key": null,
+      "sdk": "flagsmith-js",
+      "api": "hasFeature",
+      "usage_type": "boolean_evaluation",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "imported_constant",
+      "argument_expression": "FLAGS.NEW_CHECKOUT",
+      "confidence": 0.9,
+      "evidence": [
+        "receiver: annotated with type IFlagsmith (`IFlagsmith` is a named import 'IFlagsmith' from 'flagsmith' (line 1))",
+        "FLAGS.NEW_CHECKOUT = 'new_checkout' from src/lib/flags.ts"
+      ],
+      "context": {
+        "snippet": "if (flagsmith.hasFeature(FLAGS.NEW_CHECKOUT)) {",
+        "enclosing_function": "cartTotal",
+        "in_conditional": true,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_6d1c9813f81f88a7",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/lib/experiments.ts",
+        "line": 5,
+        "column": 10,
+        "end_line": 5,
+        "end_column": 48,
+        "start_byte": 225,
+        "end_byte": 263
+      },
+      "flag_name": null,
+      "trait_key": null,
+      "sdk": "flagsmith-js",
+      "api": "hasFeature",
+      "usage_type": "boolean_evaluation",
+      "classification": "dynamic",
+      "is_dynamic": true,
+      "name_resolution": "unresolved",
+      "argument_expression": "`exp_${experiment}`",
+      "confidence": 0.9,
+      "evidence": [
+        "receiver: annotated with type IFlagsmith (`IFlagsmith` is a named import 'IFlagsmith' from 'flagsmith' (line 1))",
+        "flag name expression ``exp_${experiment}`` is not statically resolvable"
+      ],
+      "context": {
+        "snippet": "return client.hasFeature(`exp_${experiment}`);",
+        "enclosing_function": "isExperimentOn",
+        "in_conditional": false,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_c54be1ce3cc82af2",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/lib/experiments.ts",
+        "line": 9,
+        "column": 10,
+        "end_line": 9,
+        "end_column": 31,
+        "start_byte": 338,
+        "end_byte": 359
+      },
+      "flag_name": null,
+      "trait_key": null,
+      "sdk": "flagsmith-js",
+      "api": "getValue",
+      "usage_type": "value_retrieval",
+      "classification": "dynamic",
+      "is_dynamic": true,
+      "name_resolution": "unresolved",
+      "argument_expression": "name",
+      "confidence": 0.9,
+      "evidence": [
+        "receiver: annotated with type IFlagsmith (`IFlagsmith` is a named import 'IFlagsmith' from 'flagsmith' (line 1))",
+        "flag name expression `name` is not statically resolvable"
+      ],
+      "context": {
+        "snippet": "return client.getValue(name);",
+        "enclosing_function": "readFlag",
+        "in_conditional": false,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_11b4d0629b738992",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/search/search.ts",
+        "line": 13,
+        "column": 8,
+        "end_line": 13,
+        "end_column": 48,
+        "start_byte": 358,
+        "end_byte": 398
+      },
+      "flag_name": "legacy_search",
+      "trait_key": null,
+      "sdk": "flagsmith-js",
+      "api": "hasFeature",
+      "usage_type": "boolean_evaluation",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "imported_constant",
+      "argument_expression": "LEGACY_SEARCH_FLAG",
+      "confidence": 0.9,
+      "evidence": [
+        "receiver: annotated with type IFlagsmith (`IFlagsmith` is a named import 'IFlagsmith' from 'flagsmith' (line 1))",
+        "LEGACY_SEARCH_FLAG = 'legacy_search' from src/lib/flags.ts"
+      ],
+      "context": {
+        "snippet": "if (!flagsmith.hasFeature(LEGACY_SEARCH_FLAG)) {",
+        "enclosing_function": "search",
+        "in_conditional": true,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_1e496dc8cb2e7001",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/services/recommendations.ts",
+        "line": 7,
+        "column": 12,
+        "end_line": 7,
+        "end_column": 59,
+        "start_byte": 172,
+        "end_byte": 219
+      },
+      "flag_name": "recommendations_v2",
+      "trait_key": null,
+      "sdk": "flagsmith-js",
+      "api": "hasFeature",
+      "usage_type": "boolean_evaluation",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "\"recommendations_v2\"",
+      "confidence": 0.95,
+      "evidence": [
+        "receiver: annotated with type IFlagsmith (`IFlagsmith` is a named import 'IFlagsmith' from 'flagsmith' (line 1))"
+      ],
+      "context": {
+        "snippet": "return this.flagsmith.hasFeature(\"recommendations_v2\") ? 12 : 4;",
+        "enclosing_function": "RecommendationService.limit",
+        "in_conditional": true,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_5c616e92f5df7d25",
+      "repository": "acme/pricing-service",
+      "location": {
+        "repository": "acme/pricing-service",
+        "file_path": "src/handlers.ts",
+        "line": 5,
+        "column": 7,
+        "end_line": 5,
+        "end_column": 45,
+        "start_byte": 156,
+        "end_byte": 194
+      },
+      "flag_name": "new_checkout",
+      "trait_key": null,
+      "sdk": "flagsmith-nodejs",
+      "api": "isFeatureEnabled",
+      "usage_type": "boolean_evaluation",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "\"new_checkout\"",
+      "confidence": 0.95,
+      "evidence": [
+        "receiver: flags from .getIdentityFlags() on server client (`flagsmith` imported from src/client.ts where new server client (`Flagsmith` is a default import from 'flagsmith-nodejs' (line 1)))"
+      ],
+      "context": {
+        "snippet": "if (flags.isFeatureEnabled(\"new_checkout\")) {",
+        "enclosing_function": "quoteHandler",
+        "in_conditional": true,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_fea5ec1e9e8b066a",
+      "repository": "acme/pricing-service",
+      "location": {
+        "repository": "acme/pricing-service",
+        "file_path": "src/shipping.ts",
+        "line": 4,
+        "column": 7,
+        "end_line": 4,
+        "end_column": 46,
+        "start_byte": 125,
+        "end_byte": 164
+      },
+      "flag_name": "free_shipping",
+      "trait_key": null,
+      "sdk": "flagsmith-nodejs",
+      "api": "isFeatureEnabled",
+      "usage_type": "boolean_evaluation",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "\"free_shipping\"",
+      "confidence": 0.95,
+      "evidence": [
+        "receiver: annotated with type Flags (`Flags` is a named import 'Flags' from 'flagsmith-nodejs' (line 1))"
+      ],
+      "context": {
+        "snippet": "if (flags.isFeatureEnabled(\"free_shipping\") && subtotal >= 50) {",
+        "enclosing_function": "shippingCost",
+        "in_conditional": true,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_f841f272bbbbd023",
+      "repository": "acme/pricing-service",
+      "location": {
+        "repository": "acme/pricing-service",
+        "file_path": "src/shipping.ts",
+        "line": 7,
+        "column": 16,
+        "end_line": 7,
+        "end_column": 54,
+        "start_byte": 219,
+        "end_byte": 257
+      },
+      "flag_name": "shipping_rate",
+      "trait_key": null,
+      "sdk": "flagsmith-nodejs",
+      "api": "getFeatureValue",
+      "usage_type": "value_retrieval",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "\"shipping_rate\"",
+      "confidence": 0.95,
+      "evidence": [
+        "receiver: annotated with type Flags (`Flags` is a named import 'Flags' from 'flagsmith-nodejs' (line 1))"
+      ],
+      "context": {
+        "snippet": "const rate = flags.getFeatureValue(\"shipping_rate\");",
+        "enclosing_function": "shippingCost",
+        "in_conditional": false,
+        "is_test_file": false
+      }
+    }
+  ],
+  "trait_reads": [
+    {
+      "id": "ref_0f5ee8eb271291d2",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/components/Header.tsx",
+        "line": 6,
+        "column": 50,
+        "end_line": 6,
+        "end_column": 56,
+        "start_byte": 207,
+        "end_byte": 213
+      },
+      "flag_name": null,
+      "trait_key": "plan",
+      "sdk": "flagsmith-react",
+      "api": "useFlags",
+      "usage_type": "trait_read",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "\"plan\"",
+      "confidence": 0.95,
+      "evidence": [
+        "argument 2 of useFlags(): `useFlags` is a named import 'useFlags' from 'flagsmith/react' (line 2)"
+      ],
+      "context": {
+        "snippet": "const { dark_mode } = useFlags([\"dark_mode\"], [\"plan\"]);",
+        "enclosing_function": "Header",
+        "in_conditional": false,
+        "is_test_file": false
+      }
+    },
+    {
+      "id": "ref_afde578d28a9a26e",
+      "repository": "acme/checkout-web",
+      "location": {
+        "repository": "acme/checkout-web",
+        "file_path": "src/components/Header.tsx",
+        "line": 8,
+        "column": 16,
+        "end_line": 8,
+        "end_column": 42,
+        "start_byte": 268,
+        "end_byte": 294
+      },
+      "flag_name": null,
+      "trait_key": "plan",
+      "sdk": "flagsmith-js",
+      "api": "getTrait",
+      "usage_type": "trait_read",
+      "classification": "confirmed",
+      "is_dynamic": false,
+      "name_resolution": "literal",
+      "argument_expression": "\"plan\"",
+      "confidence": 0.95,
+      "evidence": [
+        "receiver: client from useFlagsmith() (`useFlagsmith` is a named import 'useFlagsmith' from 'flagsmith/react' (line 2))"
+      ],
+      "context": {
+        "snippet": "const plan = flagsmith.getTrait(\"plan\");",
+        "enclosing_function": "Header",
+        "in_conditional": false,
+        "is_test_file": false
+      }
+    }
+  ],
+  "summary": {
+    "confirmed": 11,
+    "potential": 1,
+    "dynamic": 2,
+    "trait_reads": 2,
+    "flags": [
+      {
+        "flag_name": "analytics_v2",
+        "confirmed": 0,
+        "potential": 1,
+        "files": [
+          "src/legacy/analytics.js"
+        ],
+        "repositories": [
+          "acme/checkout-web"
+        ]
+      },
+      {
+        "flag_name": "banner_text",
+        "confirmed": 1,
+        "potential": 0,
+        "files": [
+          "src/components/Banner.tsx"
+        ],
+        "repositories": [
+          "acme/checkout-web"
+        ]
+      },
+      {
+        "flag_name": "dark_mode",
+        "confirmed": 2,
+        "potential": 0,
+        "files": [
+          "src/components/Header.tsx"
+        ],
+        "repositories": [
+          "acme/checkout-web"
+        ]
+      },
+      {
+        "flag_name": "free_shipping",
+        "confirmed": 1,
+        "potential": 0,
+        "files": [
+          "src/shipping.ts"
+        ],
+        "repositories": [
+          "acme/pricing-service"
+        ]
+      },
+      {
+        "flag_name": "legacy_search",
+        "confirmed": 1,
+        "potential": 0,
+        "files": [
+          "src/search/search.ts"
+        ],
+        "repositories": [
+          "acme/checkout-web"
+        ]
+      },
+      {
+        "flag_name": "new_checkout",
+        "confirmed": 4,
+        "potential": 0,
+        "files": [
+          "src/checkout/CheckoutPage.tsx",
+          "src/lib/cart.ts",
+          "src/handlers.ts"
+        ],
+        "repositories": [
+          "acme/checkout-web",
+          "acme/pricing-service"
+        ]
+      },
+      {
+        "flag_name": "recommendations_v2",
+        "confirmed": 1,
+        "potential": 0,
+        "files": [
+          "src/services/recommendations.ts"
+        ],
+        "repositories": [
+          "acme/checkout-web"
+        ]
+      },
+      {
+        "flag_name": "shipping_rate",
+        "confirmed": 1,
+        "potential": 0,
+        "files": [
+          "src/shipping.ts"
+        ],
+        "repositories": [
+          "acme/pricing-service"
+        ]
+      }
+    ]
+  }
+}
