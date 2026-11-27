@@ -29,4 +29,5 @@ include = ["lifecycle_engine*"]
 testpaths = ["tests"]
 markers = [
     "node: requires a Node.js >= 22.6 runtime on PATH (sample repo tests)",
+    "claude_live: calls the real Claude Code CLI; opt in with FLAGPILOT_LIVE_CLAUDE=1 (costs money)",
 ]

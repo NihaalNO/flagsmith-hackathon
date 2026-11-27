@@ -3,7 +3,7 @@
     uvicorn lifecycle_engine.api.app:app --reload
 
 FLAGPILOT_ALLOWED_ROOTS (os.pathsep-separated) restricts repository paths;
-FLAGPILOT_LLM_PROVIDER=mock|anthropic enables the planner's narrative provider.
+FLAGPILOT_LLM_PROVIDER=mock|claude-code|anthropic enables the planner's narrative provider.
 """
 
 from __future__ import annotations

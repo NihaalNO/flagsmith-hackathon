@@ -17,7 +17,7 @@ lifecycle_engine/
   analyzers/      Module 2 - branches, fallbacks, related symbols/tests, findings, uncertainties
   state_machine/  Module 3 - lifecycle states, evidence-gated transitions, overrides, evaluation
   policies/       Module 4 - configurable, evidence-based stale detection
-  agents/         Module 5 - evidence packet, injectable LLM provider (mock + Anthropic), planner, output validation
+  agents/         Module 5 - evidence packet, injectable LLM provider (mock, Claude Code CLI, Anthropic SDK), planner, output validation
   cleanup/        Module 5/6 - deterministic patch generation, isolated verification
   api/            EngineService facade, FastAPI router (for apps/api), dev app
   schemas/        Pydantic contracts for everything above
@@ -25,7 +25,7 @@ sample_repos/     checkout-web (browser + React SDK), pricing-service (Node serv
 sample_data/      mock Flagsmith configuration (flags.json)
 mocks/            real engine outputs for the frontend (regenerate: scripts/generate_mocks.py)
 docs/             architecture.md, api-contract.md, integration.md, openapi.json
-tests/            145 pytest tests (unit, safety, integration with real Node tests)
+tests/            162 pytest tests (unit, safety, integration with real Node tests)
 ```
 
 ## Setup
@@ -60,9 +60,21 @@ scan = EngineService().discover(DiscoverRequest(repositories=[
     RepositoryTarget(repository="acme/checkout-web", root_path="sample_repos/checkout-web")]))
 ```
 
-LLM narrative (optional): `FLAGPILOT_LLM_PROVIDER=mock` or `anthropic` (requires
-`pip install -e ".[llm]"` and Anthropic credentials). Without it, the planner produces a
-deterministic narrative; analysis is identical either way.
+LLM narrative (optional), via `FLAGPILOT_LLM_PROVIDER`:
+
+* `claude-code` runs the Claude Code CLI as a sub-process (`claude -p`, no tools, no MCP, empty
+  working directory, evidence on stdin, `--json-schema` output). It uses your signed-in Claude Code
+  account, so no API key is needed. `FLAGPILOT_LLM_MAX_BUDGET_USD` caps spend per call (default 1.0);
+  a plan for the sample `new_checkout` flag cost about $0.07–0.12 and took about 30 s.
+* `anthropic` uses the official SDK (`pip install -e ".[llm]"` and Anthropic credentials).
+* `mock` is deterministic, for development and tests.
+
+Without a provider the planner writes a deterministic narrative; analysis is identical either way.
+The live CLI test is opt-in because it costs money:
+
+```powershell
+$env:FLAGPILOT_LIVE_CLAUDE = "1"; .venv\Scripts\python -m pytest -s -m claude_live
+```
 
 See [docs/architecture.md](docs/architecture.md) for design and limitations,
 [docs/api-contract.md](docs/api-contract.md) for request/response fields, and

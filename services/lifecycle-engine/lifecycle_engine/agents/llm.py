@@ -9,6 +9,10 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
+import subprocess
+import tempfile
+from pathlib import Path
 from typing import Any, Callable, Protocol, runtime_checkable
 
 
@@ -138,9 +142,105 @@ class AnthropicProvider:
             raise LLMUnavailableError(f"response was not valid JSON: {exc}") from exc
 
 
+CommandRunner = Callable[[list[str], str, float, str], "subprocess.CompletedProcess[str]"]
+
+
+def _run(argv: list[str], stdin: str, timeout: float, cwd: str) -> "subprocess.CompletedProcess[str]":
+    return subprocess.run(argv, input=stdin, capture_output=True, text=True, encoding="utf-8",
+                          errors="replace", timeout=timeout, cwd=cwd)
+
+
+def resolve_claude_executable(executable: str = "claude") -> str | None:
+    """Locate the Claude Code CLI. On Windows the npm `claude.cmd` shim is bypassed in
+    favour of the native `claude.exe` it forwards to, because cmd.exe re-parses
+    arguments and would mangle the JSON schema and system prompt."""
+    found = shutil.which(executable)
+    if found is None:
+        return None
+    p = Path(found)
+    if p.suffix.lower() in (".cmd", ".bat"):
+        native = p.parent / "node_modules" / "@anthropic-ai" / "claude-code" / "bin" / "claude.exe"
+        if native.is_file():
+            return str(native)
+        return None  # refuse to pass structured arguments through cmd.exe
+    return found
+
+
+class ClaudeCodeProvider:
+    """Runs the Claude Code CLI as a sub-process in headless mode (`claude -p`).
+
+    Uses the signed-in Claude Code account, so no API key is needed. The call is made
+    with no tools (`--tools ""`), no MCP servers, no session persistence, the engine's
+    own system prompt instead of Claude Code's default, and an empty temporary working
+    directory, so the sub-process can only read the evidence packet on stdin and
+    return JSON matching `--json-schema`. `--max-budget-usd` caps the spend per call.
+    """
+
+    name = "claude-code"
+
+    def __init__(self, model: str | None = None, effort: str | None = None, *, executable: str = "claude",
+                 timeout_s: float = 300, max_budget_usd: float = 1.0, runner: CommandRunner | None = None):
+        self.model = model
+        self.effort = effort
+        self.executable = executable
+        self.timeout_s = timeout_s
+        self.max_budget_usd = max_budget_usd
+        self.runner = runner or _run
+        self.last_cost_usd: float | None = None
+        self.last_session_id: str | None = None
+
+    def build_argv(self, exe: str, system: str, schema: dict) -> list[str]:
+        argv = [exe, "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
+                "--no-session-persistence", "--system-prompt", system,
+                "--json-schema", json.dumps(schema, separators=(",", ":")),
+                "--max-budget-usd", f"{self.max_budget_usd:g}"]
+        if self.model:
+            argv += ["--model", self.model]
+        if self.effort:
+            argv += ["--effort", self.effort]
+        return argv
+
+    def complete_json(self, *, system: str, prompt: str, schema: dict, context: dict) -> dict:
+        exe = resolve_claude_executable(self.executable)
+        if exe is None:
+            raise LLMUnavailableError(f"Claude Code CLI '{self.executable}' not found on PATH")
+        argv = self.build_argv(exe, system, schema)
+        workdir = tempfile.mkdtemp(prefix="flagpilot-claude-")
+        try:
+            proc = self.runner(argv, prompt, self.timeout_s, workdir)
+        except subprocess.TimeoutExpired as exc:
+            raise LLMUnavailableError(f"claude CLI timed out after {self.timeout_s}s") from exc
+        except OSError as exc:
+            raise LLMUnavailableError(f"could not start claude CLI: {exc}") from exc
+        finally:
+            shutil.rmtree(workdir, ignore_errors=True)
+        try:
+            out = json.loads(proc.stdout)
+        except (json.JSONDecodeError, TypeError) as exc:
+            detail = (proc.stderr or proc.stdout or "").strip()[:300]
+            raise LLMUnavailableError(f"claude CLI exited {proc.returncode} without JSON output: {detail}") from exc
+        self.last_cost_usd = out.get("total_cost_usd")
+        self.last_session_id = out.get("session_id")
+        if out.get("is_error") or proc.returncode != 0:
+            raise LLMUnavailableError(f"claude CLI error ({out.get('subtype')}): {str(out.get('result'))[:300]}")
+        structured = out.get("structured_output")
+        if isinstance(structured, dict):
+            return structured
+        try:
+            parsed = json.loads(out.get("result") or "")
+        except json.JSONDecodeError as exc:
+            raise LLMUnavailableError("claude CLI returned no structured output") from exc
+        if not isinstance(parsed, dict):
+            raise LLMUnavailableError("claude CLI result is not a JSON object")
+        return parsed
+
+
 def provider_from_env() -> LLMProvider | None:
-    """`FLAGPILOT_LLM_PROVIDER` = 'anthropic' | 'mock' | unset (no LLM)."""
+    """`FLAGPILOT_LLM_PROVIDER` = 'claude-code' | 'anthropic' | 'mock' | unset (no LLM)."""
     kind = os.environ.get("FLAGPILOT_LLM_PROVIDER", "").lower()
+    if kind == "claude-code":
+        return ClaudeCodeProvider(model=os.environ.get("FLAGPILOT_LLM_MODEL") or None,
+                                  max_budget_usd=float(os.environ.get("FLAGPILOT_LLM_MAX_BUDGET_USD", "1.0")))
     if kind == "anthropic":
         return AnthropicProvider(model=os.environ.get("FLAGPILOT_LLM_MODEL", "claude-opus-5-5"))
     if kind == "mock":

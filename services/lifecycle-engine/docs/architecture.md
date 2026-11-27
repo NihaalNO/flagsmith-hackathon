@@ -103,8 +103,19 @@ Weights and thresholds live in `StalePolicy` and are configurable per evaluation
   if it cites unknown evidence ids, has uncited facts, mentions files/lines not in the evidence,
   or claims safety/test results/merge/archive. On rejection or outage the deterministic narrative
   is used and `plan.llm` records why.
-* Providers: `MockLLMProvider` (tests/dev), `AnthropicProvider` (official SDK, structured outputs
-  with JSON schema, server-side refusal fallback; optional dependency).
+* Providers: `MockLLMProvider` (tests/dev); `ClaudeCodeProvider` (Claude Code CLI sub-process:
+  `claude -p --output-format json --json-schema … --tools "" --strict-mcp-config
+  --no-session-persistence --system-prompt …`, evidence packet on stdin, empty temporary cwd,
+  `--max-budget-usd` cap; on Windows the npm `.cmd` shim is bypassed for the native `claude.exe`
+  so cmd.exe never re-parses the JSON arguments); `AnthropicProvider` (official SDK, structured
+  outputs with JSON schema, server-side refusal fallback; optional dependency).
+* Replacing Claude Code's default system prompt and tool set matters: with them a call loads
+  ~56K tokens of context (about $0.45 even for a trivial prompt); with `--system-prompt` and
+  `--tools ""` a trivial call costs about $0.01.
+* Validation quotes the offending sentence in every rejection. Claims are only exempt when a
+  negating, conditional or prescriptive word ("not", "until", "only once", "must"…) appears in the
+  same sentence, so "do not archive until it is merged" passes and "Not yet. It has been
+  archived." does not.
 
 ## Module 6 — Verification
 

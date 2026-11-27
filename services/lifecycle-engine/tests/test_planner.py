@@ -81,11 +81,27 @@ def test_llm_cannot_invent_paths_locations_or_claims(ctx, bad, needle):
     assert plan.reasoning_summary.startswith("'new_checkout' is assessed")
 
 
-def test_negated_claims_are_allowed():
-    n, errors = validate_narrative(
-        {"reasoning_summary": "It is not safe to delete until the cleanup is merged; tests have not been run.", "statements": []},
-        evidence_ids=set(), locations={}, stale_status=StaleStatus.READY_FOR_CLEANUP)
+@pytest.mark.parametrize("text", [
+    "It is not safe to delete until the cleanup is merged; tests have not been run.",
+    "Archive the flag in Flagsmith only once the cleanup PR has been reviewed, verified and is merged.",
+    "Retirement must wait until verification passes and the pull request is merged into main.",
+])
+def test_negated_or_conditional_claims_are_allowed(text):
+    n, errors = validate_narrative({"reasoning_summary": text, "statements": []},
+                                   evidence_ids=set(), locations={}, stale_status=StaleStatus.READY_FOR_CLEANUP)
     assert errors == [] and n is not None
+
+
+@pytest.mark.parametrize("text,needle", [
+    ("Not ready yet. The flag has been archived.", "lifecycle/repository state"),
+    ("Do not wait. Tests passed in CI.", "test results"),
+    ("Review done; it is safe to delete.", "claims safety"),
+])
+def test_negation_in_another_sentence_does_not_excuse_a_claim(text, needle):
+    n, errors = validate_narrative({"reasoning_summary": text, "statements": []},
+                                   evidence_ids=set(), locations={}, stale_status=StaleStatus.READY_FOR_CLEANUP)
+    assert n is None and any(needle in e for e in errors), errors
+    assert any('"' in e for e in errors)  # offending sentence is quoted for review
 
 
 def test_known_file_and_line_are_allowed(ctx):

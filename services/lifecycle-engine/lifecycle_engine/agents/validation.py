@@ -13,14 +13,18 @@ FILE_RE = re.compile(r"(?<![\w@])((?:[\w.-]+/)*[\w.-]+\.(?:tsx?|jsx?|mjs|cjs|mts
 SAFETY_CLAIM_RE = re.compile(r"\b(safe(?:ly)?|guaranteed|certain(?:ly)?)\s+(?:to\s+)?(delete|remove|retire|archive)\b", re.I)
 TEST_CLAIM_RE = re.compile(r"\btests?\s+(?:have\s+|has\s+|all\s+)?(pass(?:ed|es)?|succeed(?:ed|s)?|green)\b", re.I)
 STATE_CLAIM_RE = re.compile(r"\b(?:flag\s+)?(?:is|was|has been|is now)\s+(retired|archived|merged)\b", re.I)
-NEGATORS_RE = re.compile(r"\b(not|never|no|until|before|once|after|if|when|unless|whether|cannot|can't|isn't|is not)\b", re.I)
+NEGATORS_RE = re.compile(r"\b(not|never|no|until|before|once|after|if|when|unless|whether|cannot|can't|isn't|only|must|should|wait|pending)\b", re.I)
+CLAUSE_BREAK_RE = re.compile(r"[.;:!?\n]")
 
 
 def _affirmative(pattern: re.Pattern, text: str) -> re.Match | None:
-    """First match that is not negated or conditional ('not safe to delete', 'until it is merged')."""
+    """First match that is not negated, conditional or prescriptive within its sentence
+    ('not safe to delete', 'archive only once the PR has been reviewed and is merged')."""
     for m in pattern.finditer(text):
-        window = text[max(0, m.start() - 30) : m.start()]
-        if not NEGATORS_RE.search(window):
+        before = text[: m.start()]
+        breaks = list(CLAUSE_BREAK_RE.finditer(before))
+        clause = before[breaks[-1].end():] if breaks else before
+        if not NEGATORS_RE.search(clause):
             return m
     return None
 
@@ -61,10 +65,17 @@ def validate_narrative(raw: dict, *, evidence_ids: set[str], locations: dict[str
                 errors.append(f"mentions {path}:{line}, which is not a known reference/edit location")
         safety = _affirmative(SAFETY_CLAIM_RE, text)
         if safety and stale_status != StaleStatus.SAFE_TO_RETIRE:
-            errors.append(f"claims safety ('{safety.group(0)}') not established by the stale assessment")
-        if _affirmative(TEST_CLAIM_RE, text):
-            errors.append("claims test results; no tests have been run at planning time")
+            errors.append(f"claims safety ('{safety.group(0)}') not established by the stale assessment: {_around(text, safety)}")
+        tm = _affirmative(TEST_CLAIM_RE, text)
+        if tm:
+            errors.append(f"claims test results; no tests have been run at planning time: {_around(text, tm)}")
         sm = _affirmative(STATE_CLAIM_RE, text)
         if sm and not archived:
-            errors.append(f"claims lifecycle/repository state ('{sm.group(0)}') not present in evidence")
+            errors.append(f"claims lifecycle/repository state ('{sm.group(0)}') not present in evidence: {_around(text, sm)}")
     return (None, errors) if errors else (n, [])
+
+
+def _around(text: str, m: re.Match, width: int = 60) -> str:
+    """The offending phrase with some context, so a rejection can be reviewed."""
+    start, end = max(0, m.start() - width), min(len(text), m.end() + width)
+    return f"\"{'…' if start else ''}{text[start:end]}{'…' if end < len(text) else ''}\""
