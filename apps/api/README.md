@@ -5,6 +5,15 @@ Feature flag lifecycle management backend. FastAPI + SQLAlchemy 2 + Alembic on S
 FlagPilot stores lifecycle metadata and orchestration history; **Flagsmith remains the source of
 truth for actual flag configuration.**
 
+## Deployed
+
+- API: **https://flagpilot-api.vercel.app** (docs: `/docs`, sign-in test page: `/dev/login`)
+- Hosted on Vercel (project `flagpilot-api`, region `sin1`, next to the Supabase DB).
+- Deploy: `cd apps/api && vercel deploy --prod`. Env vars (`DATABASE_URL`, `ENCRYPTION_KEY`,
+  `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `CORS_ORIGINS`) are set in the Vercel project.
+- Run migrations from your machine (`alembic upgrade head`) **before** deploying code that needs them.
+- `GET /api/health` reports `"database": "ok"` when the deployment can reach Supabase.
+
 ## Run locally
 
 ```bash
@@ -28,7 +37,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY); // both a
 await supabase.auth.signInWithOAuth({ provider: "github", options: { redirectTo: window.location.origin } });
 
 const { data: { session } } = await supabase.auth.getSession();
-await fetch("http://localhost:8000/api/flags", {
+await fetch("https://flagpilot-api.vercel.app/api/flags", {
   headers: { Authorization: `Bearer ${session.access_token}` },
 });
 ```
@@ -36,8 +45,8 @@ await fetch("http://localhost:8000/api/flags", {
 - Every `/api/*` route except `/api/health` returns **401** without a valid token.
 - `GET /api/me` returns the signed-in user. Audit log entries record the user as `actor`.
 - Tokens expire after ~1 hour; supabase-js refreshes them automatically.
-- Allowed redirect URLs: `http://localhost:5173`, `http://localhost:3000`, `http://localhost:8000/dev/login`.
-  Production URLs must be added in Supabase (Auth → URL Configuration) before deploying.
+- Allowed redirect URLs: `http://localhost:5173`, `http://localhost:3000`, `http://localhost:8000/dev/login`,
+  `https://flagpilot-api.vercel.app/dev/login`. A deployed frontend URL must be added in Supabase (Auth → URL Configuration) before deploying.
 - **Testing without a frontend:** open `http://localhost:8000/dev/login`, sign in with GitHub, copy the
   token, then in `/docs` click **Authorize** and paste it.
 

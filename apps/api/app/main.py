@@ -2,12 +2,16 @@ import json
 from pathlib import Path
 
 from fastapi import Depends, FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
+from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import audit_logs, flags, integrations, repositories
 from app.core.auth import CurrentUser, get_current_user
 from app.core.config import settings
+from sqlalchemy.orm import Session
+
+from app.core.database import get_db
 
 app = FastAPI(
     title=settings.app_name,
@@ -30,8 +34,17 @@ for module in (flags, repositories, integrations, audit_logs):
 
 
 @app.get("/api/health", tags=["Health"])
-def health():
-    return {"status": "ok", "service": settings.app_name}
+def health(session: Session = Depends(get_db)):
+    """Public liveness check, including database reachability."""
+    try:
+        session.execute(text("select 1"))
+        db = "ok"
+    except Exception:
+        db = "unreachable"
+    return JSONResponse(
+        {"status": "ok" if db == "ok" else "degraded", "service": settings.app_name, "database": db},
+        status_code=200 if db == "ok" else 503,
+    )
 
 
 @app.get("/api/me", tags=["Auth"])

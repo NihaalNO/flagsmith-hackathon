@@ -5,7 +5,9 @@ def make_flag(client, name="new_checkout", **extra):
 
 
 def test_health(client):
-    assert client.get("/api/health").json()["status"] == "ok"
+    r = client.get("/api/health")
+    assert r.status_code == 200
+    assert r.json() == {"status": "ok", "service": "FlagPilot API", "database": "ok"}
 
 
 def test_create_list_get_flag(client):
