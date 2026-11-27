@@ -7,7 +7,11 @@ def make_flag(client, name="new_checkout", **extra):
 def test_health(client):
     r = client.get("/api/health")
     assert r.status_code == 200
-    assert r.json() == {"status": "ok", "service": "FlagPilot API", "database": "ok"}
+    body = r.json()
+    assert {k: body[k] for k in ("status", "service", "database")} == {
+        "status": "ok", "service": "FlagPilot API", "database": "ok"}
+    assert "engine" in body and "llm" in body  # names/versions only
+    assert "key" not in str(body).lower()
 
 
 def test_create_list_get_flag(client):

@@ -45,8 +45,21 @@ def health(session: Session = Depends(get_db)):
         db = "ok"
     except Exception:
         db = "unreachable"
+    # Lifecycle engine and LLM: versions/provider names only, never keys. Not part of the
+    # status: the API works without them (analysis endpoints answer 503).
+    from app.services.engine import EngineUnavailable, engine_version, llm_provider
+    try:
+        engine = engine_version()
+    except EngineUnavailable:
+        engine = "unavailable"
+    try:
+        provider = llm_provider()
+        llm = f"{provider.name}:{provider.model}" if provider else "none"
+    except EngineUnavailable:
+        llm = "misconfigured" if engine != "unavailable" else "unavailable"
     return JSONResponse(
-        {"status": "ok" if db == "ok" else "degraded", "service": settings.app_name, "database": db},
+        {"status": "ok" if db == "ok" else "degraded", "service": settings.app_name, "database": db,
+         "engine": engine, "llm": llm},
         status_code=200 if db == "ok" else 503,
     )
 

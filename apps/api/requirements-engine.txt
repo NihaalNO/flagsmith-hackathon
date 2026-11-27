@@ -1,6 +1,6 @@
 # Backend + lifecycle engine, for local development and CI. Run from apps/api:
 #   pip install -r requirements-engine.txt
-# The Vercel deployment installs requirements.txt only, so it runs without the engine
-# (the /api/flags/{id}/analysis endpoints answer 503) until the engine is packaged for it.
+# Vercel deploys get the engine from scripts/vendor-engine.sh (copied next to the app);
+# its runtime deps are already in requirements.txt.
 -r requirements.txt
 -e ../../services/lifecycle-engine

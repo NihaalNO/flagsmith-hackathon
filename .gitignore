@@ -4,3 +4,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 **/supabase/.temp/
+
+# Lifecycle engine copied in for Vercel deploys (apps/api/scripts/vendor-engine.sh)
+apps/api/lifecycle_engine/
