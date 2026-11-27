@@ -17,6 +17,30 @@ uvicorn app.main:app --reload # http://localhost:8000/docs
 pytest                        # tests use in-memory SQLite, never Supabase
 ```
 
+## Authentication (GitHub login via Supabase Auth)
+
+Users sign in **only with GitHub** (email sign-up is disabled). The frontend uses supabase-js:
+
+```js
+import { createClient } from "@supabase/supabase-js";
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY); // both are public values
+
+await supabase.auth.signInWithOAuth({ provider: "github", options: { redirectTo: window.location.origin } });
+
+const { data: { session } } = await supabase.auth.getSession();
+await fetch("http://localhost:8000/api/flags", {
+  headers: { Authorization: `Bearer ${session.access_token}` },
+});
+```
+
+- Every `/api/*` route except `/api/health` returns **401** without a valid token.
+- `GET /api/me` returns the signed-in user. Audit log entries record the user as `actor`.
+- Tokens expire after ~1 hour; supabase-js refreshes them automatically.
+- Allowed redirect URLs: `http://localhost:5173`, `http://localhost:3000`, `http://localhost:8000/dev/login`.
+  Production URLs must be added in Supabase (Auth → URL Configuration) before deploying.
+- **Testing without a frontend:** open `http://localhost:8000/dev/login`, sign in with GitHub, copy the
+  token, then in `/docs` click **Authorize** and paste it.
+
 ## API contract (v0.1)
 
 Interactive docs: `/docs` (Swagger) and `/redoc`. Machine-readable schema: `/openapi.json`.
@@ -85,4 +109,4 @@ API tokens are encrypted with `ENCRYPTION_KEY` (Fernet) and never returned by th
 
 ## Not built yet
 
-Authentication, GitHub App integration, pushing edits back to Flagsmith, scheduled/background sync.
+Roles/permissions (any signed-in user can do everything), GitHub App integration, pushing edits back to Flagsmith, scheduled/background sync.

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FlagPilot · dev sign-in</title>
+<style>
+  body{font:15px/1.5 system-ui,sans-serif;max-width:640px;margin:48px auto;padding:0 16px;color:#1f2328}
+  button{font:inherit;padding:8px 14px;border-radius:6px;border:1px solid #d0d7de;background:#24292f;color:#fff;cursor:pointer}
+  button.secondary{background:#fff;color:#24292f}
+  textarea{width:100%;height:110px;font:12px ui-monospace,monospace;margin:8px 0}
+  .muted{color:#59636e;font-size:13px}
+</style>
+</head>
+<body>
+<h1>FlagPilot dev sign-in</h1>
+<p class="muted">For testing the API before the frontend exists. Signs in with GitHub through Supabase Auth
+and shows the access token to paste into <a href="/docs">/docs</a> → Authorize.</p>
+<div id="out"></div>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const supabase = createClient("__SUPABASE_URL__", "__SUPABASE_KEY__");
+const out = document.getElementById("out");
+
+async function render() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    out.innerHTML = '<button id="in">Sign in with GitHub</button>';
+    document.getElementById("in").onclick = () => supabase.auth.signInWithOAuth({
+      provider: "github", options: { redirectTo: location.origin + "/dev/login" } });
+    return;
+  }
+  const me = await fetch("/api/me", { headers: { Authorization: "Bearer " + session.access_token } });
+  const meText = me.ok ? JSON.stringify(await me.json()) : "API rejected token: " + me.status;
+  out.innerHTML = `<p>Signed in. <span class="muted">API /api/me →</span> <code></code></p>
+    <p class="muted">Access token (expires in ~1 hour):</p><textarea readonly></textarea>
+    <button id="copy">Copy token</button> <button id="outbtn" class="secondary">Sign out</button>`;
+  out.querySelector("code").textContent = meText;
+  out.querySelector("textarea").value = session.access_token;
+  document.getElementById("copy").onclick = () => navigator.clipboard.writeText(session.access_token);
+  document.getElementById("outbtn").onclick = async () => { await supabase.auth.signOut(); render(); };
+}
+supabase.auth.onAuthStateChange(() => render());
+render();
+</script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.core.auth import current_actor
 from app.models.audit_log import AuditLog
 
 
@@ -16,7 +17,7 @@ def record(
         action=action,
         resource_type=resource_type,
         resource_id=resource_id,
-        actor=actor,
+        actor=actor or current_actor.get(),
         details=details or {},
     )
     db.add(entry)
