@@ -1,0 +1,123 @@
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.core.database import get_db
+from app.core.lifecycle import ALLOWED_TRANSITIONS, LifecycleStatus, can_transition
+from app.models.base import utc_now
+from app.models.flag import Flag
+from app.models.integration import Integration
+from app.schemas.flag import FlagCreate, FlagResponse, FlagUpdate, LifecycleTransition
+from app.services import audit
+from app.services.flagsmith import ClientFactory, FlagsmithError, get_flagsmith_client_factory
+
+router = APIRouter(prefix="/flags", tags=["Flags"])
+
+
+def _get_or_404(db: Session, flag_id: str) -> Flag:
+    flag = db.get(Flag, flag_id)
+    if not flag:
+        raise HTTPException(status_code=404, detail="Flag not found")
+    return flag
+
+
+@router.get("", response_model=list[FlagResponse])
+def list_flags(
+    status: LifecycleStatus | None = Query(default=None, description="Filter by lifecycle status"),
+    db: Session = Depends(get_db),
+):
+    stmt = select(Flag).order_by(Flag.created_at.desc())
+    if status:
+        stmt = stmt.where(Flag.lifecycle_status == status.value)
+    return db.scalars(stmt).all()
+
+
+@router.get("/lifecycle/transitions", response_model=dict[LifecycleStatus, list[LifecycleStatus]])
+def lifecycle_transitions():
+    """Allowed lifecycle moves, so the frontend can show only valid options."""
+    return {k: sorted(v) for k, v in ALLOWED_TRANSITIONS.items()}
+
+
+@router.get("/{flag_id}", response_model=FlagResponse)
+def get_flag(flag_id: str, db: Session = Depends(get_db)):
+    return _get_or_404(db, flag_id)
+
+
+@router.post("", response_model=FlagResponse, status_code=201)
+def create_flag(
+    payload: FlagCreate,
+    db: Session = Depends(get_db),
+    make_client: ClientFactory = Depends(get_flagsmith_client_factory),
+):
+    if db.scalar(select(Flag).where(Flag.name == payload.name)):
+        raise HTTPException(status_code=409, detail="A flag with this name already exists")
+
+    data = payload.model_dump()
+    if payload.integration_id:
+        # Flagsmith is the source of truth: create there first, store only if that succeeds.
+        integration = db.get(Integration, payload.integration_id)
+        if not integration or integration.provider != "flagsmith":
+            raise HTTPException(status_code=404, detail="Flagsmith integration not found")
+        project_id = (integration.config or {}).get("project_id")
+        if project_id is None:
+            raise HTTPException(status_code=400, detail="Integration has no config.project_id")
+        try:
+            with make_client(integration) as client:
+                feature = client.create_feature(
+                    int(project_id), payload.name, payload.description, payload.enabled
+                )
+        except FlagsmithError as exc:
+            raise HTTPException(status_code=502, detail=f"Flagsmith: {exc}")
+        data["flagsmith_id"] = str(feature["id"])
+
+    flag = Flag(**data)
+    db.add(flag)
+    db.flush()  # assigns flag.id
+    audit.record(db, "flag.created", "flag", flag.id,
+                 {"name": flag.name, "flagsmith_id": flag.flagsmith_id})
+    db.commit()
+    db.refresh(flag)
+    return flag
+
+
+@router.patch("/{flag_id}", response_model=FlagResponse)
+def update_flag(flag_id: str, payload: FlagUpdate, db: Session = Depends(get_db)):
+    flag = _get_or_404(db, flag_id)
+    changes = payload.model_dump(exclude_unset=True)
+    for field, value in changes.items():
+        setattr(flag, field, value)
+    if changes:
+        audit.record(db, "flag.updated", "flag", flag.id, {"changes": changes})
+    db.commit()
+    db.refresh(flag)
+    return flag
+
+
+@router.post("/{flag_id}/lifecycle", response_model=FlagResponse)
+def transition_lifecycle(flag_id: str, payload: LifecycleTransition, db: Session = Depends(get_db)):
+    flag = _get_or_404(db, flag_id)
+    current = flag.lifecycle_status
+    target = payload.status.value
+    if not can_transition(current, target):
+        allowed = sorted(ALLOWED_TRANSITIONS[LifecycleStatus(current)])
+        raise HTTPException(
+            status_code=422,
+            detail=f"Cannot move flag from '{current}' to '{target}'. Allowed: {allowed}",
+        )
+    flag.lifecycle_status = target
+    flag.lifecycle_changed_at = utc_now()
+    audit.record(
+        db, "flag.lifecycle_changed", "flag", flag.id,
+        {"from": current, "to": target, "reason": payload.reason},
+    )
+    db.commit()
+    db.refresh(flag)
+    return flag
+
+
+@router.delete("/{flag_id}", status_code=204)
+def delete_flag(flag_id: str, db: Session = Depends(get_db)):
+    flag = _get_or_404(db, flag_id)
+    audit.record(db, "flag.deleted", "flag", flag.id, {"name": flag.name})
+    db.delete(flag)
+    db.commit()
