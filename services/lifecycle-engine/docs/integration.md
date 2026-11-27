@@ -1,9 +1,27 @@
 # Integration and coordination
 
-Status when this was written: the monorepo contained no `apps/api`, `apps/web`,
-`packages/contracts` or `apps/api/app/intelligence/`, so nothing existed to reuse or conflict
-with. All Member 2 code lives in `services/lifecycle-engine/`. Nothing outside that folder was
-created or modified.
+All Member 2 code lives in `services/lifecycle-engine/`. Nothing outside that folder was
+created or modified. `main` contains Member 1's backend in `apps/api/` (FastAPI, SQLAlchemy,
+Alembic, Supabase auth, Flagsmith sync, Python 3.12); there is no `apps/api/app/intelligence/`,
+`apps/web` or `packages/contracts` yet.
+
+## Conflict to resolve with Member 1: lifecycle transitions
+
+`apps/api/app/core/lifecycle.py` defines the same eight state values as the engine
+(`created` … `retired`), so stored `lifecycle_status` strings are compatible. Its
+`ALLOWED_TRANSITIONS` table differs in ways that break the project's safety requirements:
+
+| Backend allows | Engine | Requirement affected |
+|---|---|---|
+| `created` / `in_development` / `testing` → `retired` | not a valid transition | a flag must not be retired before cleanup is merged, verified and approved |
+| any transition with no evidence or approval | evidence + approvals per edge (`TRANSITION_RULES`) | recommendation vs. approved transition must be distinguishable |
+| no transition history | `FlagLifecycle.history` with actor, reason, evidence, approvals | transitions must be recorded with timestamps and reasons |
+
+Proposal: the backend's transition endpoint calls `EngineService.transition` (or
+`LifecycleStateMachine.transition`) and persists the returned `FlagLifecycle`, keeping
+`can_transition` only as a fast pre-check — or Member 1 adopts the engine's rule table. If the
+backend needs to retire flags that never shipped (abandoned before release), that should be an
+explicit, approved transition added to `TRANSITION_RULES`, not an unguarded edge.
 
 ## Needs agreement with Member 1 (backend)
 
