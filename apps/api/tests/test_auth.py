@@ -22,6 +22,7 @@ def fake_jwks(monkeypatch):
 
 def token(key=PRIVATE_KEY, **overrides):
     claims = {"sub": "gh-user-1", "email": "dev@example.com", "role": "authenticated",
+              "user_metadata": {"provider_id": "1001", "user_name": "tester"},
               "aud": "authenticated", "iss": auth.ISSUER, "exp": int(time.time()) + 600, **overrides}
     return jwt.encode(claims, key, algorithm="ES256")
 
@@ -55,7 +56,8 @@ def test_valid_token_and_me(anon_client):
     tok = token()
     assert get(anon_client, "/api/flags", tok).status_code == 200
     assert get(anon_client, "/api/me", tok).json() == {
-        "id": "gh-user-1", "email": "dev@example.com", "role": "authenticated"}
+        "id": "gh-user-1", "email": "dev@example.com", "role": "authenticated",
+        "github_login": "tester", "github_id": "1001"}
 
 
 def test_audit_records_actor(anon_client):

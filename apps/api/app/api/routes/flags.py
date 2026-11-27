@@ -52,18 +52,37 @@ def create_flag(
     db: Session = Depends(get_db),
     make_client: ClientFactory = Depends(get_flagsmith_client_factory),
 ):
-    if db.scalar(select(Flag).where(Flag.name == payload.name)):
-        raise HTTPException(status_code=409, detail="A flag with this name already exists")
-
-    data = payload.model_dump()
-    if payload.integration_id:
-        # Flagsmith is the source of truth: create there first, store only if that succeeds.
+    data = payload.model_dump(exclude={"repository_id"})
+    integration, project_id = None, None
+    if payload.repository_id:
+        repo = db.get(Repository, payload.repository_id)
+        if not repo:
+            raise HTTPException(status_code=404, detail="Repository not found")
+        if repo.flagsmith_project_id is None or not repo.flagsmith_integration_id:
+            raise HTTPException(status_code=400, detail="Repository has no Flagsmith project; run POST /api/github/sync")
+        integration = db.get(Integration, repo.flagsmith_integration_id)
+        project_id = repo.flagsmith_project_id
+        data["project_name"] = data.get("project_name") or repo.full_name
+    elif payload.integration_id:
         integration = db.get(Integration, payload.integration_id)
         if not integration or integration.provider != "flagsmith":
             raise HTTPException(status_code=404, detail="Flagsmith integration not found")
         project_id = (integration.config or {}).get("project_id")
         if project_id is None:
             raise HTTPException(status_code=400, detail="Integration has no config.project_id")
+    if integration is None and (payload.repository_id or payload.integration_id):
+        raise HTTPException(status_code=404, detail="Flagsmith integration not found")
+
+    dup = select(Flag).where(Flag.name == payload.name)
+    dup = dup.where(Flag.flagsmith_project_id == int(project_id)) if project_id is not None \
+        else dup.where(Flag.flagsmith_project_id.is_(None))
+    if db.scalar(dup):
+        raise HTTPException(status_code=409, detail="A flag with this name already exists in this project")
+
+    if integration is not None:
+        # Flagsmith is the source of truth: create there first, store only if that succeeds.
+        data["integration_id"] = integration.id
+        data["flagsmith_project_id"] = int(project_id)
         try:
             with make_client(integration) as client:
                 feature = client.create_feature(

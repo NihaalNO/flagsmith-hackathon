@@ -16,6 +16,10 @@ class FlagCreate(BaseModel):
         default=None,
         description="If set, the feature is created in this Flagsmith integration's project first",
     )
+    repository_id: str | None = Field(
+        default=None,
+        description="If set, the feature is created in this repository's Flagsmith project first",
+    )
 
 
 class FlagUpdate(BaseModel):
@@ -39,6 +43,7 @@ class FlagResponse(BaseModel):
     description: str | None
     flagsmith_id: str | None
     integration_id: str | None
+    flagsmith_project_id: int | None
     owner: str | None
     project_name: str | None
     environment: str | None

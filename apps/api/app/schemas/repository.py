@@ -19,6 +19,7 @@ class RepositoryResponse(BaseModel):
     installation_id: str | None
     last_scanned_at: datetime | None
     last_scan_sha: str | None
+    flagsmith_project_id: int | None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

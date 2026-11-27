@@ -25,9 +25,23 @@ engine = create_engine(
 TestingSession = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
+WS_ID = "ws-acme"
+
+
+def seed_workspace(ws_id=WS_ID, installation_id="42", login="acme", members=("user-1", "gh-user-1")):
+    from app.models.workspace import Workspace, WorkspaceMember
+    with TestingSession() as db:
+        db.add(Workspace(id=ws_id, installation_id=installation_id, name=login, github_account_id="900",
+                         github_account_login=login, github_account_type="Organization"))
+        for uid in members:
+            db.add(WorkspaceMember(workspace_id=ws_id, user_id=uid, role="member"))
+        db.commit()
+
+
 @pytest.fixture()
 def client():
     Base.metadata.create_all(engine)
+    seed_workspace()
 
     def override_get_db():
         db = TestingSession()
@@ -36,9 +50,10 @@ def client():
         finally:
             db.close()
 
-    def override_user():
+    async def override_user():
         current_actor.set("tester@example.com")
-        return CurrentUser(id="user-1", email="tester@example.com", role="authenticated")
+        return CurrentUser(id="user-1", email="tester@example.com", role="authenticated",
+                           github_id="1001", github_login="tester")
 
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_current_user] = override_user

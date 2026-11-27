@@ -53,8 +53,12 @@ class FlagsmithClient:
             r = self._http.request(method, url, **kwargs)
         except httpx.HTTPError as exc:
             raise FlagsmithError(f"Could not reach Flagsmith: {exc}") from exc
-        if r.status_code in (401, 403):
+        if r.status_code == 401:
             raise FlagsmithError("Flagsmith rejected the API key (check key and permissions)", r.status_code)
+        if r.status_code == 403:
+            raise FlagsmithError(
+                f"The Flagsmith API key isn't allowed to {method} {url.split('?')[0]} "
+                "(make it an admin key or grant the permission in Flagsmith)", r.status_code)
         if r.status_code >= 400:
             raise FlagsmithError(f"Flagsmith returned {r.status_code}: {r.text[:300]}", r.status_code)
         return r.json() if r.content else None
@@ -80,6 +84,10 @@ class FlagsmithClient:
 
     def list_projects(self) -> list[dict]:
         return list(self._paginate("projects/"))
+
+    def create_project(self, name: str, organisation_id: int) -> dict:
+        """Flagsmith also creates Development and Production environments for it."""
+        return self._request("POST", "projects/", json={"name": name, "organisation": organisation_id})
 
     def list_environments(self, project_id: int) -> list[dict]:
         return list(self._paginate("environments/", {"project": project_id}))

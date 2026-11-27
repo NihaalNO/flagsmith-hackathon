@@ -92,7 +92,8 @@ def test_sync_scan_and_references(client, gh):
     r = client.post("/api/github/sync")
     assert r.status_code == 200, r.text
     assert r.json() == {"installations": 1, "repositories_added": 1, "repositories_updated": 0,
-                        "repositories": ["acme/web"]}
+                        "repositories": ["acme/web"], "projects_created": [], "projects_linked": [],
+                        "project_errors": ["No Flagsmith integration with an API key; projects not created"]}
     repo = client.get("/api/repositories").json()[0]
     assert repo["installation_id"] == "42"
     assert any(i["provider"] == "github" for i in client.get("/api/integrations").json())
@@ -125,3 +126,45 @@ def test_install_url(client, monkeypatch):
     monkeypatch.setattr(config.settings, "github_app_slug", "flagpilot-hackathon")
     assert client.get("/api/github/install-url").json() == {
         "url": "https://github.com/apps/flagpilot-hackathon/installations/new"}
+
+
+def test_each_repo_gets_its_own_flagsmith_project(client, gh):
+    from tests.test_flagsmith import GOOD_KEY, FakeFlagsmith
+    from app.core.security import decrypt_secret
+    from app.services.flagsmith import FlagsmithClient, get_flagsmith_client_factory
+
+    fs = FakeFlagsmith()
+    app.dependency_overrides[get_flagsmith_client_factory] = lambda: (
+        lambda integ: FlagsmithClient(decrypt_secret(integ.encrypted_secret),
+                                      transport=httpx.MockTransport(fs.handler)))
+    integ = client.post("/api/integrations", json={
+        "provider": "flagsmith", "name": "Flagsmith", "api_token": GOOD_KEY}).json()
+
+    # 1. GitHub sync creates a Flagsmith project named after the repo.
+    r = client.post("/api/github/sync").json()
+    assert r["projects_created"] == ["acme/web"] and r["project_errors"] == []
+    assert fs.projects[-1] == {"id": 6, "name": "acme/web", "organisation": 1}
+    repo = client.get("/api/repositories").json()[0]
+    assert repo["flagsmith_project_id"] == 6
+    # Re-sync doesn't create it again.
+    assert client.post("/api/github/sync").json()["projects_created"] == []
+    assert len(fs.projects) == 2
+
+    # 2. Creating a flag for the repo creates it in the repo's project.
+    f = client.post("/api/flags", json={"name": "new_checkout", "repository_id": repo["id"]})
+    assert f.status_code == 201, f.text
+    assert f.json()["flagsmith_project_id"] == 6 and f.json()["project_name"] == "acme/web"
+    assert fs.repo_features[0]["name"] == "new_checkout"
+    # Same name in the same project -> 409; a local-only flag elsewhere is fine.
+    assert client.post("/api/flags", json={"name": "new_checkout", "repository_id": repo["id"]}).status_code == 409
+    assert client.post("/api/flags", json={"name": "promo_banner"}).status_code == 201
+
+    # 3. Flagsmith sync covers the repo's project and mirrors its Development env.
+    s = client.post(f"/api/integrations/{integ['id']}/sync").json()
+    assert s["projects"] == ["acme/web"]
+    flag = next(x for x in client.get("/api/flags").json() if x["name"] == "new_checkout")
+    assert flag["environment"] == "Development" and flag["enabled"] is True
+
+    # 4. Scan only looks for this project's flags (promo_banner is local-only -> ignored).
+    scan = client.post(f"/api/repositories/{repo['id']}/scan").json()
+    assert scan["flags"] == [{"flag": "new_checkout", "references": 1}]

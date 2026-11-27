@@ -4,10 +4,11 @@ from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.tenancy import TenantScoped
 from app.models.base import new_id, utc_now
 
 
-class FlagReference(Base):
+class FlagReference(TenantScoped, Base):
     """One place in a repository's code where a flag's name appears."""
 
     __tablename__ = "flag_references"

@@ -65,6 +65,7 @@ class FlagsmithEnvironment(BaseModel):
 
 
 class SyncResult(BaseModel):
+    projects: list[str] = Field(default=[], description="Flagsmith projects that were synced")
     created: int
     linked: int
     updated: int

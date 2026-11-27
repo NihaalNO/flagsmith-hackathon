@@ -50,13 +50,39 @@ await fetch("https://flagpilot-api.vercel.app/api/flags", {
 - **Testing without a frontend:** open `http://localhost:8000/dev/login`, sign in with GitHub, copy the
   token, then in `/docs` click **Authorize** and paste it.
 
+## Workspaces (multi-tenant)
+
+A workspace = one GitHub account or organization that has the **seshat.buzz** GitHub App installed.
+Everything (flags, repos, integrations, audit log) belongs to exactly one workspace and is
+invisible to other workspaces (enforced centrally in `app/core/tenancy.py`).
+
+- **Personal account install** → only that GitHub user can access it.
+- **Organization install** → every member of that GitHub org (verified with GitHub on each
+  `GET /api/workspaces`; people who leave the org lose access on their next check).
+- Each workspace connects **its own Flagsmith** API key; repo projects are created in that org.
+
+**Frontend onboarding flow**
+1. Sign in with GitHub (Supabase).
+2. `GET /api/workspaces` → `{workspaces: [...], install_url}`.
+   - Empty → show "Install the GitHub App" button linking to `install_url`; after installing, call again.
+   - One → use it (no header needed).
+   - Several → let the user pick; send `X-Workspace-Id: <id>` on every request.
+3. If the workspace has no Flagsmith integration yet → ask for a Flagsmith **admin** Organisation API key,
+   `POST /api/integrations` `{provider: "flagsmith", name, api_token}`.
+4. `POST /api/github/sync` → imports the workspace's repos and creates a Flagsmith project per repo.
+
+Data routes without an accessible workspace return **409** (none chosen / none installed) or **403**
+(no access to the requested `X-Workspace-Id`).
+
 ## API contract (v0.1)
 
 Interactive docs: `/docs` (Swagger) and `/redoc`. Machine-readable schema: `/openapi.json`.
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/api/health` | Health check |
+| GET | `/api/health` | Health check (public) |
+| GET | `/api/workspaces` | Your workspaces (verified with GitHub) + GitHub App install link |
+| GET | `/api/me` | Signed-in user incl. GitHub login |
 | GET | `/api/flags?status=` | List flags (newest first), optional lifecycle filter |
 | POST | `/api/flags` | Create flag → 201, 409 if name exists. With `integration_id`, creates it in Flagsmith first (502 if Flagsmith fails; nothing stored) |
 | GET | `/api/flags/{id}` | Get flag → 404 if missing |
@@ -118,4 +144,4 @@ API tokens are encrypted with `ENCRYPTION_KEY` (Fernet) and never returned by th
 
 ## Not built yet
 
-Roles/permissions (any signed-in user can do everything), GitHub App integration, pushing edits back to Flagsmith, scheduled/background sync.
+Roles within a workspace (all members can do everything), handling uninstalled GitHub Apps, GitHub App integration, pushing edits back to Flagsmith, scheduled/background sync.

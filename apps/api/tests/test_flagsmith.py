@@ -25,6 +25,8 @@ class FakeFlagsmith:
             {"id": 3, "feature": 12, "enabled": True, "identity": 99, "feature_segment": None},
         ]
         self.requests: list[httpx.Request] = []
+        self.projects = [{"id": 5, "name": "web-app", "organisation": 1}]
+        self.repo_features: list[dict] = []
 
     def handler(self, request: httpx.Request) -> httpx.Response:
         self.requests.append(request)
@@ -33,8 +35,29 @@ class FakeFlagsmith:
         path, q = request.url.path, request.url.params
         if path == "/api/v1/organisations/":
             return httpx.Response(200, json={"count": 1, "next": None, "results": [{"id": 1, "name": "Acme"}]})
+        if path == "/api/v1/projects/" and request.method == "POST":
+            body = json.loads(request.content)
+            project = {"id": 5 + len(self.projects), "name": body["name"], "organisation": body["organisation"]}
+            self.projects.append(project)
+            return httpx.Response(201, json=project)
         if path == "/api/v1/projects/":
-            return httpx.Response(200, json=[{"id": 5, "name": "web-app", "organisation": 1}])
+            return httpx.Response(200, json=self.projects)
+        if path == "/api/v1/environments/" and q.get("project") == "6":
+            return httpx.Response(200, json={"count": 2, "next": None, "results": [
+                {"id": 8, "name": "Development", "api_key": "env-dev6"},
+                {"id": 9, "name": "Production", "api_key": "env-prod6"}]})
+        if path == "/api/v1/projects/6/features/" and request.method == "GET":
+            return httpx.Response(200, json={"count": len(self.repo_features), "next": None,
+                                             "results": self.repo_features})
+        if path == "/api/v1/projects/6/features/" and request.method == "POST":
+            body = json.loads(request.content)
+            feature = {"id": 600 + len(self.repo_features), "description": None, "default_enabled": False, **body}
+            self.repo_features.append(feature)
+            return httpx.Response(201, json=feature)
+        if path == "/api/v1/environments/env-dev6/featurestates/":
+            return httpx.Response(200, json={"count": 1, "next": None, "results": [
+                {"id": 60, "feature": f["id"], "enabled": True, "identity": None, "feature_segment": None}
+                for f in self.repo_features]})
         if path == "/api/v1/environments/" and q.get("project") == "5":
             return httpx.Response(200, json={"count": 1, "next": None,
                                              "results": [{"id": 7, "name": "Production", "api_key": "env-prod"}]})
@@ -113,8 +136,8 @@ def test_sync_imports_links_updates(client, fake):
     integ = make_integration(client)
     r = client.post(f"/api/integrations/{integ['id']}/sync")
     assert r.status_code == 200, r.text
-    assert r.json() == {"created": 1, "linked": 1, "updated": 1, "unchanged": 0,
-                        "conflicts": [], "missing_in_flagsmith": []}
+    assert r.json() == {"projects": ["web-app"], "created": 1, "linked": 1, "updated": 1,
+                        "unchanged": 0, "conflicts": [], "missing_in_flagsmith": []}
 
     flags = {f["name"]: f for f in client.get("/api/flags").json()}
     assert flags["new_checkout"]["flagsmith_id"] == "11"

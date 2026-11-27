@@ -1,13 +1,14 @@
 from datetime import datetime
 
-from sqlalchemy import JSON, DateTime, String, Text
+from sqlalchemy import DateTime, ForeignKey, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.tenancy import TenantScoped
 from app.models.base import new_id, utc_now
 
 
-class Integration(Base):
+class Integration(TenantScoped, Base):
     """A connection to an external system (Flagsmith, GitHub).
 
     `config` holds NON-secret settings (base URL, project id, environment key).

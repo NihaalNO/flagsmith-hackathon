@@ -12,6 +12,9 @@ class GitHubSyncResult(BaseModel):
     repositories_added: int
     repositories_updated: int
     repositories: list[str]
+    projects_created: list[str] = []
+    projects_linked: list[str] = []
+    project_errors: list[str] = []
 
 
 class FlagScanCount(BaseModel):

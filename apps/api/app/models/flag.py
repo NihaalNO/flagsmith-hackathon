@@ -1,22 +1,26 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.tenancy import TenantScoped
 from app.core.lifecycle import LifecycleStatus
 from app.models.base import new_id, utc_now
 
 
-class Flag(Base):
+class Flag(TenantScoped, Base):
     __tablename__ = "flags"
+    # Names are unique per Flagsmith project (each repo gets its own project).
+    __table_args__ = (UniqueConstraint("workspace_id", "flagsmith_project_id", "name", name="uq_flags_project_name"),)
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    name: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(255), index=True)
     description: Mapped[str | None] = mapped_column(String(1000))
 
     # Link to the flag in Flagsmith (source of truth for flag configuration)
     flagsmith_id: Mapped[str | None] = mapped_column(String(255), index=True)
+    flagsmith_project_id: Mapped[int | None] = mapped_column(Integer, index=True)
     integration_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("integrations.id", ondelete="SET NULL"), index=True
     )

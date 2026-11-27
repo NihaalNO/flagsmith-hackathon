@@ -29,6 +29,9 @@ class CurrentUser:
     id: str
     email: str | None
     role: str | None
+    # From the GitHub login (Supabase user_metadata); used to decide workspace access.
+    github_id: str | None = None
+    github_login: str | None = None
 
 
 def decode_token(token: str) -> dict:
@@ -62,6 +65,11 @@ async def get_current_user(
         raise _unauthorized("Token expired")
     except (jwt.PyJWTError, jwt.PyJWKClientError):
         raise _unauthorized("Invalid token")
-    user = CurrentUser(id=claims["sub"], email=claims.get("email"), role=claims.get("role"))
+    meta = claims.get("user_metadata") or {}
+    user = CurrentUser(
+        id=claims["sub"], email=claims.get("email"), role=claims.get("role"),
+        github_id=str(meta["provider_id"]) if meta.get("provider_id") else None,
+        github_login=meta.get("user_name") or meta.get("preferred_username"),
+    )
     current_actor.set(user.email or user.id)
     return user

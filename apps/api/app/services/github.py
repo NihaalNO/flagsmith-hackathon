@@ -96,6 +96,20 @@ class GitHubAppClient:
         tok = self.installation_token(installation_id)
         return self._paginate("/installation/repositories", f"token {tok}", key="repositories")
 
+    def is_org_member(self, installation_id: str, org: str, username: str) -> bool:
+        """Needs the app's "Members: read" organization permission."""
+        tok = self.installation_token(installation_id)
+        try:
+            r = self._http.get(f"/orgs/{org}/members/{username}",
+                               headers={"Authorization": f"token {tok}"}, follow_redirects=False)
+        except httpx.HTTPError as exc:
+            raise GitHubError(f"Could not reach GitHub: {exc}") from exc
+        if r.status_code == 204:
+            return True
+        if r.status_code in (302, 404):
+            return False
+        raise GitHubError(f"GitHub membership check returned {r.status_code}: {r.text[:200]}", r.status_code)
+
     def branch_head_sha(self, installation_id: str, full_name: str, branch: str) -> str:
         tok = self.installation_token(installation_id)
         return self._request("GET", f"/repos/{full_name}/commits/{branch}", f"token {tok}")["sha"]
