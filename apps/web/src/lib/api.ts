@@ -44,7 +44,12 @@ export type GitHubSyncResult = {
 };
 export type FlagsmithSyncResult = {
   projects: string[]; created: number; linked: number; updated: number; unchanged: number;
-  conflicts: string[]; missing_in_flagsmith: string[];
+  conflicts: string[]; missing_in_flagsmith: string[]; environment_states?: number; warnings?: string[];
+};
+export type FlagsmithProject = { id: number; name: string };
+export type RepositoryProjectLinkResult = {
+  repository: Repository; flagsmith_project_name: string;
+  sync: FlagsmithSyncResult | null; sync_error: string | null;
 };
 
 export class ApiError extends Error {
@@ -88,3 +93,5 @@ export const post = <T,>(path: string, body?: unknown) =>
   api<T>(path, { method: "POST", body: body === undefined ? undefined : JSON.stringify(body) });
 export const patch = <T,>(path: string, body: unknown) =>
   api<T>(path, { method: "PATCH", body: JSON.stringify(body) });
+export const put = <T,>(path: string, body: unknown) =>
+  api<T>(path, { method: "PUT", body: JSON.stringify(body) });

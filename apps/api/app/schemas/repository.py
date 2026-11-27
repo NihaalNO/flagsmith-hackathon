@@ -23,3 +23,16 @@ class RepositoryResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class RepositoryProjectLink(BaseModel):
+    flagsmith_project_id: int = Field(description="Existing Flagsmith project that holds this repository's flags")
+    integration_id: str | None = Field(
+        default=None, description="Flagsmith integration to use (defaults to the repo's, then the workspace's)")
+
+
+class RepositoryProjectLinkResult(BaseModel):
+    repository: RepositoryResponse
+    flagsmith_project_name: str
+    sync: dict | None = Field(description="Flagsmith sync result (same shape as POST /api/integrations/{id}/sync)")
+    sync_error: str | None = None

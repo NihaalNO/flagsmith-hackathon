@@ -92,6 +92,7 @@ Interactive docs: `/docs` (Swagger) and `/redoc`. Machine-readable schema: `/ope
 | GET | `/api/flags/lifecycle/transitions` | Map of status → allowed next statuses |
 | GET/POST | `/api/repositories` | List / register a repo (`{"full_name": "org/repo"}`) |
 | GET/DELETE | `/api/repositories/{id}` | Get / remove repo |
+| PUT | `/api/repositories/{id}/flagsmith-project` | `{"flagsmith_project_id": 5}` → link the repo to an existing Flagsmith project (404 if the key can't see it) and sync its flags → `{repository, flagsmith_project_name, sync, sync_error}` |
 | GET/POST | `/api/integrations` | List / add integration (`provider`: `flagsmith` \| `github`, optional write-only `api_token`) |
 | GET/PATCH/DELETE | `/api/integrations/{id}` | Get / update (name, config, rotate `api_token`) / remove |
 | POST | `/api/integrations/{id}/test` | Check the API key → `{ok, detail, organisations}`; sets `status` |

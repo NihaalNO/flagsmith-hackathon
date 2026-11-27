@@ -6,10 +6,14 @@ import { GithubMark } from "@/components/seshat/github-mark";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSession } from "@/components/seshat/session";
 import { useData } from "@/components/seshat/use-data";
-import { post, type GitHubSyncResult, type Repository, type ScanResult } from "@/lib/api";
+import {
+  post, put, type FlagsmithProject, type GitHubSyncResult, type Integration, type Repository,
+  type RepositoryProjectLinkResult, type ScanResult,
+} from "@/lib/api";
 import { timeAgo } from "@/lib/lifecycle";
 
 function RepositoriesView() {
@@ -18,6 +22,32 @@ function RepositoriesView() {
   const [importing, setImporting] = useState(false);
   const [scanning, setScanning] = useState<string | null>(null);
   const [results, setResults] = useState<Record<string, ScanResult>>({});
+  const [linking, setLinking] = useState<string | null>(null);
+  const integrations = useData<Integration[]>("/api/integrations");
+  const flagsmith = integrations.data?.find((i) => i.provider === "flagsmith" && i.has_secret);
+  const projects = useData<FlagsmithProject[]>(flagsmith ? `/api/integrations/${flagsmith.id}/flagsmith/projects` : null);
+  const projectName = (id: number | null) =>
+    id == null ? null : projects.data?.find((p) => p.id === id)?.name ?? `#${id}`;
+
+  async function linkProject(repo: Repository, projectId: number) {
+    if (projectId === repo.flagsmith_project_id) return;
+    setLinking(repo.id);
+    try {
+      const r = await put<RepositoryProjectLinkResult>(`/api/repositories/${repo.id}/flagsmith-project`,
+        { flagsmith_project_id: projectId });
+      if (r.sync) {
+        const s = r.sync;
+        toast.success(`${repo.full_name} now uses “${r.flagsmith_project_name}”: ` +
+          `${s.created} flag${s.created === 1 ? "" : "s"} imported, ${s.updated} updated. Scan to find them in code.`);
+      }
+      if (r.sync_error) toast.error(r.sync_error);
+      repos.reload();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setLinking(null);
+    }
+  }
 
   async function importRepos() {
     setImporting(true);
@@ -55,8 +85,10 @@ function RepositoriesView() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Repositories</h1>
           <p className="mt-1 max-w-[65ch] text-muted-foreground">
-            Repositories the GitHub App can read in {workspace?.name}. Each one gets its own Flagsmith project.
-            Scanning finds every place a flag&apos;s key appears in the default branch.
+            Repositories the GitHub App can read in {workspace?.name}. Each one is linked to a Flagsmith project:
+            an existing one with a matching name, otherwise a new one. If a repository&apos;s flags live in a
+            different project, choose it below. Scanning finds every place a flag&apos;s key appears in the
+            default branch.
           </p>
         </div>
         <div className="flex gap-2">
@@ -102,9 +134,25 @@ function RepositoriesView() {
                     <span className="block text-xs text-muted-foreground">{r.default_branch}</span>
                   </TableCell>
                   <TableCell>
-                    {r.flagsmith_project_id
-                      ? <span>#{r.flagsmith_project_id}</span>
-                      : <span className="text-muted-foreground">Not created yet</span>}
+                    {projects.data ? (
+                      <Select value={r.flagsmith_project_id} disabled={linking !== null}
+                        onValueChange={(v) => { if (v != null) linkProject(r, Number(v)); }}>
+                        <SelectTrigger className="w-56" aria-label={`Flagsmith project for ${r.full_name}`}>
+                          <SelectValue placeholder="Choose a project">
+                            {(v: number | null) => (linking === r.id ? "Linking…" : projectName(v) ?? "Choose a project")}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[...projects.data].sort((a, b) => a.name.localeCompare(b.name)).map((p) => (
+                            <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : r.flagsmith_project_id
+                      ? <span>{projectName(r.flagsmith_project_id)}</span>
+                      : <span className="text-muted-foreground">
+                          {flagsmith ? "Not linked yet" : "Connect Flagsmith on Connections to link a project"}
+                        </span>}
                   </TableCell>
                   <TableCell>
                     {timeAgo(r.last_scanned_at)}
