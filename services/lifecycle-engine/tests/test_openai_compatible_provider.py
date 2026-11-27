@@ -83,6 +83,13 @@ def test_no_api_key_means_no_auth_header():
     assert "Authorization" not in calls[0]["headers"]
 
 
+def test_sends_explicit_user_agent():
+    # Cloudflare-fronted APIs (Groq) answer 403 to urllib's default "Python-urllib" agent.
+    calls = []
+    call(provider(post=fake_post(calls=calls)))
+    assert not calls[0]["headers"]["User-Agent"].startswith("Python-urllib")
+
+
 # --- response handling ------------------------------------------------------------------
 
 @pytest.mark.parametrize("content", ['```json\n{"a": 1}\n```', '```\n{"a": 1}\n```', '  {"a": 1}  '])

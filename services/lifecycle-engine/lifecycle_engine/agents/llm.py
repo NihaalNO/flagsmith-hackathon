@@ -291,7 +291,10 @@ class OpenAICompatibleProvider:
         return f"{self.base_url}/chat/completions"
 
     def build_request(self, system: str, prompt: str, schema: dict) -> tuple[dict, dict]:
-        headers = {"Content-Type": "application/json", "Accept": "application/json"}
+        # An explicit User-Agent: Cloudflare-fronted APIs (Groq) block urllib's default
+        # "Python-urllib/x.y" with HTTP 403 (error 1010).
+        headers = {"Content-Type": "application/json", "Accept": "application/json",
+                   "User-Agent": "flagpilot-lifecycle-engine"}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
         user = prompt
