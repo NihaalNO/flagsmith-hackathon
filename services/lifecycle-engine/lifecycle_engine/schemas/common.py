@@ -6,11 +6,16 @@ import hashlib
 from datetime import datetime, timezone
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def as_utc(value: datetime) -> datetime:
+    """Treat naive datetimes as UTC (some databases/drivers drop the timezone)."""
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
 
 
 def stable_id(prefix: str, *parts: object, length: int = 16) -> str:
@@ -22,7 +27,13 @@ def stable_id(prefix: str, *parts: object, length: int = 16) -> str:
 class EngineModel(BaseModel):
     """Base for all engine schemas: strict field names, JSON-friendly enums."""
 
-    model_config = ConfigDict(extra="forbid", use_enum_values=False, populate_by_name=True)
+    model_config = ConfigDict(extra="forbid", use_enum_values=False, populate_by_name=True, validate_assignment=True)
+
+    @field_validator("*", mode="after")
+    @classmethod
+    def _naive_datetimes_are_utc(cls, value):
+        # Every timestamp the engine compares must be timezone-aware.
+        return as_utc(value) if isinstance(value, datetime) else value
 
 
 class SourceSpan(EngineModel):

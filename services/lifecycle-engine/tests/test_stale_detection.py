@@ -179,3 +179,14 @@ def test_sample_new_checkout_held_by_dynamic_reference(sample_targets):
     f = D.evaluate("new_checkout", config=cfg, analysis=a, now=NOW)
     assert f.status == StaleStatus.POTENTIALLY_STALE
     assert [b.kind for b in f.blockers] == ["dynamic_references"]
+
+
+def test_naive_datetimes_are_treated_as_utc(analysis):
+    """Databases such as SQLite return naive datetimes; they must not crash comparisons."""
+    from datetime import datetime as dt
+
+    cfg = released_config(created_at=dt(2026, 1, 1))
+    cfg.environments[1].updated_at = dt(2026, 6, 1)
+    assert cfg.created_at.tzinfo is not None and cfg.environments[1].updated_at.tzinfo is not None
+    f = D.evaluate("f", config=cfg, analysis=analysis(), coverage=FULL, now=NOW)
+    assert f.status == StaleStatus.READY_FOR_CLEANUP
