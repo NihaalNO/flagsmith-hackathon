@@ -1,18 +1,21 @@
 "use client";
 
-import type { Flag } from "@/lib/api";
+import type { Flag, FlagVerdictSummary } from "@/lib/api";
 import { stage } from "@/lib/lifecycle";
+import { activityLabel, usefulnessLabel, VerdictTags } from "./verdict";
 
 /** A flag as a flight progress strip: stage band, key, and boxed cells. */
-export function Strip({ flag, onOpen }: { flag: Flag; onOpen: () => void }) {
+export function Strip({ flag, onOpen, verdict }: { flag: Flag; onOpen: () => void; verdict?: FlagVerdictSummary }) {
   const s = stage(flag.lifecycle_status);
+  const v = verdict?.activity && verdict.usefulness
+    ? `, ${activityLabel(verdict.activity)}, ${usefulnessLabel(verdict.usefulness)}` : "";
   return (
     <button
       onClick={onOpen}
       className="group grid w-full grid-cols-[10px_1fr] overflow-hidden rounded-[3px] bg-[var(--paper)] text-left
                  text-[var(--ink)] shadow-[0_1px_0_rgba(0,0,0,.35)] transition-transform
                  hover:-translate-y-px focus-visible:-translate-y-px"
-      aria-label={`${flag.name}, ${s.label}${flag.enabled ? ", on" : ", off"}`}
+      aria-label={`${flag.name}, ${s.label}${flag.enabled ? ", on" : ", off"}${v}`}
     >
       <span style={{ background: s.band }} aria-hidden />
       <span className="min-w-0">
@@ -22,6 +25,10 @@ export function Strip({ flag, onOpen }: { flag: Flag; onOpen: () => void }) {
             <span className="mt-0.5 line-clamp-2 block text-[13px] leading-snug text-[var(--ink-soft)]">
               {flag.description}
             </span>
+          )}
+          {verdict && (
+            <VerdictTags activity={verdict.activity} usefulness={verdict.usefulness}
+              className="mt-1 text-[12px] text-[var(--ink-soft)]" />
           )}
         </span>
         <span className="grid grid-cols-[1fr_1fr_auto] border-t border-[var(--paper-line)] text-[12px]">

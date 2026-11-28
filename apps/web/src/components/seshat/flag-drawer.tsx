@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Textarea } from "@/components/ui/textarea";
 import { post, type AuditEntry, type Flag, type LifecycleStatus, type Reference } from "@/lib/api";
 import { STAGES, stage, timeAgo } from "@/lib/lifecycle";
+import { FlagAnalysisSection } from "./flag-analysis";
 import { useData } from "./use-data";
 
 type Transitions = Record<LifecycleStatus, LifecycleStatus[]>;
@@ -27,8 +28,9 @@ function describe(e: AuditEntry): string {
   }
 }
 
-export function FlagDrawer({ flag, transitions, onClose, onChanged }: {
+export function FlagDrawer({ flag, transitions, onClose, onChanged, onAnalyzed }: {
   flag: Flag | null; transitions: Transitions | null; onClose: () => void; onChanged: (f: Flag) => void;
+  onAnalyzed?: () => void;
 }) {
   const refs = useData<Reference[]>(flag ? `/api/flags/${flag.id}/references` : null);
   const history = useData<AuditEntry[]>(flag ? `/api/audit-logs?resource_type=flag&resource_id=${flag.id}&limit=50` : null);
@@ -87,6 +89,8 @@ export function FlagDrawer({ flag, transitions, onClose, onChanged }: {
                 ))}
               </dl>
             </SheetHeader>
+
+            <FlagAnalysisSection key={flag.id} flag={flag} onAnalyzed={onAnalyzed} />
 
             <section className="border-b border-border px-4 py-5" aria-labelledby="move-h">
               <h3 id="move-h" className="font-semibold">Move this flag</h3>

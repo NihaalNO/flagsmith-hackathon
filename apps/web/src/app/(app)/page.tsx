@@ -13,7 +13,10 @@ import { FlagDrawer } from "@/components/seshat/flag-drawer";
 import { NewFlagDialog } from "@/components/seshat/new-flag-dialog";
 import { Strip } from "@/components/seshat/strip";
 import { useData } from "@/components/seshat/use-data";
-import { post, type Flag, type FlagsmithSyncResult, type Integration, type LifecycleStatus, type Repository } from "@/lib/api";
+import {
+  post, type Flag, type FlagsmithSyncResult, type FlagVerdictSummary, type Integration, type LifecycleStatus,
+  type Repository,
+} from "@/lib/api";
 import { STAGES, timeAgo } from "@/lib/lifecycle";
 
 function BoardView() {
@@ -21,6 +24,8 @@ function BoardView() {
   const integrations = useData<Integration[]>("/api/integrations");
   const repos = useData<Repository[]>("/api/repositories");
   const transitions = useData<Record<LifecycleStatus, LifecycleStatus[]>>("/api/flags/lifecycle/transitions");
+  const verdicts = useData<FlagVerdictSummary[]>("/api/flag-verdicts");
+  const verdictOf = useMemo(() => new Map(verdicts.data?.map((v) => [v.flag_id, v]) ?? []), [verdicts.data]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -97,7 +102,7 @@ function BoardView() {
               <div className="relative min-h-0 flex-1">
                 <div className="h-full space-y-2 overflow-y-auto px-2 pt-1 pb-6">
                   {flags.loading && !flags.data && <Skeleton className="h-16 w-full" />}
-                  {items.map((f) => <Strip key={f.id} flag={f} onOpen={() => setOpenId(f.id)} />)}
+                  {items.map((f) => <Strip key={f.id} flag={f} verdict={verdictOf.get(f.id)} onOpen={() => setOpenId(f.id)} />)}
                 </div>
                 <ProgressiveBlur position="bottom" height="28px" blurAmount="2px" backgroundColor="#2e3944" />
               </div>
@@ -111,6 +116,7 @@ function BoardView() {
         transitions={transitions.data}
         onClose={() => setOpenId(null)}
         onChanged={(f) => flags.setData((all) => all?.map((x) => (x.id === f.id ? f : x)) ?? null)}
+        onAnalyzed={verdicts.reload}
       />
       <NewFlagDialog open={creating} onOpenChange={setCreating} repos={repos.data ?? []}
         onCreated={(f) => flags.setData((all) => [f, ...(all ?? [])])} />

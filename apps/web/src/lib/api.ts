@@ -95,3 +95,56 @@ export const patch = <T,>(path: string, body: unknown) =>
   api<T>(path, { method: "PATCH", body: JSON.stringify(body) });
 export const put = <T,>(path: string, body: unknown) =>
   api<T>(path, { method: "PUT", body: JSON.stringify(body) });
+
+// --- Lifecycle analysis: flag verdict ----------------------------------------------------------
+export type Activity = "active" | "inactive" | "unknown";
+export type Usefulness = "useful" | "not_useful" | "uncertain";
+export type VerdictReason = { text: string; points_to: string; evidence_ids: string[] };
+export type LLMUsage = {
+  status: "not_configured" | "used" | "unavailable" | "rejected_invalid_output";
+  provider: string | null; model: string | null; validation_errors: string[]; error: string | null;
+};
+export type FlagVerdict = {
+  flag_name: string; activity: Activity; usefulness: Usefulness; confidence: number;
+  activity_reasons: VerdictReason[]; usefulness_reasons: VerdictReason[];
+  recommendation: string; explanation: string; caveats: string[]; llm: LLMUsage; evaluated_at: string;
+};
+export type FlagAnalysis = {
+  id: string; flag_id: string; stale_status: string; suggested_state: string; recommended_action: string;
+  activity: Activity | null; usefulness: Usefulness | null; verdict_confidence: number | null;
+  confirmed_references: number; dynamic_references: number; created_at: string; created_by: string | null;
+  repositories: { full_name: string; commit_sha: string }[];
+  result: { verdict?: FlagVerdict; data_notes?: string[] } & Record<string, unknown>;
+};
+export type FlagVerdictSummary = {
+  flag_id: string; analysis_id: string; activity: Activity | null; usefulness: Usefulness | null;
+  confidence: number | null; stale_status: string; analyzed_at: string;
+};
+
+// --- A/B experiments --------------------------------------------------------------------------
+export type ExperimentStatus = "draft" | "running" | "stopped" | "concluded";
+export type ExperimentVariant = {
+  key: string; name: string | null; is_control: boolean; expected_share: number | null; flagsmith_option_id: number | null;
+};
+export type VariantResult = {
+  key: string; is_control: boolean; exposures: number; conversions: number;
+  conversion_rate: number | null; rate_ci_low: number | null; rate_ci_high: number | null;
+  absolute_lift: number | null; relative_lift: number | null; lift_ci_low: number | null; lift_ci_high: number | null;
+  p_value: number | null; p_value_adjusted: number | null; significant: boolean;
+  probability_to_beat_control: number | null; required_exposures: number | null;
+};
+export type ExperimentResults = {
+  decision: "keep_running" | "trending" | "winner" | "control_better" | "no_significant_difference" | "invalid";
+  winner: string | null; summary: string; variants: VariantResult[];
+  sample_ratio: { checked: boolean; mismatch: boolean; p_value: number | null; detail: string };
+  total_exposures: number; total_conversions: number; progress: number; warnings: string[];
+};
+export type Experiment = {
+  id: string; flag_id: string; flag_name: string | null; name: string; hypothesis: string | null;
+  primary_metric: string; environment_name: string | null; variants: ExperimentVariant[];
+  minimum_detectable_effect: number; alpha: number; status: ExperimentStatus;
+  started_at: string | null; stopped_at: string | null; concluded_at: string | null;
+  winner: string | null; conclusion_note: string | null; created_by: string | null; created_at: string;
+  results: ExperimentResults | null; results_error: string | null;
+};
+export type ExperimentWithKey = Experiment & { ingest_key: string; ingest_example: string };

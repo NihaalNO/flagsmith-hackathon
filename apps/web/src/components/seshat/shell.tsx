@@ -12,6 +12,7 @@ import { useSession } from "./session";
 
 const NAV = [
   { href: "/", label: "Board" },
+  { href: "/experiments", label: "Experiments" },
   { href: "/repositories", label: "Repositories" },
   { href: "/connections", label: "Connections" },
   { href: "/activity", label: "Activity" },
