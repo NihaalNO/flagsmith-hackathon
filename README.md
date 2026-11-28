@@ -1,4 +1,4 @@
-# FlagPilot
+# Seshat
 
 **FlagPilot** (web app: **Seshat**) is a feature-flag lifecycle agent for teams using
 [Flagsmith](https://flagsmith.com) and GitHub. It follows every flag from first commit to final
