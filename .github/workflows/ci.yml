@@ -168,6 +168,14 @@ jobs:
           node-version: 24
       - if: steps.check.outputs.ok == 'true'
         run: npm i -g vercel@latest
+      # `vercel build` for the Python API needs Python and uv on the runner.
+      - uses: actions/setup-python@v5
+        if: steps.check.outputs.ok == 'true' && matrix.name == 'api'
+        with:
+          python-version-file: apps/api/.python-version
+      - name: Install uv (required by Vercel's Python builder)
+        if: steps.check.outputs.ok == 'true' && matrix.name == 'api'
+        run: pip install uv
       - name: Vendor the lifecycle engine into the API bundle
         if: steps.check.outputs.ok == 'true' && matrix.name == 'api'
         run: scripts/vendor-engine.sh
