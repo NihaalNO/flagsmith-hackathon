@@ -181,7 +181,11 @@ jobs:
         run: scripts/vendor-engine.sh
       - if: steps.check.outputs.ok == 'true'
         run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-      - if: steps.check.outputs.ok == 'true'
+      - if: steps.check.outputs.ok == 'true' && matrix.name == 'api'
         run: vercel build --prod --token="$VERCEL_TOKEN"
-      - if: steps.check.outputs.ok == 'true'
+      # Vercel cannot pull sensitive values into a local build; build the web
+      # app remotely so its production environment variables are available.
+      - if: steps.check.outputs.ok == 'true' && matrix.name == 'web'
+        run: vercel deploy --prod --token="$VERCEL_TOKEN"
+      - if: steps.check.outputs.ok == 'true' && matrix.name == 'api'
         run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
