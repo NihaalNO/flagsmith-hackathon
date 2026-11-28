@@ -23,6 +23,9 @@ class FlagAnalysisSummary(BaseModel):
     potential_references: int
     dynamic_references: int
     llm_status: str
+    activity: str | None = Field(default=None, description="active | inactive | unknown (null for older analyses)")
+    usefulness: str | None = Field(default=None, description="useful | not_useful | uncertain")
+    verdict_confidence: float | None = None
     created_by: str | None
     created_at: datetime
 
@@ -51,3 +54,13 @@ class FlagEnvironmentStateResponse(BaseModel):
     percentage_allocation: float | None = Field(description="Multivariate split; None = no split")
     last_modified_at: datetime | None
     synced_at: datetime
+
+
+class FlagVerdictSummary(BaseModel):
+    flag_id: str
+    analysis_id: str
+    activity: str | None
+    usefulness: str | None
+    confidence: float | None
+    stale_status: str
+    analyzed_at: datetime

@@ -60,7 +60,24 @@ def _feature_metadata(feature: dict, tags: dict[int, str]) -> dict:
             int(o["id"]) if isinstance(o, dict) else int(o) for o in owners],
         "flagsmith_type": feature.get("type") or None,
         "is_archived_in_flagsmith": bool(feature.get("is_archived", False)),
+        "flagsmith_variants": _variants(feature),
     }
+
+
+def _variants(feature: dict) -> list[dict] | None:
+    """Multivariate options: [{"option_id", "value", "default_allocation"}]; None when absent."""
+    options = feature.get("multivariate_options")
+    if options is None:
+        return None
+    out = []
+    for o in options:
+        kind = (o.get("type") or "").lower()
+        value = {"unicode": o.get("string_value"), "int": o.get("integer_value"), "bool": o.get("boolean_value")}.get(kind)
+        if value is None:
+            value = next((o[k] for k in ("string_value", "integer_value", "boolean_value") if o.get(k) is not None), None)
+        out.append({"option_id": o.get("id"), "value": value,
+                    "default_allocation": float(o.get("default_percentage_allocation") or 0)})
+    return out
 
 
 def _split(fs: dict) -> float | None:

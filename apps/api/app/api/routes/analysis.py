@@ -7,16 +7,23 @@ Flagsmith or any repository.
 """
 
 from fastapi import APIRouter, Body, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.auth import current_actor
 from app.core.database import get_db
+from app.models.experiment import Experiment
 from app.models.flag import Flag
 from app.models.flag_analysis import FlagAnalysis
 from app.models.flag_environment_state import FlagEnvironmentState
 from app.models.repository import Repository
-from app.schemas.analysis import AnalyzeRequest, FlagAnalysisResponse, FlagAnalysisSummary, FlagEnvironmentStateResponse
+from app.schemas.analysis import (
+    AnalyzeRequest,
+    FlagAnalysisResponse,
+    FlagAnalysisSummary,
+    FlagEnvironmentStateResponse,
+    FlagVerdictSummary,
+)
 from app.services import audit
 from app.services.engine import EngineUnavailable, RepoSnapshot, analyze_flag, engine_version
 from app.services.github import GitHubClientFactory, GitHubError, get_github_client_factory
@@ -33,15 +40,15 @@ def _flag_or_404(db: Session, flag_id: str) -> Flag:
     return flag
 
 
-def _repositories_for(db: Session, flag: Flag) -> list[Repository]:
+def _repositories_for(db: Session, flag: Flag) -> tuple[list[Repository], bool]:
     """The repos whose code can evaluate this flag: those linked to the flag's Flagsmith
-    project, or every GitHub-connected repo when the flag has no project."""
+    project, or every GitHub-connected repo when none is linked. Returns (repos, linked)."""
     stmt = select(Repository).where(Repository.installation_id.is_not(None)).order_by(Repository.full_name)
     if flag.flagsmith_project_id is not None:
         linked = db.scalars(stmt.where(Repository.flagsmith_project_id == flag.flagsmith_project_id)).all()
         if linked:
-            return list(linked)
-    return list(db.scalars(stmt).all())
+            return list(linked), True
+    return list(db.scalars(stmt).all()), False
 
 
 def _states(db: Session, flag_id: str) -> list[FlagEnvironmentState]:
@@ -64,27 +71,43 @@ def run_analysis(flag_id: str, payload: AnalyzeRequest = Body(default_factory=An
         engine_version()
     except EngineUnavailable as exc:
         raise HTTPException(503, str(exc))
-    repos = _repositories_for(db, flag)
+    repos, linked = _repositories_for(db, flag)
     if not repos:
         raise HTTPException(400, "No GitHub-connected repositories to analyze; install the GitHub App and run POST /api/github/sync")
     if len(repos) > MAX_REPOS_PER_ANALYSIS:
         raise HTTPException(400, f"Flag maps to {len(repos)} repositories; link it to a Flagsmith project "
                                  f"(at most {MAX_REPOS_PER_ANALYSIS} repositories per analysis)")
+    # Each repository is fetched on its own: one empty, deleted or no-longer-shared repo
+    # shouldn't sink the analysis of the others.
     snapshots: list[RepoSnapshot] = []
+    skipped: list[str] = []
     try:
         with make_client() as gh:
             for repo in repos:
-                sha = gh.branch_head_sha(repo.installation_id, repo.full_name, repo.default_branch)
-                snapshots.append(RepoSnapshot(repo.full_name, sha,
-                                              gh.download_tarball(repo.installation_id, repo.full_name, sha)))
-    except GitHubError as exc:
+                try:
+                    sha = gh.branch_head_sha(repo.installation_id, repo.full_name, repo.default_branch)
+                    snapshots.append(RepoSnapshot(repo.full_name, sha,
+                                                  gh.download_tarball(repo.installation_id, repo.full_name, sha)))
+                except GitHubError as exc:
+                    skipped.append(f"{repo.full_name} ({repo.default_branch}): {exc}")
+    except GitHubError as exc:  # e.g. the GitHub App credentials themselves don't work
         raise HTTPException(502, f"GitHub: {exc}")
+    if not snapshots:
+        raise HTTPException(502, "GitHub: could not read any repository for this flag: " + "; ".join(skipped))
 
     try:
-        result = analyze_flag(flag, snapshots, states=_states(db, flag.id), use_llm=payload.use_llm)
+        experiments = [{"name": x.name, "status": x.status}
+                       for x in db.scalars(select(Experiment).where(Experiment.flag_id == flag.id)).all()]
+        result = analyze_flag(flag, snapshots, states=_states(db, flag.id), experiments=experiments,
+                              use_llm=payload.use_llm)
     except EngineUnavailable as exc:
         raise HTTPException(503, str(exc))
 
+    notes = result.setdefault("data_notes", [])
+    if not linked:
+        notes.insert(0, "no repository is linked to this flag's Flagsmith project, so every connected repository "
+                        "was analyzed; link the right one on the Repositories page")
+    notes.extend(f"repository skipped, couldn't be read from GitHub: {s}" for s in skipped)
     analysis, stale = result["analysis"], result["stale_finding"]
     refs = analysis["references"]
     row = FlagAnalysis(
@@ -99,6 +122,9 @@ def run_analysis(flag_id: str, payload: AnalyzeRequest = Body(default_factory=An
         potential_references=sum(r["classification"] == "potential" for r in refs),
         dynamic_references=len(analysis["unresolved_dynamic_references"]),
         llm_status=result["cleanup_plan"]["llm"]["status"],
+        activity=result["verdict"]["activity"],
+        usefulness=result["verdict"]["usefulness"],
+        verdict_confidence=result["verdict"]["confidence"],
         result=result,
         created_by=current_actor.get(),
     )
@@ -112,14 +138,29 @@ def run_analysis(flag_id: str, payload: AnalyzeRequest = Body(default_factory=An
     return _response(row)
 
 
-@router.get("/{flag_id}/analysis", response_model=FlagAnalysisResponse, summary="Latest lifecycle analysis of a flag")
+# Own path (not /flags/verdicts): the flags router's GET /flags/{flag_id} would capture it.
+verdict_router = APIRouter(tags=["Flags"])
+
+
+@verdict_router.get("/flag-verdicts", response_model=list[FlagVerdictSummary],
+                    summary="Latest active/useful verdict for every analyzed flag")
+def flag_verdicts(db: Session = Depends(get_db)):
+    latest = (select(FlagAnalysis.flag_id, func.max(FlagAnalysis.created_at).label("at"))
+              .group_by(FlagAnalysis.flag_id).subquery())
+    rows = db.scalars(select(FlagAnalysis).join(
+        latest, (FlagAnalysis.flag_id == latest.c.flag_id) & (FlagAnalysis.created_at == latest.c.at))).all()
+    return [{"flag_id": r.flag_id, "analysis_id": r.id, "activity": r.activity, "usefulness": r.usefulness,
+             "confidence": r.verdict_confidence, "stale_status": r.stale_status, "analyzed_at": r.created_at}
+            for r in rows]
+
+
+@router.get("/{flag_id}/analysis", response_model=FlagAnalysisResponse | None,
+            summary="Latest lifecycle analysis of a flag (null if it has never been analyzed)")
 def latest_analysis(flag_id: str, db: Session = Depends(get_db)):
     _flag_or_404(db, flag_id)
     row = db.scalars(select(FlagAnalysis).where(FlagAnalysis.flag_id == flag_id)
                      .order_by(FlagAnalysis.created_at.desc()).limit(1)).first()
-    if row is None:
-        raise HTTPException(404, "Flag has not been analyzed yet; POST to this URL to run the analysis")
-    return _response(row)
+    return None if row is None else _response(row)
 
 
 @router.get("/{flag_id}/analyses", response_model=list[FlagAnalysisSummary], summary="Analysis history of a flag")

@@ -27,6 +27,10 @@ class FlagAnalysis(TenantScoped, Base):
     potential_references: Mapped[int] = mapped_column(Integer, default=0)
     dynamic_references: Mapped[int] = mapped_column(Integer, default=0)
     llm_status: Mapped[str] = mapped_column(String(40))
+    # Flag verdict: active | inactive | unknown, useful | not_useful | uncertain (None for older rows).
+    activity: Mapped[str | None] = mapped_column(String(20))
+    usefulness: Mapped[str | None] = mapped_column(String(20))
+    verdict_confidence: Mapped[float | None] = mapped_column(Float)
     result: Mapped[dict] = mapped_column(JSON, default=dict)
     created_by: Mapped[str | None] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, index=True)

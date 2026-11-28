@@ -32,6 +32,10 @@ def _engine():
         import lifecycle_engine  # noqa: F401
         from lifecycle_engine.agents import llm as engine_llm
         from lifecycle_engine.agents.planner import CleanupPlanner
+        from lifecycle_engine.agents.verdict import assess_flag
+        from lifecycle_engine.experiments.stats import analyze_experiment
+        from lifecycle_engine.schemas import experiments as X
+        from lifecycle_engine.schemas.verdict import ExperimentStatusInput
         from lifecycle_engine.analyzers.code_intelligence import CodeIntelligence
         from lifecycle_engine.cleanup.patcher import PatchGenerator
         from lifecycle_engine.discovery.scanner import CodebaseSnapshot
@@ -51,6 +55,8 @@ def _engine():
         "StaleFlagDetector": StaleFlagDetector, "F": F, "FlagLifecycle": FlagLifecycle,
         "LifecycleState": LifecycleState, "CleanupDirection": CleanupDirection, "StaleStatus": StaleStatus,
         "evaluate_lifecycle": evaluate_lifecycle,
+        "assess_flag": assess_flag, "analyze_experiment": analyze_experiment, "X": X,
+        "ExperimentStatusInput": ExperimentStatusInput,
     }
 
 
@@ -170,7 +176,7 @@ def flag_configuration(flag: Flag, states: list[FlagEnvironmentState] | None = N
 
 
 def analyze_flag(flag: Flag, repos: list[RepoSnapshot], *, states: list[FlagEnvironmentState] | None = None,
-                 use_llm: bool = True) -> dict:
+                 experiments: list[dict] | None = None, use_llm: bool = True) -> dict:
     """Run discovery, code intelligence, stale detection, lifecycle evaluation and planning
     for one flag over the given repository snapshots. Returns JSON-ready data."""
     E = _engine()
@@ -193,8 +199,13 @@ def analyze_flag(flag: Flag, repos: list[RepoSnapshot], *, states: list[FlagEnvi
             patch = E["PatchGenerator"](targets).generate(
                 flag.name, stale.cleanup_direction, inline_value=stale.inline_value,
                 enabled_state=config.uniform_production_state())
-        planner = E["CleanupPlanner"](llm_provider() if use_llm else None)
+        provider = llm_provider() if use_llm else None
+        planner = E["CleanupPlanner"](provider)
         plan = planner.plan(analysis=analysis, stale=stale, patch=patch, lifecycle_state=lifecycle.state)
+        verdict = E["assess_flag"](
+            config=config, analysis=analysis, stale=stale, llm=provider, policy=detector.policy,
+            experiments=[E["ExperimentStatusInput"](name=x["name"], status=x["status"], decision=x.get("decision"))
+                         for x in (experiments or [])])
         scan_errors = [e.model_dump(mode="json") for e in snapshot.scan.errors]
 
     return {
@@ -206,6 +217,19 @@ def analyze_flag(flag: Flag, repos: list[RepoSnapshot], *, states: list[FlagEnvi
         "lifecycle_evaluation": evaluation.model_dump(mode="json"),
         "cleanup_plan": plan.model_dump(mode="json"),
         "patch": patch.model_dump(mode="json") if patch is not None else None,
+        "verdict": verdict.model_dump(mode="json"),
         "scan_errors": scan_errors,
         "data_notes": data_notes,
     }
+
+
+def experiment_results(variants: list[dict], counts: dict[str, tuple[int, int]], *, minimum_detectable_effect: float,
+                       alpha: float) -> dict:
+    """Run the engine's A/B statistics. `counts` maps variant key -> (exposures, conversions)."""
+    E = _engine()
+    X = E["X"]
+    inputs = [X.VariantInput(key=v["key"], is_control=bool(v.get("is_control")), expected_share=v.get("expected_share"),
+                             exposures=counts.get(v["key"], (0, 0))[0], conversions=counts.get(v["key"], (0, 0))[1])
+              for v in variants]
+    design = X.ExperimentDesign(minimum_detectable_effect=minimum_detectable_effect, alpha=alpha)
+    return E["analyze_experiment"](inputs, design).model_dump(mode="json")

@@ -141,7 +141,8 @@ def test_history_keeps_every_run(setup):
 
 def test_not_analyzed_yet_and_unknown_flag(client):
     flag = client.post("/api/flags", json={"name": "x"}).json()
-    assert client.get(f"/api/flags/{flag['id']}/analysis").status_code == 404
+    r = client.get(f"/api/flags/{flag['id']}/analysis")   # never analyzed: a normal state, not an error
+    assert r.status_code == 200 and r.json() is None
     assert client.post("/api/flags/nope/analysis", json={}).status_code == 404
 
 
@@ -253,7 +254,8 @@ def test_openai_compatible_provider_from_settings(setup, monkeypatch):
     plan = body["result"]["cleanup_plan"]
     assert plan["llm"]["provider"] == "openai-compatible" and plan["llm"]["model"] == "gpt-test"
     assert plan["reasoning_summary"] == "Narrative from an OpenAI-compatible server."
-    assert seen == [{"path": "/v1/chat/completions", "auth": "Bearer sk-test", "model": "gpt-test"}]
+    # Two requests per analysis: the cleanup-plan narrative and the flag-verdict explanation.
+    assert seen == [{"path": "/v1/chat/completions", "auth": "Bearer sk-test", "model": "gpt-test"}] * 2
 
 
 @needs_engine
@@ -299,7 +301,7 @@ def test_groq_provider_from_settings(setup, monkeypatch):
     finally:
         server.shutdown()
     assert body["llm_status"] == "used" and body["result"]["cleanup_plan"]["llm"]["provider"] == "groq"
-    assert seen == [{"auth": "Bearer gsk_test", "model": "openai/gpt-oss-120b", "format": "json_schema"}]
+    assert seen == [{"auth": "Bearer gsk_test", "model": "openai/gpt-oss-120b", "format": "json_schema"}] * 2  # plan + verdict
 
     monkeypatch.setattr(settings, "groq_api_key", "")
     r = client.post(f"/api/flags/{flag['id']}/analysis", json={})
@@ -323,3 +325,34 @@ def test_misconfigured_llm_provider_is_a_clear_503(setup, monkeypatch, overrides
     assert r.status_code == 503 and "LLM provider misconfigured" in r.json()["detail"] and needle in r.json()["detail"]
     # deterministic analysis still works when the LLM is not requested
     assert client.post(f"/api/flags/{flag['id']}/analysis", json={"use_llm": False}).status_code == 201
+
+
+@needs_engine
+def test_one_unreadable_repository_does_not_fail_the_analysis(setup):
+    """A repo GitHub can't serve (empty, deleted, access removed) is skipped with a note."""
+    client, _, flag = setup
+    with TestingSession() as db:
+        db.add(Repository(workspace_id=WS_ID, full_name="acme/empty", name="empty", default_branch="main",
+                          installation_id="42"))
+        db.commit()
+    r = client.post(f"/api/flags/{flag['id']}/analysis", json={"use_llm": False})
+    assert r.status_code == 201, r.text
+    body = r.json()
+    assert body["repositories"] == [{"full_name": "acme/web", "commit_sha": "abc123"}]
+    notes = body["result"]["data_notes"]
+    assert any(n.startswith("repository skipped") and "acme/empty" in n for n in notes)
+    assert any("no repository is linked" in n for n in notes)   # fallback to every connected repo is explained
+    assert body["confirmed_references"] == 1
+
+
+@needs_engine
+def test_analysis_fails_only_when_no_repository_can_be_read(client):
+    with TestingSession() as db:
+        db.add(Repository(workspace_id=WS_ID, full_name="acme/empty", name="empty", default_branch="main",
+                          installation_id="42"))
+        db.commit()
+    use_github(FakeGitHub())
+    flag = client.post("/api/flags", json={"name": "x"}).json()
+    r = client.post(f"/api/flags/{flag['id']}/analysis", json={})
+    assert r.status_code == 502
+    assert "could not read any repository" in r.json()["detail"] and "acme/empty (main)" in r.json()["detail"]

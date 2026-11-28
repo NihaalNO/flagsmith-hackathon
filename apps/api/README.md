@@ -104,6 +104,12 @@ Interactive docs: `/docs` (Swagger) and `/redoc`. Machine-readable schema: `/ope
 | GET | `/api/flags/{id}/analysis` | Latest stored analysis → 404 if never analyzed |
 | GET | `/api/flags/{id}/analyses` | Analysis history (summaries, newest first) |
 | GET | `/api/flags/{id}/environments` | The flag's state in every Flagsmith environment, as of the last sync |
+| GET | `/api/flag-verdicts` | Latest active/inactive + useful/not-useful verdict per analyzed flag (for board badges) |
+| POST/GET | `/api/flags/{id}/experiments` | Create an A/B experiment on the flag (variants default to its Flagsmith multivariate options; returns the event key once) / list its experiments |
+| GET | `/api/experiments` · `/api/experiments/{id}` | Experiments with live results |
+| PATCH/DELETE | `/api/experiments/{id}` | Edit (design only while draft) / delete (not while running) |
+| POST | `/api/experiments/{id}/start` · `/stop` · `/conclude` · `/rotate-key` | Lifecycle: draft → running ⇄ stopped → concluded (`{"winner", "note"}`) |
+| POST | `/api/experiments/{id}/events` | **Called by your app** with header `X-Experiment-Key` (no user token): `{"events": [{"type": "exposure"\|"conversion", "subject_id", "variant"}]}`, ≤1000 per call |
 
 ### Flag lifecycle
 
@@ -176,9 +182,9 @@ Everything returned is a recommendation. Running an analysis never changes the f
 status, Flagsmith or any repository.
 
 - **Install:** `pip install -r requirements-engine.txt`. The engine is imported lazily, so without it
-  the API runs normally and only these endpoints answer 503. Vercel installs `requirements.txt`, so
-  **the deployed API has no engine yet**; shipping it there needs a decision (a git dependency on
-  `services/lifecycle-engine`, or including it in the build).
+  the API runs normally and only these endpoints answer 503. Deploys include it:
+  `scripts/vendor-engine.sh` copies it into `apps/api` before `vercel build` (the CD job does this),
+  and its runtime dependencies are in `requirements.txt`.
 - **Evidence used:** every synced environment's state (production = names in
   `PRODUCTION_ENVIRONMENT_NAMES`; overrides and multivariate splits count as active targeting; last
   change dates give configuration stability), Flagsmith's creation date, tags, owners and archived
@@ -205,6 +211,38 @@ status, Flagsmith or any repository.
 - Blank values in `.env` count as unset (`env_ignore_empty`), so copying `.env.example` and leaving
   optional entries empty is fine.
 - Runs synchronously in the request, like repository scans; very large repos may hit Vercel's time limit.
+
+## A/B experiments
+
+Read-only towards Flagsmith: you create the multivariate flag and its split there; FlagPilot never
+changes live traffic. An experiment names the flag, a conversion event and its variants (defaulting
+to the flag's Flagsmith options, with the flag's own value as the control).
+
+- **Events:** your server reports an `exposure` when a user is shown a variant and a `conversion`
+  when they reach the goal, authenticated with the experiment's key (shown once, stored as a
+  sha256 hash; rotate it if it leaks). Events are accepted only while the experiment is running.
+  Each user counts once, in the first variant reported; only a salted hash of the user id is
+  stored. Duplicates, variant conflicts, conversions without exposure and unknown variants are
+  counted separately in the response, not silently dropped.
+- **Statistics** (lifecycle engine, `experiments/stats.py`): conversion rate with 95% Wilson
+  interval per variant; lift vs control with confidence interval; two-proportion z-test with Holm
+  correction across variants; Bayesian probability to beat control; chi-square sample-ratio-mismatch
+  check against the planned split; planned sample size for the minimum detectable effect.
+- **Decisions:** `keep_running`, `trending` (significant before the planned sample size: keep
+  going, deciding early inflates false positives), `winner`, `control_better`,
+  `no_significant_difference`, `invalid` (sample-ratio mismatch). Concluding records your decision;
+  rolling it out is done in Flagsmith.
+
+## Flag verdicts (active / useful)
+
+Each analysis (`POST /api/flags/{id}/analysis`) also returns `result.verdict` and stores `activity`
+(`active` | `inactive` | `unknown`) and `usefulness` (`useful` | `not_useful` | `uncertain`) with a
+confidence. The labels come from deterministic rules over verified evidence: code references,
+production state and targeting, recent configuration changes, evaluation counts, tags, owner
+statements and running experiments. Each reason cites its evidence. The configured LLM
+(`FLAGPILOT_LLM_PROVIDER`) only writes the explanation; it's validated like cleanup-plan narratives
+and replaced by a plain summary if invalid or unavailable. An analysis with an LLM therefore makes
+two LLM calls (plan + verdict).
 
 ## Not built yet
 

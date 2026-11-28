@@ -7,7 +7,7 @@ from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.deps import get_workspace
-from app.api.routes import analysis, audit_logs, flags, github, integrations, repositories, workspaces
+from app.api.routes import analysis, audit_logs, experiments, flags, github, integrations, repositories, workspaces
 from app.core.auth import CurrentUser, get_current_user
 from app.core.config import settings
 from sqlalchemy.orm import Session
@@ -35,6 +35,11 @@ app.include_router(workspaces.router, prefix="/api", dependencies=[Depends(get_c
 for module in (flags, analysis, repositories, integrations, github, audit_logs):
     app.include_router(module.router, prefix="/api",
                        dependencies=[Depends(get_current_user), Depends(get_workspace)])
+app.include_router(analysis.verdict_router, prefix="/api", dependencies=[Depends(get_current_user), Depends(get_workspace)])
+app.include_router(experiments.router, prefix="/api", dependencies=[Depends(get_current_user), Depends(get_workspace)])
+# Event ingestion is called by the customer's application with the experiment's own key,
+# not a user token; it resolves the experiment (and its workspace) from that key.
+app.include_router(experiments.events_router, prefix="/api")
 
 
 @app.get("/api/health", tags=["Health"])

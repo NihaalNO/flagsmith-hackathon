@@ -36,6 +36,8 @@ class Flag(TenantScoped, Base):
     flagsmith_owner_ids: Mapped[list | None] = mapped_column(JSON)       # Flagsmith user ids
     flagsmith_type: Mapped[str | None] = mapped_column(String(20))       # STANDARD | MULTIVARIATE
     is_archived_in_flagsmith: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Multivariate options: [{"option_id", "value", "default_allocation"}] (None for standard flags).
+    flagsmith_variants: Mapped[list | None] = mapped_column(JSON)
 
     lifecycle_status: Mapped[str] = mapped_column(
         String(50), default=LifecycleStatus.CREATED.value, index=True
