@@ -168,24 +168,11 @@ jobs:
           node-version: 24
       - if: steps.check.outputs.ok == 'true'
         run: npm i -g vercel@latest
-      # `vercel build` for the Python API needs Python and uv on the runner.
-      - uses: actions/setup-python@v5
-        if: steps.check.outputs.ok == 'true' && matrix.name == 'api'
-        with:
-          python-version-file: apps/api/.python-version
-      - name: Install uv (required by Vercel's Python builder)
-        if: steps.check.outputs.ok == 'true' && matrix.name == 'api'
-        run: pip install uv
       - name: Vendor the lifecycle engine into the API bundle
         if: steps.check.outputs.ok == 'true' && matrix.name == 'api'
         run: scripts/vendor-engine.sh
+      # Build on Vercel, not on the runner: remote builds get the project's sensitive
+      # env vars and apply .vercelignore before building. (A runner build bundles files
+      # like alembic/ that .vercelignore then drops from the upload -> ENOENT.)
       - if: steps.check.outputs.ok == 'true'
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-      - if: steps.check.outputs.ok == 'true' && matrix.name == 'api'
-        run: vercel build --prod --token="$VERCEL_TOKEN"
-      # Vercel cannot pull sensitive values into a local build; build the web
-      # app remotely so its production environment variables are available.
-      - if: steps.check.outputs.ok == 'true' && matrix.name == 'web'
-        run: vercel deploy --prod --token="$VERCEL_TOKEN"
-      - if: steps.check.outputs.ok == 'true' && matrix.name == 'api'
-        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        run: vercel deploy --prod --yes --token="$VERCEL_TOKEN"
