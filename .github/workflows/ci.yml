@@ -96,7 +96,7 @@ jobs:
       - run: npm run build
 
   # ---------------------------------------------------------------- CD ----
-  # Runs only on pushes to main, after every CI job passes.
+  # Runs on pushes to main (and manual runs on main), after every CI job passes.
   # Needs repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_API_PROJECT_ID,
   # VERCEL_WEB_PROJECT_ID, DATABASE_URL (Supabase session pooler URL).
   # Without them the deploy jobs skip instead of failing.
@@ -104,7 +104,7 @@ jobs:
   migrate:
     name: Migrate Supabase
     needs: [api, engine, web]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     environment: production
     defaults:
