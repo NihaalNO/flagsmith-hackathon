@@ -83,7 +83,7 @@ function RepositoriesView() {
     <div className="max-w-5xl px-6 py-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Repositories</h1>
+          <h1 className="text-3xl font-medium tracking-tight">Repositories</h1>
           <p className="mt-1 max-w-[65ch] text-muted-foreground">
             Repositories the GitHub App can read in {workspace?.name}. Each one is linked to a Flagsmith project:
             an existing one with a matching name, otherwise a new one. If a repository&apos;s flags live in a
@@ -105,7 +105,7 @@ function RepositoriesView() {
       {repos.error && <p className="mt-6 text-sm text-destructive">{repos.error}</p>}
       {repos.data?.length === 0 && (
         <div className="mt-10 rounded-md border border-dashed border-border px-6 py-10 text-center">
-          <p className="font-semibold">No repositories yet</p>
+          <p className="font-medium">No repositories yet</p>
           <p className="mt-1 text-muted-foreground">
             Import the repositories you gave the GitHub App access to.
           </p>

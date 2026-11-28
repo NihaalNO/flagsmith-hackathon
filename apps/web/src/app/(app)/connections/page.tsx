@@ -77,13 +77,13 @@ function ConnectionsView() {
 
   return (
     <div className="max-w-3xl px-6 py-6">
-      <h1 className="text-3xl font-semibold tracking-tight">Connections</h1>
+      <h1 className="text-3xl font-medium tracking-tight">Connections</h1>
       <p className="mt-1 text-muted-foreground">Services this workspace uses. Each workspace connects its own.</p>
 
       <section className="mt-8 border-t border-border pt-6" aria-labelledby="fs-h">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 id="fs-h" className="text-xl font-semibold">Flagsmith</h2>
+            <h2 id="fs-h" className="text-xl font-medium">Flagsmith</h2>
             <p className="text-muted-foreground">Source of truth for flag names, descriptions and on/off state.</p>
           </div>
           {st && (
@@ -111,7 +111,7 @@ function ConnectionsView() {
       </section>
 
       <section className="mt-10 border-t border-border pt-6" aria-labelledby="gh-h">
-        <h2 id="gh-h" className="text-xl font-semibold">GitHub</h2>
+        <h2 id="gh-h" className="text-xl font-medium">GitHub</h2>
         <p className="text-muted-foreground">
           The Seshat GitHub App is installed on <strong className="text-foreground">{workspace?.github_account_login}</strong>
           {workspace?.github_account_type === "Organization" ? ", shared with its members." : "."}

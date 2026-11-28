@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronsUpDown, LogOut } from "lucide-react";
-import { TextRoll } from "@/components/ui/skiper-ui/skiper58";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -27,7 +26,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-dvh flex-col md:flex-row">
       <aside className="flex shrink-0 flex-col gap-6 border-b border-sidebar-border bg-sidebar px-5 py-5
                         md:sticky md:top-0 md:h-dvh md:w-56 md:border-b-0 md:border-r">
-        <Wordmark className="text-2xl" />
+        <Wordmark className="text-xl" />
 
         <DropdownMenu>
           <DropdownMenuTrigger className="flex w-full items-center justify-between rounded-md border border-border
@@ -55,13 +54,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <nav aria-label="Main" className="flex gap-5 overflow-x-auto md:flex-col md:gap-3">
+        <nav aria-label="Main" className="flex gap-1 overflow-x-auto md:-mx-2 md:flex-col">
           {NAV.map((item) => {
             const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
               <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined}
-                className={`text-xl font-semibold ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                <TextRoll>{item.label}</TextRoll>
+                className={`rounded-md px-2 py-1.5 text-[15px] font-medium transition-colors ${
+                  active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"}`}>
+                {item.label}
               </Link>
             );
           })}
@@ -75,10 +75,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <LogOut className="size-4" />
             </button>
           </div>
-          <a href="https://skiper-ui.com" target="_blank" rel="noreferrer"
-            className="block text-xs text-muted-foreground/70 hover:text-muted-foreground">
-            Motion components by Skiper UI
-          </a>
         </div>
       </aside>
       <main className="min-w-0 flex-1">{children}</main>

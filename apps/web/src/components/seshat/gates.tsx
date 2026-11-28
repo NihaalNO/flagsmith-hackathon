@@ -1,8 +1,8 @@
 "use client";
 
 import { RefreshCw } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { GithubMark } from "./github-mark";
-import { Landing } from "./landing";
 import { Button } from "@/components/ui/button";
 import { useSession } from "./session";
 
@@ -15,14 +15,11 @@ function Frame({ children }: { children: React.ReactNode }) {
 }
 
 export function Wordmark({ className = "" }: { className?: string }) {
-  // Mark: a strip band split into the lifecycle colours.
+  // The same mark as the landing page: the initial on a small accent tile.
   return (
-    <span className={`inline-flex items-center gap-2 font-semibold tracking-tight ${className}`}>
-      <span aria-hidden className="grid h-[0.9em] w-[0.28em] grid-rows-4 overflow-hidden rounded-[2px]">
-        <span className="bg-[var(--stage-dev)]" />
-        <span className="bg-[var(--stage-rollout)]" />
-        <span className="bg-[var(--stage-released)]" />
-        <span className="bg-[var(--stage-cleanup)]" />
+    <span className={`inline-flex items-center gap-2 font-medium tracking-tight ${className}`}>
+      <span aria-hidden className="grid size-[1em] place-items-center rounded-[4px] bg-primary text-[0.62em] font-semibold text-primary-foreground">
+        S
       </span>
       Seshat
     </span>
@@ -37,9 +34,20 @@ export function Loading({ label }: { label: string }) {
   );
 }
 
+/**
+ * Signed out: the landing page is the static /welcome page. Its "Sign up with GitHub" buttons
+ * link back here with ?signin=github, which starts the GitHub sign-in straight away.
+ */
 export function SignIn() {
   const { signIn } = useSession();
-  return <Landing onSignIn={signIn} />;
+  const started = useRef(false);
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    if (new URLSearchParams(window.location.search).get("signin") === "github") void signIn();
+    else window.location.replace("/welcome");
+  }, [signIn]);
+  return <Loading label="Opening Seshat…" />;
 }
 
 export function InstallApp() {
@@ -47,7 +55,7 @@ export function InstallApp() {
   return (
     <Frame>
       <Wordmark className="text-2xl" />
-      <h1 className="mt-6 text-3xl font-semibold">Connect your GitHub account</h1>
+      <h1 className="mt-6 text-3xl font-medium tracking-tight">Connect your GitHub account</h1>
       <p className="mt-3 leading-relaxed text-muted-foreground">
         Install the Seshat GitHub App on your personal account or an organization. Each account gets its own
         workspace; people in the same organization share it.
@@ -75,7 +83,7 @@ export function PickWorkspace() {
   const { list, chooseWorkspace } = useSession();
   return (
     <Frame>
-      <h1 className="text-3xl font-semibold">Choose a workspace</h1>
+      <h1 className="text-3xl font-medium tracking-tight">Choose a workspace</h1>
       <ul className="mt-6 divide-y divide-border rounded-md border border-border">
         {list?.workspaces.map((w) => (
           <li key={w.id}>
@@ -97,7 +105,7 @@ export function ApiDown({ message }: { message: string }) {
   const { refreshWorkspaces } = useSession();
   return (
     <Frame>
-      <h1 className="text-2xl font-semibold">Seshat can&apos;t reach its server</h1>
+      <h1 className="text-2xl font-medium tracking-tight">Seshat can&apos;t reach its server</h1>
       <p className="mt-3 text-muted-foreground">{message}</p>
       <Button className="mt-6" onClick={refreshWorkspaces}>Try again</Button>
     </Frame>

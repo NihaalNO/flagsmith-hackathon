@@ -1,7 +1,7 @@
 "use client";
 
 import { AppFrame } from "@/components/seshat/app-frame";
-import { Copy, FlaskConical, Plus, Sparkles, Trash2 } from "lucide-react";
+import { Copy, FlaskConical, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -289,7 +289,7 @@ function Results({ r }: { r: ExperimentResults }) {
                   <span className="block text-xs text-muted-foreground">{pts(v.lift_ci_low)} to {pts(v.lift_ci_high)}</span>
                 )}
               </TableCell>
-              <TableCell className={`text-right tabular-nums ${v.significant ? "font-semibold" : ""}`}>
+              <TableCell className={`text-right tabular-nums ${v.significant ? "font-medium" : ""}`}>
                 {v.is_control ? "—" : pval(v.p_value_adjusted)}
               </TableCell>
               <TableCell className="text-right tabular-nums">{v.is_control ? "—" : pct(v.probability_to_beat_control, 0)}</TableCell>
@@ -342,7 +342,7 @@ function ExperimentsView() {
     <div className="max-w-5xl px-6 py-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Experiments</h1>
+          <h1 className="text-3xl font-medium tracking-tight">Experiments</h1>
           <p className="mt-1 max-w-[65ch] text-muted-foreground">
             A/B tests on multivariate flags. Pick a repository and Seshat suggests tests from its code and creates the
             flags in Flagsmith, or run one on a flag you already have. Your app reports exposures and conversions;
@@ -350,12 +350,8 @@ function ExperimentsView() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" className="gap-2" onClick={() => setCreating(true)}>
-            <Plus className="size-4" aria-hidden /> On an existing flag
-          </Button>
-          <Button className="gap-2" onClick={() => setProposing(true)}>
-            <Sparkles className="size-4" aria-hidden /> Experiment on a repo
-          </Button>
+          <Button variant="secondary" onClick={() => setCreating(true)}>Use an existing flag</Button>
+          <Button onClick={() => setProposing(true)}>Suggest experiments</Button>
         </div>
       </header>
 
@@ -363,11 +359,9 @@ function ExperimentsView() {
       {experiments.data?.length === 0 && (
         <div className="mt-10 rounded-md border border-dashed border-border px-6 py-10 text-center">
           <FlaskConical className="mx-auto size-6 text-muted-foreground" aria-hidden />
-          <p className="mt-2 font-semibold">No experiments yet</p>
+          <p className="mt-2 font-medium">No experiments yet</p>
           <p className="mt-1 text-muted-foreground">Pick a repository and Seshat suggests what to test, then creates the flags.</p>
-          <Button className="mt-4 gap-2" onClick={() => setProposing(true)}>
-            <Sparkles className="size-4" aria-hidden /> Experiment on a repo
-          </Button>
+          <Button className="mt-4" onClick={() => setProposing(true)}>Suggest experiments</Button>
         </div>
       )}
 
@@ -376,7 +370,7 @@ function ExperimentsView() {
           <article key={x.id} id={x.id} className="rounded-md border border-border p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <h2 className="text-lg font-semibold">{x.name}</h2>
+                <h2 className="text-lg font-medium">{x.name}</h2>
                 <p className="text-sm text-muted-foreground">
                   <span className="font-mono">{x.flag_name}</span> · conversion: <span className="font-mono">{x.primary_metric}</span>
                   {x.environment_name ? ` · ${x.environment_name}` : ""} · {x.status}

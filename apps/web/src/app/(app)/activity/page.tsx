@@ -31,7 +31,7 @@ function ActivityView() {
   const log = useData<AuditEntry[]>("/api/audit-logs?limit=200");
   return (
     <div className="max-w-5xl px-6 py-6">
-      <h1 className="text-3xl font-semibold tracking-tight">Activity</h1>
+      <h1 className="text-3xl font-medium tracking-tight">Activity</h1>
       <p className="mt-1 text-muted-foreground">Everything that changed in this workspace, and who changed it.</p>
       {log.error && <p className="mt-6 text-sm text-destructive">{log.error}</p>}
       <Table className="mt-6">

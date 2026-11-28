@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -65,8 +64,8 @@ export function FlagAnalysisSection({ flag, onAnalyzed }: { flag: Flag; onAnalyz
     <section className="border-b border-border px-4 py-5" aria-labelledby="ai-h">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 id="ai-h" className="flex items-center gap-2 font-semibold">
-            <Sparkles className="size-4 text-muted-foreground" aria-hidden /> AI analysis
+          <h3 id="ai-h" className="font-medium">
+            AI analysis
           </h3>
           <p className="text-sm text-muted-foreground">
             {latest.data ? `Analyzed ${timeAgo(latest.data.created_at)}` : "Is this flag active, and is it still useful?"}

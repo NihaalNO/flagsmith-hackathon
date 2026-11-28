@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-barlow);
-  --font-mono: var(--font-jetbrains);
-  --font-heading: var(--font-barlow);
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,53 +49,54 @@
 }
 
 :root {
-  /* Strip board: slate board, pale paper strips, ink text */
-  --board: #26303a;
-  --board-raised: #2e3944;
-  --board-line: #3b4752;
-  --paper: #edf1ea;
-  --paper-line: #c9d1c6;
-  --ink: #18202b;
-  --ink-soft: #5b6672;
-  /* Stage bands (strip holder colours) */
+  /* Soot and lime, as on the landing page (public/welcome.html): a near-black ground,
+     neutral surfaces, one lime accent for the main action and focus. */
+  --soot: #0f0f0f;
+  --soot-raised: #171717;
+  --soot-line: #2a2a2a;
+  /* Flag cards: one step off the board column (#171717), a hairline that brightens on hover */
+  --strip: #1e1e1e;
+  --strip-hover: #242424;
+  --strip-line-hover: #3a3a3a;
+  /* Stage bands (data colours, not decoration) */
   --stage-dev: #7fa9d4;
   --stage-rollout: #e2b04f;
   --stage-released: #82bf86;
   --stage-cleanup: #de8270;
   --stage-retired: #98a3ad;
 
-  --background: var(--board);
-  --foreground: #e4e9e2;
-  --card: var(--board-raised);
-  --card-foreground: #e4e9e2;
-  --popover: var(--board-raised);
-  --popover-foreground: #e4e9e2;
-  --primary: var(--paper);
-  --primary-foreground: var(--ink);
-  --secondary: #36424d;
-  --secondary-foreground: #e4e9e2;
-  --muted: #2e3944;
-  --muted-foreground: #9eabb6;
-  --accent: #36424d;
-  --accent-foreground: #f1f4ef;
-  --destructive: #de8270;
-  --border: var(--board-line);
-  --input: #44515d;
-  --ring: #7fa9d4;
+  --background: var(--soot);
+  --foreground: #f4f4f2;
+  --card: var(--soot-raised);
+  --card-foreground: #f4f4f2;
+  --popover: #1c1c1c;
+  --popover-foreground: #f4f4f2;
+  --primary: #dafa9c;
+  --primary-foreground: #0f0f0f;
+  --secondary: #222222;
+  --secondary-foreground: #f4f4f2;
+  --muted: #1c1c1c;
+  --muted-foreground: #a3a3a3;
+  --accent: #232323;
+  --accent-foreground: #f4f4f2;
+  --destructive: #f0907d;
+  --border: var(--soot-line);
+  --input: #333333;
+  --ring: #dafa9c;
   --chart-1: var(--stage-dev);
   --chart-2: var(--stage-rollout);
   --chart-3: var(--stage-released);
   --chart-4: var(--stage-cleanup);
   --chart-5: var(--stage-retired);
   --radius: 0.375rem;
-  --sidebar: #212a33;
-  --sidebar-foreground: #e4e9e2;
-  --sidebar-primary: var(--paper);
-  --sidebar-primary-foreground: var(--ink);
-  --sidebar-accent: #2e3944;
-  --sidebar-accent-foreground: #f1f4ef;
-  --sidebar-border: var(--board-line);
-  --sidebar-ring: #7fa9d4;
+  --sidebar: #0b0b0b;
+  --sidebar-foreground: #f4f4f2;
+  --sidebar-primary: #dafa9c;
+  --sidebar-primary-foreground: #0f0f0f;
+  --sidebar-accent: #1c1c1c;
+  --sidebar-accent-foreground: #f4f4f2;
+  --sidebar-border: var(--soot-line);
+  --sidebar-ring: #dafa9c;
 }
 
 .dark {
@@ -150,6 +151,18 @@
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
+  }
+  /* Native controls and scrollbars match the dark ground instead of the OS's light ones. */
+  html {
+    color-scheme: dark;
+  }
+  /* Scrollbars: thin, neutral, no track; a step brighter while the pointer is over the area. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 18%, transparent) transparent;
+  }
+  *:hover {
+    scrollbar-color: color-mix(in oklab, var(--foreground) 32%, transparent) transparent;
   }
 }
 

@@ -1,14 +1,12 @@
 "use client";
 
 import { AppFrame } from "@/components/seshat/app-frame";
-import NumberFlow from "@number-flow/react";
 import Link from "next/link";
 import { Plus, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ProgressiveBlur } from "@/components/ui/skiper-ui/skiper41";
 import { FlagDrawer } from "@/components/seshat/flag-drawer";
 import { NewFlagDialog } from "@/components/seshat/new-flag-dialog";
 import { Strip } from "@/components/seshat/strip";
@@ -59,7 +57,7 @@ function BoardView() {
     <div className="flex h-dvh flex-col">
       <header className="flex flex-wrap items-end justify-between gap-4 px-6 pt-6 pb-5">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Board</h1>
+          <h1 className="text-3xl font-medium tracking-tight">Board</h1>
           <p className="text-muted-foreground">
             {flags.data ? `${flags.data.length} flag${flags.data.length === 1 ? "" : "s"}` : "Loading flags"}
             {flagsmith && `, synced with Flagsmith ${timeAgo(flagsmith.last_synced_at)}`}
@@ -81,7 +79,7 @@ function BoardView() {
       {integrations.data && !flagsmith && (
         <p className="mx-6 mb-4 rounded-md border border-[var(--stage-rollout)]/50 px-4 py-3 text-sm">
           Flagsmith isn&apos;t connected for this workspace yet, so flags won&apos;t sync.{" "}
-          <Link href="/connections" className="font-semibold underline underline-offset-4">Connect Flagsmith</Link>
+          <Link href="/connections" className="font-medium underline underline-offset-4">Connect Flagsmith</Link>
         </p>
       )}
       {flags.error && <p className="mx-6 mb-4 text-sm text-destructive">{flags.error}</p>}
@@ -91,20 +89,20 @@ function BoardView() {
           const items = byStage.get(s.id) ?? [];
           return (
             <section key={s.id} role="listitem" aria-label={`${s.label}, ${items.length} flags`}
-              className="flex w-72 shrink-0 flex-col rounded-md bg-[var(--board-raised)]">
-              <header className="border-t-4 px-3 pt-2.5 pb-2" style={{ borderColor: s.band }}>
+              className="flex w-72 shrink-0 flex-col rounded-md border border-border bg-card">
+              <header className="border-t-2 px-3 pt-2.5 pb-2" style={{ borderColor: s.band }}>
                 <div className="flex items-baseline justify-between">
-                  <h2 className="font-semibold">{s.label}</h2>
-                  <NumberFlow value={items.length} className="text-lg font-semibold tabular-nums text-muted-foreground" />
+                  <h2 className="font-medium">{s.label}</h2>
+                  <span className="tabular-nums text-muted-foreground">{items.length}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">{s.hint}</p>
               </header>
-              <div className="relative min-h-0 flex-1">
-                <div className="h-full space-y-2 overflow-y-auto px-2 pt-1 pb-6">
+              <div className="min-h-0 flex-1">
+                {/* Gutter reserved on both edges: strips keep one width whether or not a column scrolls */}
+                <div className="h-full space-y-2 overflow-y-auto px-1 pt-1 pb-3 [scrollbar-gutter:stable_both-edges]">
                   {flags.loading && !flags.data && <Skeleton className="h-16 w-full" />}
                   {items.map((f) => <Strip key={f.id} flag={f} verdict={verdictOf.get(f.id)} onOpen={() => setOpenId(f.id)} />)}
                 </div>
-                <ProgressiveBlur position="bottom" height="28px" blurAmount="2px" backgroundColor="#2e3944" />
               </div>
             </section>
           );

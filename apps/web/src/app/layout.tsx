@@ -1,23 +1,20 @@
 import type { Metadata } from "next";
-import { Barlow_Semi_Condensed, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const barlow = Barlow_Semi_Condensed({
-  variable: "--font-barlow",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["400", "600"] });
+const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Seshat",
-  description: "Track every feature flag from creation to cleanup.",
+  description: "Feature flag cleanup for teams on Flagsmith and GitHub.",
+  icons: { icon: "/seshat-icon.svg" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${barlow.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
       <body className="min-h-dvh antialiased">
         {children}
         <Toaster position="bottom-right" />

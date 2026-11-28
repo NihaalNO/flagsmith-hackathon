@@ -93,7 +93,7 @@ export function FlagDrawer({ flag, transitions, onClose, onChanged, onAnalyzed }
             <FlagAnalysisSection key={flag.id} flag={flag} onAnalyzed={onAnalyzed} />
 
             <section className="border-b border-border px-4 py-5" aria-labelledby="move-h">
-              <h3 id="move-h" className="font-semibold">Move this flag</h3>
+              <h3 id="move-h" className="font-medium">Move this flag</h3>
               {next.length === 0 ? (
                 <p className="mt-2 text-sm text-muted-foreground">Retired flags don&apos;t move any further.</p>
               ) : (
@@ -117,7 +117,7 @@ export function FlagDrawer({ flag, transitions, onClose, onChanged, onAnalyzed }
             </section>
 
             <section className="border-b border-border px-4 py-5" aria-labelledby="code-h">
-              <h3 id="code-h" className="font-semibold">
+              <h3 id="code-h" className="font-medium">
                 In code{refs.data && refs.data.length > 0 ? `: ${refs.data.length} place${refs.data.length === 1 ? "" : "s"}` : ""}
               </h3>
               {refs.loading && <p className="mt-2 text-sm text-muted-foreground">Loading…</p>}
@@ -150,7 +150,7 @@ export function FlagDrawer({ flag, transitions, onClose, onChanged, onAnalyzed }
             </section>
 
             <section className="px-4 py-5" aria-labelledby="hist-h">
-              <h3 id="hist-h" className="font-semibold">History</h3>
+              <h3 id="hist-h" className="font-medium">History</h3>
               <ol className="mt-3 space-y-3 border-l border-border pl-4">
                 {history.data?.map((e) => (
                   <li key={e.id} className="text-sm">

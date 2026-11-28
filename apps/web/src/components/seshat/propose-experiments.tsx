@@ -1,6 +1,7 @@
 "use client";
 
-import { Copy, FileCode2, Sparkles } from "lucide-react";
+import { Copy, FileCode2 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -38,12 +39,12 @@ POST /api/experiments/${x.id}/events   X-Experiment-Key: <key>
 
 function ProposalCard({ p, checked, onToggle }: { p: ExperimentProposal; checked: boolean; onToggle: () => void }) {
   return (
-    <label className={`block cursor-pointer rounded-md border p-4 transition-colors ${checked ? "border-foreground/60 bg-muted/40" : "border-border"}`}>
+    <label className={`block cursor-pointer rounded-md border p-4 transition-colors hover:bg-muted/40 ${checked ? "border-primary/70 bg-muted/40" : "border-border"}`}>
       <div className="flex items-start gap-3">
-        <input type="checkbox" className="mt-1 size-4 accent-foreground" checked={checked} onChange={onToggle} />
+        <input type="checkbox" className="mt-1 size-4 accent-primary" checked={checked} onChange={onToggle} />
         <div className="min-w-0 flex-1 space-y-2">
           <div>
-            <p className="font-semibold">{p.title}</p>
+            <p className="font-medium">{p.title}</p>
             <p className="font-mono text-xs text-muted-foreground">{p.flag_name} · counts {p.primary_metric}</p>
           </div>
           {p.hypothesis && <p className="text-sm">{p.hypothesis}</p>}
@@ -128,9 +129,9 @@ export function ProposeExperimentsDialog({ open, onOpenChange, repositories, onL
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-1.5">
-              <Label>Repository</Label>
+              <Label id="px-repo-label">Repository</Label>
               <Select value={repoId} onValueChange={(v) => setRepoId(v == null ? null : String(v))}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full" aria-labelledby="px-repo-label">
                   <SelectValue placeholder="Choose a repository">
                     {(v: string | null) => repositories.find((r) => r.id === v)?.full_name ?? "Choose a repository"}
                   </SelectValue>
@@ -139,6 +140,12 @@ export function ProposeExperimentsDialog({ open, onOpenChange, repositories, onL
                   {repositories.map((r) => <SelectItem key={r.id} value={r.id}>{r.full_name}</SelectItem>)}
                 </SelectContent>
               </Select>
+              {repositories.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  No repositories yet.{" "}
+                  <Link href="/repositories" className="text-foreground underline underline-offset-4">Add one on the Repositories page</Link>.
+                </p>
+              )}
               {repo && repo.flagsmith_project_id == null && (
                 <p className="text-xs text-muted-foreground">
                   This repository has no Flagsmith project yet. Seshat links or creates one when you launch.
@@ -151,8 +158,8 @@ export function ProposeExperimentsDialog({ open, onOpenChange, repositories, onL
                 placeholder="signup flow, pricing page, onboarding…" />
             </div>
             <DialogFooter>
-              <Button className="gap-2" onClick={propose} disabled={busy || !repoId}>
-                <Sparkles className="size-4" aria-hidden />{busy ? "Reading the code…" : "Suggest experiments"}
+              <Button onClick={propose} disabled={busy || !repoId}>
+                {busy ? "Reading the code…" : "Suggest experiments"}
               </Button>
             </DialogFooter>
           </>
@@ -178,7 +185,7 @@ export function ProposeExperimentsDialog({ open, onOpenChange, repositories, onL
               ))}
             </div>
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" className="size-4 accent-foreground" checked={start} onChange={() => setStart(!start)} />
+              <input type="checkbox" className="size-4 accent-primary" checked={start} onChange={() => setStart(!start)} />
               Start collecting events right away
             </label>
             <DialogFooter className="gap-2">
@@ -201,7 +208,7 @@ export function ProposeExperimentsDialog({ open, onOpenChange, repositories, onL
             <div className="space-y-5">
               {launched.map((x) => (
                 <section key={x.id} className="space-y-2">
-                  <p className="font-semibold">{x.name} <span className="font-mono text-xs font-normal text-muted-foreground">{x.flag_name}</span></p>
+                  <p className="font-medium">{x.name} <span className="font-mono text-xs font-normal text-muted-foreground">{x.flag_name}</span></p>
                   <div className="flex gap-2">
                     <code className="min-w-0 flex-1 truncate rounded-md border border-border bg-muted/40 px-3 py-2 font-mono text-xs">
                       {x.ingest_key}
