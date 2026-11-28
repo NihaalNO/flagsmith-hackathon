@@ -8,4 +8,5 @@ alembic/
 alembic.ini
 supabase/
 .env*
+!.env.example
 .vercel/
