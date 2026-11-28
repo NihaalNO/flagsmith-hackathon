@@ -126,6 +126,18 @@ and possibly-matching dynamic references. `VerificationResult` has a model valid
 "ready" result with failed/errored checks impossible to construct. Commands that cannot run are
 `error`, never `passed`.
 
+## Flag verdicts and experiments
+
+* `agents/verdict.py::assess_flag` labels a flag `active`/`inactive`/`unknown` and
+  `useful`/`not_useful`/`uncertain` from the same evidence as stale detection, plus experiment
+  status. Rules, not the LLM, decide the labels; every reason carries evidence ids. The optional LLM
+  explanation reuses the planner's `LLMPlanNarrative` schema and `validate_narrative`.
+* `experiments/stats.py::analyze_experiment` is pure standard-library statistics for conversion
+  metrics (fixed horizon): Wilson intervals, two-proportion z-test, Holm correction, Wald lift
+  interval, Beta-posterior probability to beat control, chi-square SRM check, planned sample size.
+  Reference values are pinned in `tests/test_experiment_stats.py`. Only binary conversion metrics are
+  supported (no revenue/continuous metrics, no sequential testing).
+
 ## Known limitations
 
 * Bindings are tracked per file by name, not lexical scope (shadowing can cause false positives).
