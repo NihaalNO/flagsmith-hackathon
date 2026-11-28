@@ -90,3 +90,45 @@ class ExperimentEventsResult(BaseModel):
     not_exposed: int = Field(description="Conversions from subjects with no exposure (ignored).")
     variant_conflicts: int = Field(description="Subjects reported in a second variant (first one kept).")
     unknown_variants: int = Field(description="Exposures for a variant the experiment doesn't have (ignored).")
+
+
+# --- AI-proposed experiments on a repository ---------------------------------------------------
+
+class ProposalValue(BaseModel):
+    key: str = Field(pattern=KEY_PATTERN, description="What the app reports as the variant")
+    value: str = Field(min_length=1, max_length=200, description="The flag value served in Flagsmith")
+    description: str = Field(default="", max_length=500)
+
+
+class ExperimentProposal(BaseModel):
+    flag_name: str = Field(pattern=r"^[a-z][a-z0-9_]{2,59}$")
+    title: str = Field(min_length=1, max_length=200)
+    hypothesis: str = Field(default="", max_length=2000)
+    primary_metric: str = Field(pattern=r"^[A-Za-z0-9_.\-]{1,100}$")
+    control: ProposalValue
+    variants: list[ProposalValue] = Field(min_length=1, max_length=3)
+    files: list[str] = Field(default_factory=list, max_length=5)
+    rationale: str = Field(default="", max_length=1000)
+
+
+class ProposeRequest(BaseModel):
+    focus: str | None = Field(default=None, max_length=300,
+                              description="Optional steer, e.g. 'signup flow' or 'pricing page'")
+
+
+class ProposalsResponse(BaseModel):
+    repository: str
+    commit_sha: str
+    llm: str = Field(description="provider:model that wrote the proposals")
+    proposals: list[ExperimentProposal]
+
+
+class LaunchRequest(BaseModel):
+    proposals: list[ExperimentProposal] = Field(min_length=1, max_length=3)
+    start: bool = Field(default=True, description="Start collecting events right away")
+    minimum_detectable_effect: float = Field(default=0.1, ge=0.01, le=5)
+
+
+class LaunchResult(BaseModel):
+    launched: list[ExperimentWithKey]
+    errors: list[str] = Field(description="Proposals that couldn't be launched, and why (the others still were)")

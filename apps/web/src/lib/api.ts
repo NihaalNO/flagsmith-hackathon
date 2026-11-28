@@ -148,3 +148,12 @@ export type Experiment = {
   results: ExperimentResults | null; results_error: string | null;
 };
 export type ExperimentWithKey = Experiment & { ingest_key: string; ingest_example: string };
+
+// --- AI-proposed experiments on a repository ---------------------------------------------------
+export type ProposalValue = { key: string; value: string; description: string };
+export type ExperimentProposal = {
+  flag_name: string; title: string; hypothesis: string; primary_metric: string;
+  control: ProposalValue; variants: ProposalValue[]; files: string[]; rationale: string;
+};
+export type ProposalsResponse = { repository: string; commit_sha: string; llm: string; proposals: ExperimentProposal[] };
+export type LaunchResult = { launched: ExperimentWithKey[]; errors: string[] };

@@ -114,6 +114,27 @@ class FlagsmithClient:
             body["description"] = description
         return self._request("POST", f"projects/{project_id}/features/", json=body)
 
+    def create_multivariate_feature(
+        self, project_id: int, name: str, *, control_value: str, options: list[tuple[str, float]],
+        description: str | None = None, default_enabled: bool = True,
+    ) -> dict:
+        """A multivariate feature: `control_value` is served to the remaining traffic, each
+        (value, percent) option to its share. Flagsmith copies the percentages to every
+        environment. Returns the feature, including `multivariate_options` with their ids."""
+        body = {
+            "name": name, "type": "MULTIVARIATE", "default_enabled": default_enabled, "initial_value": control_value,
+            "multivariate_options": [
+                {"type": "unicode", "string_value": value, "default_percentage_allocation": pct}
+                for value, pct in options
+            ],
+        }
+        if description:
+            body["description"] = description
+        return self._request("POST", f"projects/{project_id}/features/", json=body)
+
+    def get_feature(self, project_id: int, feature_id: int) -> dict:
+        return self._request("GET", f"projects/{project_id}/features/{feature_id}/")
+
     def list_environment_feature_states(self, environment_api_key: str) -> dict[int, bool]:
         """Map feature id -> enabled for the environment (environment-level states only)."""
         states: dict[int, bool] = {}

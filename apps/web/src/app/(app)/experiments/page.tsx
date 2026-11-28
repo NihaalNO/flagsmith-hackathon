@@ -1,7 +1,7 @@
 "use client";
 
 import { AppFrame } from "@/components/seshat/app-frame";
-import { Copy, FlaskConical, Plus, Trash2 } from "lucide-react";
+import { Copy, FlaskConical, Plus, Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { ProposeExperimentsDialog } from "@/components/seshat/propose-experiments";
 import { useData } from "@/components/seshat/use-data";
 import {
-  api, post, type Experiment, type ExperimentResults, type ExperimentWithKey, type Flag,
+  api, post, type Experiment, type ExperimentResults, type ExperimentWithKey, type Flag, type Repository,
 } from "@/lib/api";
 import { timeAgo } from "@/lib/lifecycle";
 
@@ -74,7 +75,7 @@ function NewExperimentDialog({ open, onOpenChange, flags, onCreated }: {
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <form onSubmit={create} className="space-y-4">
           <DialogHeader>
-            <DialogTitle>New experiment</DialogTitle>
+            <DialogTitle>Experiment on an existing flag</DialogTitle>
             <DialogDescription>
               Set up the multivariate flag and its split in Flagsmith. Seshat only reads it; your app reports who saw
               which variant and who converted.
@@ -309,7 +310,9 @@ function Results({ r }: { r: ExperimentResults }) {
 function ExperimentsView() {
   const experiments = useData<Experiment[]>("/api/experiments");
   const flags = useData<Flag[]>("/api/flags");
+  const repositories = useData<Repository[]>("/api/repositories");
   const [creating, setCreating] = useState(false);
+  const [proposing, setProposing] = useState(false);
   const [shownKey, setShownKey] = useState<ExperimentWithKey | null>(null);
   const [concluding, setConcluding] = useState<Experiment | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -341,11 +344,19 @@ function ExperimentsView() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Experiments</h1>
           <p className="mt-1 max-w-[65ch] text-muted-foreground">
-            A/B tests on multivariate flags. The split lives in Flagsmith; Seshat counts exposures and conversions your
-            app reports and tells you when a result is real.
+            A/B tests on multivariate flags. Pick a repository and Seshat suggests tests from its code and creates the
+            flags in Flagsmith, or run one on a flag you already have. Your app reports exposures and conversions;
+            Seshat tells you when a result is real.
           </p>
         </div>
-        <Button className="gap-2" onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden /> New experiment</Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" className="gap-2" onClick={() => setCreating(true)}>
+            <Plus className="size-4" aria-hidden /> On an existing flag
+          </Button>
+          <Button className="gap-2" onClick={() => setProposing(true)}>
+            <Sparkles className="size-4" aria-hidden /> Experiment on a repo
+          </Button>
+        </div>
       </header>
 
       {experiments.error && <p className="mt-6 text-sm text-destructive">{experiments.error}</p>}
@@ -353,8 +364,10 @@ function ExperimentsView() {
         <div className="mt-10 rounded-md border border-dashed border-border px-6 py-10 text-center">
           <FlaskConical className="mx-auto size-6 text-muted-foreground" aria-hidden />
           <p className="mt-2 font-semibold">No experiments yet</p>
-          <p className="mt-1 text-muted-foreground">Pick a flag with variants in Flagsmith and say which event counts as a conversion.</p>
-          <Button className="mt-4" onClick={() => setCreating(true)}>New experiment</Button>
+          <p className="mt-1 text-muted-foreground">Pick a repository and Seshat suggests what to test, then creates the flags.</p>
+          <Button className="mt-4 gap-2" onClick={() => setProposing(true)}>
+            <Sparkles className="size-4" aria-hidden /> Experiment on a repo
+          </Button>
         </div>
       )}
 
@@ -407,6 +420,8 @@ function ExperimentsView() {
 
       <NewExperimentDialog open={creating} onOpenChange={setCreating} flags={flags.data ?? []}
         onCreated={(e) => { setShownKey(e); experiments.reload(); }} />
+      <ProposeExperimentsDialog open={proposing} onOpenChange={setProposing} repositories={repositories.data ?? []}
+        onLaunched={() => { experiments.reload(); flags.reload(); }} />
       <KeyDialog exp={shownKey} onClose={() => setShownKey(null)} />
       <ConcludeDialog exp={concluding} onClose={() => setConcluding(null)} onDone={experiments.reload} />
     </div>
